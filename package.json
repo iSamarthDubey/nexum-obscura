@@ -1,0 +1,24 @@
+{
+  "name": "nexum-obscura",
+  "version": "1.0.0",
+  "description": "Cybersecurity log analysis platform for detecting suspicious network activities",
+  "main": "backend/index.js",
+  "scripts": {
+    "start": "node backend/index.js",
+    "dev": "nodemon backend/index.js",
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "setup": "npm run install-backend && npm run install-frontend"
+  },
+  "keywords": [
+    "cybersecurity",
+    "log-analysis", 
+    "network-security",
+    "suspicious-activity-detection"
+  ],
+  "author": "CyberShield Team",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
