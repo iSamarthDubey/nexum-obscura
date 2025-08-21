@@ -284,9 +284,11 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🏆 Project made for National CyberShield Hackathon 2025
 
-Built with ❤️ for the National CyberShield Hackathon 2025, Under CIIS 2025, Conducted by Madhya Pradesh Police.
+Made with ❤️ for the National CyberShield Hackathon 2025, Under CIIS 2025, Conducted by Madhya Pradesh Police.
 
-**Team**: Obscura Collective   
+**Team**: Obscura Collective
+**Problem Statement**: Mapping A-party to B-party in IPDR logs.
+**Project**: Nexum Obscura
 **Year**: 2025
 
 ---
