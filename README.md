@@ -282,9 +282,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## 🏆 National CyberShield Hackathon 2025
+## 🏆 Project made for National CyberShield Hackathon 2025
 
-Built with ❤️ for the National CyberShield Hackathon 2025, Under CIIS Summit 2025, Conducted by Madhya Pradesh Police.
+Built with ❤️ for the National CyberShield Hackathon 2025, Under CIIS 2025, Conducted by Madhya Pradesh Police.
 
 **Team**: Obscura Collective   
 **Year**: 2025
