@@ -429,6 +429,145 @@ app.get('/api/analysis', (req, res) => {
   });
 });
 
+// Network visualization endpoint
+app.get('/api/network', (req, res) => {
+  const { minConnections = 2, showOnlySuspicious = false, limit = 50 } = req.query;
+  
+  if (processedLogEntries.length === 0) {
+    return res.json({
+      hasData: false,
+      nodes: [],
+      edges: [],
+      stats: { totalNodes: 0, totalEdges: 0, clusters: 0 }
+    });
+  }
+
+  // Create network graph from call data
+  const connectionMap = new Map();
+  const nodeMap = new Map();
+  
+  // Process all log entries to build connections
+  processedLogEntries.forEach(log => {
+    const aParty = log['A-Party'] || log.a_party;
+    const bParty = log['B-Party'] || log.b_party;
+    
+    if (!aParty || !bParty) return;
+    
+    // Create connection key (normalize direction)
+    const connectionKey = aParty < bParty ? `${aParty}-${bParty}` : `${bParty}-${aParty}`;
+    
+    if (!connectionMap.has(connectionKey)) {
+      connectionMap.set(connectionKey, {
+        source: aParty < bParty ? aParty : bParty,
+        target: aParty < bParty ? bParty : aParty,
+        weight: 0,
+        totalDuration: 0,
+        avgRisk: 0,
+        riskSum: 0,
+        calls: []
+      });
+    }
+    
+    const connection = connectionMap.get(connectionKey);
+    connection.weight++;
+    connection.totalDuration += parseInt(log.Duration || log.duration || 0);
+    connection.riskSum += (log.suspicionScore || 0);
+    connection.avgRisk = connection.riskSum / connection.weight;
+    connection.calls.push(log);
+    
+    // Track nodes
+    [aParty, bParty].forEach(number => {
+      if (!nodeMap.has(number)) {
+        nodeMap.set(number, {
+          id: number,
+          label: number,
+          connectionCount: 0,
+          totalRisk: 0,
+          riskCount: 0,
+          isInternational: number.includes('+1-') || number.includes('+44-') || number.includes('+86-'),
+          callVolume: 0
+        });
+      }
+      
+      const node = nodeMap.get(number);
+      node.connectionCount++;
+      node.callVolume++;
+      if (log.suspicionScore) {
+        node.totalRisk += log.suspicionScore;
+        node.riskCount++;
+      }
+    });
+  });
+
+  // Filter connections by minimum threshold
+  const filteredConnections = Array.from(connectionMap.values())
+    .filter(conn => conn.weight >= parseInt(minConnections))
+    .filter(conn => !showOnlySuspicious || conn.avgRisk > 50);
+
+  // Create nodes array with calculated metrics
+  const activeNumbers = new Set();
+  filteredConnections.forEach(conn => {
+    activeNumbers.add(conn.source);
+    activeNumbers.add(conn.target);
+  });
+
+  const nodes = Array.from(nodeMap.values())
+    .filter(node => activeNumbers.has(node.id))
+    .map(node => ({
+      ...node,
+      avgRisk: node.riskCount > 0 ? node.totalRisk / node.riskCount : 0,
+      size: Math.max(8, Math.min(25, node.connectionCount * 2)),
+      color: node.riskCount > 0 ? 
+        (node.totalRisk / node.riskCount > 70 ? '#ef4444' : // red for high risk
+         node.totalRisk / node.riskCount > 40 ? '#f59e0b' : // yellow for medium
+         '#10b981') : '#6b7280' // green for low, gray for unknown
+    }))
+    .slice(0, parseInt(limit));
+
+  // Create edges array
+  const edges = filteredConnections
+    .filter(conn => activeNumbers.has(conn.source) && activeNumbers.has(conn.target))
+    .map(conn => ({
+      source: conn.source,
+      target: conn.target,
+      weight: conn.weight,
+      totalDuration: conn.totalDuration,
+      avgRisk: Math.round(conn.avgRisk),
+      width: Math.max(1, Math.min(8, conn.weight * 0.5)),
+      color: conn.avgRisk > 70 ? '#ef4444' : 
+             conn.avgRisk > 40 ? '#f59e0b' : '#10b981',
+      label: `${conn.weight} calls`,
+      riskLevel: conn.avgRisk > 70 ? 'high' : 
+                 conn.avgRisk > 40 ? 'medium' : 'low'
+    }))
+    .slice(0, parseInt(limit));
+
+  // Calculate clusters (simplified - group by risk level)
+  const clusters = {
+    high: nodes.filter(n => n.avgRisk > 70).length,
+    medium: nodes.filter(n => n.avgRisk > 40 && n.avgRisk <= 70).length,
+    low: nodes.filter(n => n.avgRisk <= 40).length
+  };
+
+  res.json({
+    hasData: true,
+    nodes,
+    edges,
+    stats: {
+      totalNodes: nodes.length,
+      totalEdges: edges.length,
+      clusters: Object.keys(clusters).length,
+      riskDistribution: clusters
+    },
+    filters: {
+      minConnections: parseInt(minConnections),
+      showOnlySuspicious: showOnlySuspicious === 'true',
+      appliedLimit: parseInt(limit)
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Upload status endpoint
 app.get('/api/upload/status', (req, res) => {
   res.json({
