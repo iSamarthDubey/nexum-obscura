@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('24');
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [apiConnected, setApiConnected] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -25,12 +26,23 @@ const Dashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Fetching dashboard data from backend API...');
+      
       // Fetch real data from backend API
       const response = await fetch('http://localhost:5000/api/dashboard');
+      console.log('📡 API Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log('✅ Dashboard data loaded from API:', data);
       setDashboardData(data);
+      setApiConnected(true);
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      console.error('❌ Failed to load dashboard data from API:', error);
+      setApiConnected(false);
       // Fallback to mock data if API fails
       const mockData = {
         overview: {
@@ -85,6 +97,9 @@ const Dashboard = () => {
         <h1 className="page-title">Investigation Dashboard</h1>
         <p className="page-subtitle">
           Real-time IPDR analysis and threat monitoring • Last updated: {lastUpdate.toLocaleTimeString()}
+          {dashboardData?.source && (
+            <span className="ml-2 text-xs text-cyber-blue">• Data from: {dashboardData.source}</span>
+          )}
         </p>
       </div>
 
@@ -102,6 +117,13 @@ const Dashboard = () => {
             <option value="24">Last 24 Hours</option>
             <option value="168">Last 7 Days</option>
           </select>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <div className={`w-2 h-2 rounded-full ${apiConnected ? 'bg-cyber-green' : 'bg-cyber-red'}`}></div>
+          <span className="text-xs text-cyber-text-muted">
+            {apiConnected ? 'API Connected' : 'Using Mock Data'}
+          </span>
         </div>
         
         <div className="flex items-center space-x-2">
