@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
@@ -11,22 +11,26 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-console.log('Starting Nexum Obscura Backend...');
+// MongoDB connection (optional for demo)
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }).then(() => {
+    console.log('Connected to MongoDB');
+  }).catch((err) => {
+    console.log('MongoDB connection failed, running in demo mode:', err.message);
+  });
+} else {
+  console.log('Running in demo mode without MongoDB');
+}
 
 // Routes
-try {
-  app.use('/api/upload', require('./routes/upload'));
-  console.log('✓ Upload route loaded');
-} catch (error) {
-  console.error('✗ Upload route failed:', error.message);
-}
-
-try {
-  app.use('/api/search', require('./routes/search'));
-  console.log('✓ Search route loaded');
-} catch (error) {
-  console.error('✗ Search route failed:', error.message);
-}
+app.use('/api/upload', require('./routes/upload'));
+// app.use('/api/search', require('./routes/search'));
+// Temporarily disable problematic routes
+// app.use('/api/analysis', require('./routes/analysis'));
+// app.use('/api/reports', require('./routes/reports'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -69,9 +73,5 @@ app.get('/api/dashboard', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✓ Server is running on port ${PORT}`);
-  console.log(`✓ API Health: http://localhost:${PORT}/api/health`);
-  console.log(`✓ Dashboard: http://localhost:${PORT}/api/dashboard`);
+  console.log(`Server is running on port ${PORT}`);
 });
-
-module.exports = app;

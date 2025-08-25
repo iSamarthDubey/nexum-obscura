@@ -1,31 +1,80 @@
 const express = require('express');
-const Report = require('../models/Report');
-const Log = require('../models/Log');
-const Connection = require('../models/Connection');
-const { generateReport } = require('../utils/reportGenerator');
-
 const router = express.Router();
 
 // Get all reports
 router.get('/', async (req, res) => {
   try {
-    const { type, status, page = 1, limit = 20 } = req.query;
+    const { type, status, page = 1, limit = 10 } = req.query;
     
-    const filter = {};
-    if (type) filter.reportType = type.toUpperCase();
-    if (status) filter.status = status.toUpperCase();
+    const mockReports = [
+      {
+        id: 'RPT-2025-001',
+        title: 'Suspicious Communication Analysis - Case INV-001',
+        type: 'INVESTIGATION',
+        status: 'COMPLETED',
+        createdDate: '2025-08-26T10:30:00Z',
+        generatedBy: 'System',
+        description: 'Analysis of suspicious calling patterns for number +91-9876543210',
+        findings: {
+          riskScore: 85,
+          suspiciousConnections: 12,
+          anomaliesDetected: 8,
+          recommendation: 'Further investigation required'
+        },
+        fileSize: '2.4 MB',
+        downloadUrl: '/api/reports/RPT-2025-001/download'
+      },
+      {
+        id: 'RPT-2025-002',
+        title: 'Weekly IPDR Summary Report',
+        type: 'SUMMARY',
+        status: 'COMPLETED',
+        createdDate: '2025-08-25T09:15:00Z',
+        generatedBy: 'Officer Smith',
+        description: 'Weekly summary of IPDR activities and findings',
+        findings: {
+          totalRecords: 284736,
+          suspiciousActivities: 47,
+          casesOpened: 3,
+          recommendation: 'Routine monitoring'
+        },
+        fileSize: '1.8 MB',
+        downloadUrl: '/api/reports/RPT-2025-002/download'
+      },
+      {
+        id: 'RPT-2025-003',
+        title: 'Network Topology Analysis',
+        type: 'TECHNICAL',
+        status: 'PROCESSING',
+        createdDate: '2025-08-26T14:20:00Z',
+        generatedBy: 'System',
+        description: 'Analysis of network communication patterns and topology',
+        findings: null,
+        fileSize: null,
+        downloadUrl: null
+      }
+    ];
+
+    let filteredReports = mockReports;
     
-    const skip = (page - 1) * limit;
+    if (type) {
+      filteredReports = filteredReports.filter(r => 
+        r.type.toLowerCase() === type.toLowerCase()
+      );
+    }
     
-    const reports = await Report.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-    
-    const total = await Report.countDocuments(filter);
-    
+    if (status) {
+      filteredReports = filteredReports.filter(r => 
+        r.status.toLowerCase() === status.toLowerCase()
+      );
+    }
+
+    const total = filteredReports.length;
+    const startIndex = (page - 1) * limit;
+    const paginatedReports = filteredReports.slice(startIndex, startIndex + parseInt(limit));
+
     res.json({
-      reports,
+      reports: paginatedReports,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -34,195 +83,104 @@ router.get('/', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get reports error:', error);
+    console.error('Reports fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch reports' });
-  }
-});
-
-// Get specific report by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const report = await Report.findById(req.params.id);
-    
-    if (!report) {
-      return res.status(404).json({ error: 'Report not found' });
-    }
-    
-    res.json(report);
-  } catch (error) {
-    console.error('Get report error:', error);
-    res.status(500).json({ error: 'Failed to fetch report' });
   }
 });
 
 // Generate new report
 router.post('/generate', async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      reportType,
-      startDate,
-      endDate,
-      includeRecommendations = true
-    } = req.body;
+    const { title, type, description, targets, dateRange } = req.body;
     
-    // Validate required fields
-    if (!title || !reportType || !startDate || !endDate) {
-      return res.status(400).json({ 
-        error: 'Missing required fields: title, reportType, startDate, endDate' 
-      });
-    }
-    
-    // Generate report data
-    const reportData = await generateReport({
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-      reportType: reportType.toUpperCase(),
-      includeRecommendations
-    });
-    
-    // Create new report
-    const report = new Report({
-      title,
-      description: description || `${reportType} report for ${startDate} to ${endDate}`,
-      reportType: reportType.toUpperCase(),
-      dateRange: {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate)
-      },
-      summary: reportData.summary,
-      recommendations: reportData.recommendations,
-      generatedBy: 'System'
-    });
-    
-    await report.save();
-    
+    // Simulate report generation
+    const reportId = `RPT-${Date.now()}`;
+    const mockGeneratedReport = {
+      id: reportId,
+      title: title || 'Generated Report',
+      type: type || 'INVESTIGATION',
+      status: 'PROCESSING',
+      createdDate: new Date().toISOString(),
+      generatedBy: 'System',
+      description: description || 'Auto-generated investigation report',
+      targets: targets || [],
+      dateRange: dateRange || 'last_7_days',
+      estimatedCompletion: new Date(Date.now() + 300000).toISOString() // 5 minutes
+    };
+
+    // Simulate processing delay
+    setTimeout(() => {
+      console.log(`Report ${reportId} generation completed`);
+    }, 5000);
+
     res.json({
-      message: 'Report generated successfully',
-      report
+      success: true,
+      message: 'Report generation initiated',
+      report: mockGeneratedReport
     });
   } catch (error) {
-    console.error('Generate report error:', error);
-    res.status(500).json({ error: 'Failed to generate report' });
+    console.error('Report generation error:', error);
+    res.status(500).json({ error: 'Report generation failed' });
   }
 });
 
-// Generate quick incident report
-router.post('/incident', async (req, res) => {
+// Get specific report details
+router.get('/:reportId', async (req, res) => {
   try {
-    const { sourceIP, timeRange = 24 } = req.body;
+    const { reportId } = req.params;
     
-    if (!sourceIP) {
-      return res.status(400).json({ error: 'Source IP is required' });
-    }
-    
-    const endDate = new Date();
-    const startDate = new Date(endDate.getTime() - timeRange * 60 * 60 * 1000);
-    
-    // Get incident data
-    const incidentLogs = await Log.find({
-      sourceIP,
-      timestamp: { $gte: startDate, $lte: endDate },
-      suspicionScore: { $gte: 50 }
-    }).sort({ suspicionScore: -1, timestamp: -1 });
-    
-    const connections = await Connection.find({
-      sourceIP,
-      lastSeen: { $gte: startDate }
-    });
-    
-    // Generate incident summary
-    const summary = {
-      totalLogs: incidentLogs.length,
-      suspiciousActivities: incidentLogs.filter(log => log.suspicionScore >= 70).length,
-      criticalThreats: incidentLogs.filter(log => log.suspicionScore >= 90).length,
-      topDestinationIPs: incidentLogs.reduce((acc, log) => {
-        const existing = acc.find(item => item.ip === log.destinationIP);
-        if (existing) {
-          existing.count++;
-        } else {
-          acc.push({ 
-            ip: log.destinationIP, 
-            count: 1, 
-            riskLevel: log.suspicionScore >= 90 ? 'CRITICAL' : 
-                      log.suspicionScore >= 70 ? 'HIGH' : 'MEDIUM'
-          });
+    const mockReport = {
+      id: reportId,
+      title: 'Detailed Investigation Report',
+      type: 'INVESTIGATION',
+      status: 'COMPLETED',
+      createdDate: '2025-08-26T10:30:00Z',
+      generatedBy: 'System',
+      description: 'Comprehensive analysis of suspicious activities',
+      content: {
+        summary: 'Analysis revealed multiple suspicious communication patterns requiring further investigation.',
+        findings: [
+          'Unusual call frequency patterns detected',
+          'International routing anomalies identified',
+          'Multiple tower hopping instances recorded',
+          'Off-hours activity significantly above baseline'
+        ],
+        recommendations: [
+          'Initiate detailed manual investigation',
+          'Monitor associated numbers',
+          'Cross-reference with other ongoing cases',
+          'Consider legal action if patterns persist'
+        ],
+        statistics: {
+          totalRecordsAnalyzed: 15847,
+          suspiciousRecords: 234,
+          riskScore: 78,
+          confidenceLevel: 0.85
         }
-        return acc;
-      }, []).sort((a, b) => b.count - a.count).slice(0, 10),
-      protocolDistribution: incidentLogs.reduce((acc, log) => {
-        const existing = acc.find(item => item.protocol === log.protocol);
-        if (existing) {
-          existing.count++;
-        } else {
-          acc.push({ protocol: log.protocol, count: 1 });
-        }
-        return acc;
-      }, []).map(item => ({
-        ...item,
-        percentage: ((item.count / incidentLogs.length) * 100).toFixed(2)
-      }))
-    };
-    
-    // Generate recommendations
-    const recommendations = [];
-    
-    if (summary.criticalThreats > 0) {
-      recommendations.push({
-        priority: 'CRITICAL',
-        description: `${summary.criticalThreats} critical threats detected from ${sourceIP}`,
-        action: 'Immediately block or quarantine this IP address'
-      });
-    }
-    
-    if (summary.suspiciousActivities > 10) {
-      recommendations.push({
-        priority: 'HIGH',
-        description: `High volume of suspicious activities (${summary.suspiciousActivities})`,
-        action: 'Investigate traffic patterns and consider rate limiting'
-      });
-    }
-    
-    // Create incident report
-    const report = new Report({
-      title: `Incident Report - ${sourceIP}`,
-      description: `Security incident analysis for IP ${sourceIP} over the last ${timeRange} hours`,
-      reportType: 'INCIDENT',
-      dateRange: { startDate, endDate },
-      summary,
-      recommendations,
-      generatedBy: 'System'
-    });
-    
-    await report.save();
-    
-    res.json({
-      message: 'Incident report generated successfully',
-      report,
-      incidentData: {
-        logs: incidentLogs.slice(0, 50), // Limit to 50 most suspicious
-        connections
       }
-    });
+    };
+
+    res.json(mockReport);
   } catch (error) {
-    console.error('Generate incident report error:', error);
-    res.status(500).json({ error: 'Failed to generate incident report' });
+    console.error('Report fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch report details' });
   }
 });
 
 // Delete report
-router.delete('/:id', async (req, res) => {
+router.delete('/:reportId', async (req, res) => {
   try {
-    const report = await Report.findByIdAndDelete(req.params.id);
+    const { reportId } = req.params;
     
-    if (!report) {
-      return res.status(404).json({ error: 'Report not found' });
-    }
+    // Simulate deletion
+    console.log(`Deleting report: ${reportId}`);
     
-    res.json({ message: 'Report deleted successfully' });
+    res.json({
+      success: true,
+      message: `Report ${reportId} deleted successfully`
+    });
   } catch (error) {
-    console.error('Delete report error:', error);
+    console.error('Report deletion error:', error);
     res.status(500).json({ error: 'Failed to delete report' });
   }
 });

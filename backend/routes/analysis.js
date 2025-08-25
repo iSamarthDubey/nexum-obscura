@@ -1,174 +1,131 @@
 const express = require('express');
-const Log = require('../models/Log');
-const Connection = require('../models/Connection');
-const { analyzePatterns, detectAnomalies } = require('../utils/analyzer');
-
 const router = express.Router();
 
-// Get dashboard statistics
+// Get analysis dashboard data
 router.get('/dashboard', async (req, res) => {
   try {
-    const { hours = 24 } = req.query;
-    const timeThreshold = new Date(Date.now() - hours * 60 * 60 * 1000);
-    
-    // Basic statistics
-    const totalLogs = await Log.countDocuments({ timestamp: { $gte: timeThreshold } });
-    const suspiciousLogs = await Log.countDocuments({ 
-      timestamp: { $gte: timeThreshold },
-      suspicionScore: { $gte: 70 }
-    });
-    const criticalLogs = await Log.countDocuments({ 
-      timestamp: { $gte: timeThreshold },
-      suspicionScore: { $gte: 90 }
-    });
-    
-    // Protocol distribution
-    const protocolStats = await Log.aggregate([
-      { $match: { timestamp: { $gte: timeThreshold } } },
-      { $group: { _id: '$protocol', count: { $sum: 1 } } },
-      { $sort: { count: -1 } }
-    ]);
-    
-    // Top source IPs by suspicion
-    const topSuspiciousIPs = await Log.aggregate([
-      { $match: { timestamp: { $gte: timeThreshold }, suspicionScore: { $gte: 50 } } },
-      { 
-        $group: { 
-          _id: '$sourceIP', 
-          count: { $sum: 1 },
-          avgSuspicion: { $avg: '$suspicionScore' },
-          maxSuspicion: { $max: '$suspicionScore' }
-        } 
-      },
-      { $sort: { avgSuspicion: -1, count: -1 } },
-      { $limit: 10 }
-    ]);
-    
-    // Activity timeline (hourly)
-    const timeline = await Log.aggregate([
-      { $match: { timestamp: { $gte: timeThreshold } } },
-      {
-        $group: {
-          _id: {
-            hour: { $hour: '$timestamp' },
-            date: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } }
-          },
-          total: { $sum: 1 },
-          suspicious: { 
-            $sum: { $cond: [{ $gte: ['$suspicionScore', 70] }, 1, 0] }
-          }
-        }
-      },
-      { $sort: { '_id.date': 1, '_id.hour': 1 } }
-    ]);
-    
-    res.json({
+    const mockAnalysisData = {
       overview: {
-        totalLogs,
-        suspiciousLogs,
-        criticalLogs,
-        suspiciousPercentage: totalLogs > 0 ? ((suspiciousLogs / totalLogs) * 100).toFixed(2) : 0
+        totalRecords: 284736,
+        suspiciousRecords: 1847,
+        criticalAlerts: 23,
+        riskScore: 67,
+        lastUpdate: new Date().toISOString()
       },
-      protocolDistribution: protocolStats,
-      topSuspiciousIPs,
-      timeline,
-      timeRange: `Last ${hours} hours`
-    });
+      patterns: [
+        { type: 'Burst Communication', instances: 15, severity: 'High', trend: 'increasing' },
+        { type: 'International Routing', instances: 8, severity: 'Medium', trend: 'stable' },
+        { type: 'Tower Hopping', instances: 5, severity: 'Critical', trend: 'decreasing' },
+        { type: 'Off-hours Activity', instances: 12, severity: 'Medium', trend: 'increasing' }
+      ],
+      anomalies: [
+        { id: 1, type: 'Time-based', description: 'Unusual activity during 2-4 AM', count: 28, severity: 'High' },
+        { id: 2, type: 'Frequency', description: 'Abnormal call frequency patterns', count: 15, severity: 'Medium' },
+        { id: 3, type: 'Duration', description: 'Suspiciously short call durations', count: 42, severity: 'Low' },
+        { id: 4, type: 'Location', description: 'Rapid cell tower changes', count: 8, severity: 'Critical' }
+      ],
+      timeline: [
+        { hour: 0, suspicious: 5, normal: 245 },
+        { hour: 4, suspicious: 2, normal: 180 },
+        { hour: 8, suspicious: 12, normal: 890 },
+        { hour: 12, suspicious: 18, normal: 1200 },
+        { hour: 16, suspicious: 15, normal: 980 },
+        { hour: 20, suspicious: 8, normal: 720 }
+      ]
+    };
+
+    res.json(mockAnalysisData);
   } catch (error) {
-    console.error('Dashboard analysis error:', error);
-    res.status(500).json({ error: 'Failed to generate dashboard data' });
+    console.error('Analysis dashboard error:', error);
+    res.status(500).json({ error: 'Failed to fetch analysis data' });
   }
 });
 
-// Analyze traffic patterns
-router.get('/patterns', async (req, res) => {
+// Analyze specific patterns
+router.post('/patterns', async (req, res) => {
   try {
-    const { sourceIP, hours = 24 } = req.query;
-    const timeThreshold = new Date(Date.now() - hours * 60 * 60 * 1000);
+    const { phoneNumber, dateRange, analysisType } = req.body;
     
-    let filter = { timestamp: { $gte: timeThreshold } };
-    if (sourceIP) filter.sourceIP = sourceIP;
-    
-    const patterns = await analyzePatterns(filter);
-    
-    res.json({
-      patterns,
-      analysis: {
-        timeRange: `Last ${hours} hours`,
-        sourceIP: sourceIP || 'All IPs'
+    const mockPatternAnalysis = {
+      target: phoneNumber || '+91-9876543210',
+      analysisType: analysisType || 'comprehensive',
+      dateRange: dateRange || 'last_7_days',
+      results: {
+        communicationPatterns: [
+          { pattern: 'Peak Hours', description: 'Most active between 6-9 PM', confidence: 0.85 },
+          { pattern: 'Weekend Activity', description: 'Increased activity on weekends', confidence: 0.72 },
+          { pattern: 'International Calls', description: 'Regular calls to +1-555-xxxx numbers', confidence: 0.91 }
+        ],
+        behaviorAnalysis: {
+          riskScore: 78,
+          trustScore: 45,
+          anomalyCount: 12,
+          suspiciousConnections: 5
+        },
+        recommendations: [
+          'Monitor international call patterns',
+          'Flag for manual review',
+          'Check associated numbers'
+        ]
       }
-    });
+    };
+
+    res.json(mockPatternAnalysis);
   } catch (error) {
     console.error('Pattern analysis error:', error);
-    res.status(500).json({ error: 'Failed to analyze patterns' });
+    res.status(500).json({ error: 'Pattern analysis failed' });
   }
 });
 
-// Detect anomalies
+// Detect anomalies in real-time
 router.get('/anomalies', async (req, res) => {
   try {
-    const { hours = 24 } = req.query;
-    const timeThreshold = new Date(Date.now() - hours * 60 * 60 * 1000);
+    const { severity, limit = 10 } = req.query;
     
-    const anomalies = await detectAnomalies(timeThreshold);
-    
-    res.json({
-      anomalies,
-      summary: {
-        total: anomalies.length,
-        critical: anomalies.filter(a => a.severity === 'CRITICAL').length,
-        high: anomalies.filter(a => a.severity === 'HIGH').length,
-        medium: anomalies.filter(a => a.severity === 'MEDIUM').length
+    const mockAnomalies = [
+      {
+        id: 'ANOM-001',
+        type: 'Communication Burst',
+        description: '45 calls in 10 minutes from +91-9876543210',
+        severity: 'Critical',
+        timestamp: new Date(Date.now() - 300000).toISOString(),
+        affectedNumbers: ['+91-9876543210', '+91-9123456789'],
+        riskScore: 95
       },
-      timeRange: `Last ${hours} hours`
+      {
+        id: 'ANOM-002',
+        type: 'Tower Hopping',
+        description: 'Rapid cell tower changes detected',
+        severity: 'High',
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+        affectedNumbers: ['+91-8765432109'],
+        riskScore: 78
+      },
+      {
+        id: 'ANOM-003',
+        type: 'International Pattern',
+        description: 'Unusual international calling pattern',
+        severity: 'Medium',
+        timestamp: new Date(Date.now() - 900000).toISOString(),
+        affectedNumbers: ['+1-555-0123'],
+        riskScore: 65
+      }
+    ];
+
+    let filteredAnomalies = mockAnomalies;
+    if (severity) {
+      filteredAnomalies = mockAnomalies.filter(a => 
+        a.severity.toLowerCase() === severity.toLowerCase()
+      );
+    }
+
+    res.json({
+      anomalies: filteredAnomalies.slice(0, parseInt(limit)),
+      total: filteredAnomalies.length
     });
   } catch (error) {
     console.error('Anomaly detection error:', error);
-    res.status(500).json({ error: 'Failed to detect anomalies' });
-  }
-});
-
-// Get network topology data
-router.get('/topology', async (req, res) => {
-  try {
-    const { limit = 100 } = req.query;
-    
-    const connections = await Connection.find()
-      .sort({ connectionCount: -1, avgSuspicionScore: -1 })
-      .limit(parseInt(limit));
-    
-    // Transform for network visualization
-    const nodes = new Set();
-    const links = [];
-    
-    connections.forEach(conn => {
-      nodes.add(conn.sourceIP);
-      nodes.add(conn.destinationIP);
-      
-      links.push({
-        source: conn.sourceIP,
-        target: conn.destinationIP,
-        weight: conn.connectionCount,
-        suspicion: conn.avgSuspicionScore,
-        riskLevel: conn.riskLevel
-      });
-    });
-    
-    res.json({
-      nodes: Array.from(nodes).map(ip => ({
-        id: ip,
-        label: ip,
-        // Add node properties based on IP analysis
-      })),
-      links,
-      metadata: {
-        totalNodes: nodes.size,
-        totalConnections: connections.length
-      }
-    });
-  } catch (error) {
-    console.error('Topology analysis error:', error);
-    res.status(500).json({ error: 'Failed to generate topology data' });
+    res.status(500).json({ error: 'Anomaly detection failed' });
   }
 });
 
