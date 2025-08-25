@@ -289,6 +289,146 @@ app.get('/api/logs', (req, res) => {
   });
 });
 
+// Analysis endpoint for pattern detection and anomalies
+app.get('/api/analysis', (req, res) => {
+  const { query, type } = req.query;
+  
+  if (processedLogEntries.length === 0) {
+    return res.json({
+      hasData: false,
+      message: 'No IPDR data available for analysis',
+      suspiciousConnections: [],
+      patterns: [],
+      anomalies: [],
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  // Analyze suspicious connections (high frequency between same numbers)
+  const connectionFreq = {};
+  processedLogEntries.forEach(log => {
+    const aParty = log['A-Party'] || log.a_party;
+    const bParty = log['B-Party'] || log.b_party;
+    if (aParty && bParty) {
+      const key = `${aParty}-${bParty}`;
+      if (!connectionFreq[key]) {
+        connectionFreq[key] = { count: 0, totalDuration: 0, logs: [] };
+      }
+      connectionFreq[key].count++;
+      connectionFreq[key].totalDuration += parseInt(log.Duration || log.duration || 0);
+      connectionFreq[key].logs.push(log);
+    }
+  });
+
+  // Find suspicious connections (more than 5 calls between same parties)
+  const suspiciousConnections = Object.entries(connectionFreq)
+    .filter(([key, data]) => data.count >= 3)
+    .map(([key, data], index) => {
+      const [aParty, bParty] = key.split('-');
+      const avgRisk = data.logs.reduce((sum, log) => sum + (log.suspicionScore || 0), 0) / data.logs.length;
+      return {
+        id: index + 1,
+        aParty,
+        bParty,
+        frequency: data.count,
+        totalDuration: data.totalDuration,
+        avgRiskScore: Math.round(avgRisk),
+        status: avgRisk > 70 ? 'High Risk' : avgRisk > 40 ? 'Medium Risk' : 'Low Risk'
+      };
+    })
+    .sort((a, b) => b.frequency - a.frequency)
+    .slice(0, 10);
+
+  // Detect patterns
+  const patterns = [];
+  const shortCalls = processedLogEntries.filter(log => parseInt(log.Duration || log.duration || 0) < 30).length;
+  const longCalls = processedLogEntries.filter(log => parseInt(log.Duration || log.duration || 0) > 600).length;
+  const nightCalls = processedLogEntries.filter(log => {
+    const time = log['Call-Time'] || (log.timestamp ? new Date(log.timestamp).toTimeString() : '12:00:00');
+    const hour = parseInt(time.split(':')[0]);
+    return hour >= 22 || hour <= 6;
+  }).length;
+
+  if (shortCalls > processedLogEntries.length * 0.3) {
+    patterns.push({
+      pattern: 'Burst Communication',
+      description: 'High frequency of very short calls detected',
+      instances: shortCalls,
+      severity: shortCalls > processedLogEntries.length * 0.5 ? 'Critical' : 'High'
+    });
+  }
+
+  if (longCalls > 0) {
+    patterns.push({
+      pattern: 'Extended Communications',
+      description: 'Unusually long call durations detected',
+      instances: longCalls,
+      severity: longCalls > 5 ? 'Medium' : 'Low'
+    });
+  }
+
+  if (nightCalls > processedLogEntries.length * 0.2) {
+    patterns.push({
+      pattern: 'Unusual Hours Activity',
+      description: 'High activity during night hours (10PM-6AM)',
+      instances: nightCalls,
+      severity: 'Medium'
+    });
+  }
+
+  // Detect anomalies
+  const anomalies = [];
+  const highRiskEntries = processedLogEntries.filter(log => log.suspicionScore > 70).length;
+  const uniqueNumbers = new Set([
+    ...processedLogEntries.map(log => log['A-Party'] || log.a_party),
+    ...processedLogEntries.map(log => log['B-Party'] || log.b_party)
+  ]).size;
+
+  anomalies.push({
+    type: 'Risk-based',
+    description: `${highRiskEntries} high-risk communications detected`,
+    count: highRiskEntries,
+    severity: highRiskEntries > processedLogEntries.length * 0.1 ? 'High' : 'Medium'
+  });
+
+  anomalies.push({
+    type: 'Network Analysis',
+    description: `${uniqueNumbers} unique phone numbers involved`,
+    count: uniqueNumbers,
+    severity: uniqueNumbers > 100 ? 'Medium' : 'Low'
+  });
+
+  if (patterns.length > 0) {
+    anomalies.push({
+      type: 'Pattern-based',
+      description: `${patterns.length} suspicious patterns identified`,
+      count: patterns.length,
+      severity: patterns.some(p => p.severity === 'Critical') ? 'High' : 'Medium'
+    });
+  }
+
+  res.json({
+    hasData: true,
+    totalRecords: processedLogEntries.length,
+    analysisDate: new Date().toISOString(),
+    suspiciousConnections,
+    patterns,
+    anomalies,
+    summary: {
+      riskDistribution: {
+        high: processedLogEntries.filter(log => log.suspicionScore > 70).length,
+        medium: processedLogEntries.filter(log => log.suspicionScore > 40 && log.suspicionScore <= 70).length,
+        low: processedLogEntries.filter(log => log.suspicionScore <= 40).length
+      },
+      timeAnalysis: {
+        nightActivity: nightCalls,
+        shortCalls,
+        longCalls
+      }
+    }
+  });
+});
+
 // Upload status endpoint
 app.get('/api/upload/status', (req, res) => {
   res.json({

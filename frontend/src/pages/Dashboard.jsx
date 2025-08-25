@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [timeRange, setTimeRange] = useState('24');
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [apiConnected, setApiConnected] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     loadDashboardData();
@@ -23,6 +24,15 @@ const Dashboard = () => {
     
     return () => clearInterval(interval);
   }, [timeRange]);
+
+  // Real-time clock update every second
+  useEffect(() => {
+    const clockInterval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    
+    return () => clearInterval(clockInterval);
+  }, []);
 
   const loadDashboardData = async () => {
     try {
@@ -97,7 +107,7 @@ const Dashboard = () => {
       <div className="page-header">
         <h1 className="page-title">Investigation Dashboard</h1>
         <p className="page-subtitle">
-          Real-time IPDR analysis and threat monitoring • Last updated: {lastUpdate.toLocaleTimeString()}
+          Real-time IPDR analysis and threat monitoring • Live: {currentTime.toLocaleTimeString()}
           {dashboardData?.source && (
             <span className="ml-2 text-xs text-cyber-blue">• Data from: {dashboardData.source}</span>
           )}
@@ -121,14 +131,14 @@ const Dashboard = () => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <div className={`w-2 h-2 rounded-full ${apiConnected ? 'bg-cyber-green' : 'bg-cyber-red'}`}></div>
+          <div className={`w-2 h-2 rounded-full status-online ${apiConnected ? 'bg-gray-400' : 'bg-red-500'}`}></div>
           <span className="text-xs text-cyber-text-muted">
             {apiConnected ? 'API Connected' : 'Using Mock Data'}
           </span>
         </div>
         
         <div className="flex items-center space-x-2">
-          <div className="status-online w-2 h-2 rounded-full"></div>
+          <div className="status-online w-2 h-2 rounded-full bg-cyber-green"></div>
           <span className="text-sm text-cyber-green">Live Monitoring Active</span>
         </div>
       </div>
@@ -150,7 +160,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card-cyber p-6">
+        <div className="card-cyber p-6 cyber-glow">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-cyber-text-muted text-sm">Active Connections</p>
@@ -165,7 +175,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card-cyber p-6">
+        <div className="card-cyber p-6 cyber-glow">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-cyber-text-muted text-sm">Flagged Numbers</p>
@@ -180,7 +190,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="card-cyber p-6">
+        <div className="card-cyber p-6 cyber-glow">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-cyber-text-muted text-sm">Risk Score</p>
@@ -258,19 +268,19 @@ const Dashboard = () => {
 
       {/* Network Status Grid */}
       <div className="grid-4">
-        <div className="card-cyber p-4">
+        <div className="card-cyber p-4 cyber-glow">
           <h4 className="text-sm font-medium text-cyber-text-muted mb-2">Total Cell Towers</h4>
           <p className="text-xl font-cyber text-cyber-text">{networkStats?.totalCells?.toLocaleString()}</p>
         </div>
-        <div className="card-cyber p-4">
+        <div className="card-cyber p-4 cyber-glow">
           <h4 className="text-sm font-medium text-cyber-text-muted mb-2">Active Cells</h4>
           <p className="text-xl font-cyber text-cyber-green">{networkStats?.activeCells?.toLocaleString()}</p>
         </div>
-        <div className="card-cyber p-4">
+        <div className="card-cyber p-4 cyber-glow">
           <h4 className="text-sm font-medium text-cyber-text-muted mb-2">Roaming Active</h4>
           <p className="text-xl font-cyber text-cyan-400">{networkStats?.roamingActive?.toLocaleString()}</p>
         </div>
-        <div className="card-cyber p-4">
+        <div className="card-cyber p-4 cyber-glow">
           <h4 className="text-sm font-medium text-cyber-text-muted mb-2">International</h4>
           <p className="text-xl font-cyber text-yellow-400">{networkStats?.internationalCalls}</p>
         </div>

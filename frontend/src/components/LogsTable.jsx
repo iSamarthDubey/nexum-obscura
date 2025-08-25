@@ -6,6 +6,14 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   const [logs, setLogs] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({
+    riskLevel: '',
+    dateFrom: '',
+    dateTo: '',
+    minDuration: '',
+    maxDuration: ''
+  });
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const loadLogs = async (page = 1, search = '') => {
     try {
@@ -28,18 +36,72 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     }
   };
 
+  const applyLocalFilters = (logs) => {
+    let filteredLogs = logs;
+
+    // Apply search term
+    if (searchTerm) {
+      filteredLogs = filteredLogs.filter(log =>
+        Object.values(log).some(value =>
+          String(value).toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+
+    // Apply risk level filter
+    if (filters.riskLevel) {
+      filteredLogs = filteredLogs.filter(log => log.riskLevel === filters.riskLevel);
+    }
+
+    // Apply duration filters
+    if (filters.minDuration) {
+      filteredLogs = filteredLogs.filter(log => {
+        const duration = parseInt(log.Duration || log.duration || 0);
+        return duration >= parseInt(filters.minDuration);
+      });
+    }
+
+    if (filters.maxDuration) {
+      filteredLogs = filteredLogs.filter(log => {
+        const duration = parseInt(log.Duration || log.duration || 0);
+        return duration <= parseInt(filters.maxDuration);
+      });
+    }
+
+    // Apply date filters (basic implementation)
+    if (filters.dateFrom || filters.dateTo) {
+      filteredLogs = filteredLogs.filter(log => {
+        const logDate = new Date(log['Call-Date'] || log.timestamp || log.processedAt);
+        const fromDate = filters.dateFrom ? new Date(filters.dateFrom) : null;
+        const toDate = filters.dateTo ? new Date(filters.dateTo) : null;
+        
+        if (fromDate && logDate < fromDate) return false;
+        if (toDate && logDate > toDate) return false;
+        return true;
+      });
+    }
+
+    return filteredLogs;
+  };
+
   useEffect(() => {
     if (totalEntries > 0) {
       loadLogs(currentPage, searchTerm);
     } else {
-      setLogs(logEntries.slice(0, 20));
+      const filtered = applyLocalFilters(logEntries);
+      setLogs(filtered.slice(0, 20));
     }
-  }, [currentPage, totalEntries, logEntries]);
+  }, [currentPage, totalEntries, logEntries, searchTerm, filters]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setCurrentPage(1);
-    loadLogs(1, searchTerm);
+    if (totalEntries > 0) {
+      loadLogs(1, searchTerm);
+    } else {
+      const filtered = applyLocalFilters(logEntries);
+      setLogs(filtered.slice(0, 20));
+    }
   };
 
   const getRiskBadge = (riskLevel) => {
@@ -49,6 +111,29 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
       Low: 'bg-green-900 text-green-200 border-green-700'
     };
     return badges[riskLevel] || badges.Low;
+  };
+
+  const formatDuration = (duration) => {
+    if (!duration || duration === '0' || duration === 0) return '0s';
+    
+    const seconds = parseInt(duration);
+    if (isNaN(seconds)) return duration; // Return as-is if not a number
+    
+    if (seconds < 60) {
+      return `${seconds}s`;
+    } else if (seconds < 3600) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+    } else {
+      const hours = Math.floor(seconds / 3600);
+      const remainingMinutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = seconds % 60;
+      let result = `${hours}h`;
+      if (remainingMinutes > 0) result += ` ${remainingMinutes}m`;
+      if (remainingSeconds > 0) result += ` ${remainingSeconds}s`;
+      return result;
+    }
   };
 
   const getSuspicionColor = (score) => {
@@ -82,20 +167,76 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
           )}
         </h3>
         
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search logs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
-          >
-            Search
-          </button>
+        <form onSubmit={handleSearch} className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Search logs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+            >
+              Search
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="px-3 py-2 bg-gray-700 text-white rounded text-sm hover:bg-gray-600 transition-colors"
+            >
+              {showAdvancedFilters ? 'Hide' : 'Filters'}
+            </button>
+          </div>
+          
+          {showAdvancedFilters && (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2 p-3 bg-gray-800 rounded">
+              <select
+                value={filters.riskLevel}
+                onChange={(e) => setFilters({...filters, riskLevel: e.target.value})}
+                className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
+              >
+                <option value="">All Risk Levels</option>
+                <option value="High">High Risk</option>
+                <option value="Medium">Medium Risk</option>
+                <option value="Low">Low Risk</option>
+              </select>
+              
+              <input
+                type="date"
+                placeholder="From Date"
+                value={filters.dateFrom}
+                onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
+                className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
+              />
+              
+              <input
+                type="date"
+                placeholder="To Date"
+                value={filters.dateTo}
+                onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
+                className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
+              />
+              
+              <input
+                type="number"
+                placeholder="Min Duration (s)"
+                value={filters.minDuration}
+                onChange={(e) => setFilters({...filters, minDuration: e.target.value})}
+                className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
+              />
+              
+              <input
+                type="number"
+                placeholder="Max Duration (s)"
+                value={filters.maxDuration}
+                onChange={(e) => setFilters({...filters, maxDuration: e.target.value})}
+                className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
+              />
+            </div>
+          )}
         </form>
       </div>
 
@@ -126,21 +267,21 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
                       #{log.id || index + 1}
                     </td>
                     <td className="py-3 px-2 text-white font-mono">
-                      {log['A-Party'] || log.caller || log.source || 'N/A'}
+                      {log['A-Party'] || log.a_party || log.caller || log.source || 'N/A'}
                     </td>
                     <td className="py-3 px-2 text-white font-mono">
-                      {log['B-Party'] || log.called || log.destination || 'N/A'}
+                      {log['B-Party'] || log.b_party || log.called || log.destination || 'N/A'}
                     </td>
                     <td className="py-3 px-2 text-gray-300">
                       <div>
-                        {log['Call-Date'] || log.date || new Date(log.processedAt).toLocaleDateString()}
+                        {log['Call-Date'] || log.date || (log.timestamp ? new Date(log.timestamp).toLocaleDateString() : new Date(log.processedAt).toLocaleDateString())}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {log['Call-Time'] || log.time || new Date(log.processedAt).toLocaleTimeString()}
+                        {log['Call-Time'] || log.time || (log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : new Date(log.processedAt).toLocaleTimeString())}
                       </div>
                     </td>
                     <td className="py-3 px-2 text-gray-300">
-                      {log.Duration || log.duration || '0s'}
+                      {formatDuration(log.Duration || log.duration)}
                     </td>
                     <td className="py-3 px-2">
                       <span className={`px-2 py-1 rounded-full text-xs border ${getRiskBadge(log.riskLevel)}`}>
