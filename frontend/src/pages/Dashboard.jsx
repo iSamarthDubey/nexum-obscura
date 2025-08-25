@@ -49,20 +49,6 @@ const Dashboard = () => {
           { time: '14:25', event: 'International roaming anomaly', level: 'medium', source: '+1-555-0123' },
           { time: '14:20', event: 'Bulk SMS activity flagged', level: 'high', source: '+91-87654-32109' },
         ],
-        timeline: [
-          { time: '00:00', calls: 1250, sms: 450, data: 890 },
-          { time: '04:00', calls: 890, sms: 320, data: 670 },
-          { time: '08:00', calls: 2340, sms: 890, data: 1450 },
-          { time: '12:00', calls: 3450, sms: 1200, data: 2100 },
-          { time: '16:00', calls: 2890, sms: 980, data: 1780 },
-          { time: '20:00', calls: 2100, sms: 720, data: 1320 }
-        ]
-      };
-      setDashboardData(mockData);
-    } finally {
-      setLoading(false);
-    }
-  };
         activeInvestigations: [
           { id: 'INV-2025-001', suspect: '+91-98765-43210', priority: 'Critical', status: 'Active', lastActivity: '2 min ago' },
           { id: 'INV-2025-002', suspect: '+91-87654-32109', priority: 'High', status: 'Under Review', lastActivity: '15 min ago' },
@@ -75,10 +61,7 @@ const Dashboard = () => {
           internationalCalls: 234
         }
       };
-      
       setDashboardData(mockData);
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error);
     } finally {
       setLoading(false);
     }
