@@ -12,27 +12,71 @@ const Analysis = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [analysisData, setAnalysisData] = useState({
-    suspiciousConnections: [
-      { id: 1, aParty: '+91-9876543210', bParty: '+91-9123456789', frequency: 45, duration: '02:15:30', riskScore: 85, status: 'High Risk' },
-      { id: 2, aParty: '+91-8765432109', bParty: '+1-555-0123', frequency: 23, duration: '01:45:22', riskScore: 72, status: 'Medium Risk' },
-      { id: 3, aParty: '+91-7654321098', bParty: '+91-6543210987', frequency: 67, duration: '03:22:15', riskScore: 91, status: 'Critical' },
-    ],
-    patterns: [
-      { pattern: 'Burst Communication', description: 'Multiple short calls in rapid succession', instances: 12, severity: 'High' },
-      { pattern: 'International Routing', description: 'Unusual international call patterns', instances: 8, severity: 'Medium' },
-      { pattern: 'Tower Hopping', description: 'Rapid cell tower changes', instances: 5, severity: 'Critical' },
-    ],
-    anomalies: [
-      { type: 'Time-based', description: 'High activity during unusual hours (2-4 AM)', count: 28 },
-      { type: 'Frequency', description: 'Abnormal call frequency patterns detected', count: 15 },
-      { type: 'Duration', description: 'Suspiciously short call durations', count: 42 },
-    ]
+    hasData: false,
+    suspiciousConnections: [],
+    patterns: [],
+    anomalies: []
   });
+
+  useEffect(() => {
+    loadAnalysisData();
+  }, []);
+
+  const loadAnalysisData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/analysis');
+      if (!response.ok) {
+        throw new Error('Failed to load analysis data');
+      }
+      const data = await response.json();
+      setAnalysisData(data);
+    } catch (error) {
+      console.error('Error loading analysis data:', error);
+      // Keep mock data as fallback
+      setAnalysisData({
+        hasData: false,
+        suspiciousConnections: [
+          { id: 1, aParty: '+91-9876543210', bParty: '+91-9123456789', frequency: 45, totalDuration: 8130, avgRiskScore: 85, status: 'High Risk' },
+          { id: 2, aParty: '+91-8765432109', bParty: '+1-555-0123', frequency: 23, totalDuration: 6322, avgRiskScore: 72, status: 'Medium Risk' },
+          { id: 3, aParty: '+91-7654321098', bParty: '+91-6543210987', frequency: 67, totalDuration: 12135, avgRiskScore: 91, status: 'Critical' },
+        ],
+        patterns: [
+          { pattern: 'Burst Communication', description: 'Multiple short calls in rapid succession', instances: 12, severity: 'High' },
+          { pattern: 'International Routing', description: 'Unusual international call patterns', instances: 8, severity: 'Medium' },
+          { pattern: 'Tower Hopping', description: 'Rapid cell tower changes', instances: 5, severity: 'Critical' },
+        ],
+        anomalies: [
+          { type: 'Time-based', description: 'High activity during unusual hours (2-4 AM)', count: 28, severity: 'High' },
+          { type: 'Frequency', description: 'Abnormal call frequency patterns detected', count: 15, severity: 'Medium' },
+          { type: 'Duration', description: 'Suspiciously short call durations', count: 42, severity: 'Low' },
+        ]
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDuration = (totalSeconds) => {
+    if (!totalSeconds) return '0s';
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  };
 
   const handleSearch = async () => {
     setLoading(true);
-    // Simulate search
+    // Simulate search - in real implementation, this would call the backend with search parameters
     await new Promise(resolve => setTimeout(resolve, 1500));
+    await loadAnalysisData(); // Reload analysis data
     setLoading(false);
   };
 
@@ -152,14 +196,14 @@ const Analysis = () => {
                       <td className="font-mono-cyber">{connection.aParty}</td>
                       <td className="font-mono-cyber">{connection.bParty}</td>
                       <td>{connection.frequency}</td>
-                      <td>{connection.duration}</td>
+                      <td>{formatDuration(connection.totalDuration || connection.duration)}</td>
                       <td>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          connection.riskScore >= 90 ? 'bg-red-900/30 text-red-300' :
-                          connection.riskScore >= 70 ? 'bg-yellow-900/30 text-yellow-300' :
+                          (connection.avgRiskScore || connection.riskScore) >= 90 ? 'bg-red-900/30 text-red-300' :
+                          (connection.avgRiskScore || connection.riskScore) >= 70 ? 'bg-yellow-900/30 text-yellow-300' :
                           'bg-green-900/30 text-green-300'
                         }`}>
-                          {connection.riskScore}%
+                          {connection.avgRiskScore || connection.riskScore}%
                         </span>
                       </td>
                       <td>

@@ -14,6 +14,10 @@ const Upload = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
   const [dragActive, setDragActive] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [filePreview, setFilePreview] = useState(null);
+  const [uploadHistory, setUploadHistory] = useState([]);
+  const [validationErrors, setValidationErrors] = useState([]);
   const fileInputRef = useRef(null);
 
   const handleDrag = (e) => {
@@ -37,19 +41,71 @@ const Upload = () => {
     }
   };
 
-  const handleFileSelect = (selectedFile) => {
-    if (selectedFile.type !== 'text/csv' && !selectedFile.name.endsWith('.csv')) {
-      toast.error('Please select a CSV file');
-      return;
+  const validateCSVFile = async (file) => {
+    const errors = [];
+    
+    // Basic file validation
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      errors.push('File must have .csv extension');
     }
     
-    if (selectedFile.size > 50 * 1024 * 1024) { // 50MB limit
-      toast.error('File size must be less than 50MB');
+    if (file.size > 50 * 1024 * 1024) {
+      errors.push('File size must be less than 50MB');
+    }
+    
+    if (file.size < 100) {
+      errors.push('File appears to be empty or too small');
+    }
+    
+    // Preview first few lines
+    try {
+      const text = await file.text();
+      const lines = text.split('\n').slice(0, 5);
+      
+      if (lines.length < 2) {
+        errors.push('File must contain at least a header and one data row');
+      }
+      
+      // Check for expected IPDR columns
+      const header = lines[0].toLowerCase();
+      const expectedColumns = ['a-party', 'b-party', 'duration', 'date', 'time'];
+      const hasValidColumns = expectedColumns.some(col => 
+        header.includes(col.replace('-', '_')) || header.includes(col)
+      );
+      
+      if (!hasValidColumns) {
+        errors.push('File does not appear to contain valid IPDR columns');
+      }
+      
+      setFilePreview({
+        totalLines: text.split('\n').length - 1,
+        header: lines[0],
+        sampleRows: lines.slice(1, 4).filter(line => line.trim()),
+        fileSize: (file.size / 1024).toFixed(2) + ' KB'
+      });
+      
+    } catch (error) {
+      errors.push('Unable to read file content');
+    }
+    
+    return errors;
+  };
+
+  const handleFileSelect = async (selectedFile) => {
+    setValidationErrors([]);
+    setFilePreview(null);
+    
+    const errors = await validateCSVFile(selectedFile);
+    
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      errors.forEach(error => toast.error(error));
       return;
     }
     
     setFile(selectedFile);
     setUploadResult(null);
+    toast.success('File validated successfully!');
   };
 
   const handleUpload = async () => {
@@ -59,17 +115,64 @@ const Upload = () => {
     }
 
     setUploading(true);
+    setUploadProgress(0);
+    
     try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + Math.random() * 20;
+        });
+      }, 200);
+
       const result = await uploadLogFile(file);
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      
+      // Add to upload history
+      const historyEntry = {
+        id: Date.now(),
+        fileName: file.name,
+        fileSize: (file.size / 1024).toFixed(2) + ' KB',
+        recordsProcessed: result.processedCount || 0,
+        uploadTime: new Date().toLocaleString(),
+        status: 'Success',
+        suspiciousRecords: result.suspiciousRecords || 0
+      };
+      
+      setUploadHistory(prev => [historyEntry, ...prev.slice(0, 9)]); // Keep last 10
       setUploadResult(result);
-      toast.success('File uploaded and processed successfully!');
+      toast.success(`File uploaded! Processed ${result.processedCount || 0} records`);
+      
+      // Reset form
       setFile(null);
+      setFilePreview(null);
+      setUploadProgress(0);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     } catch (error) {
       console.error('Upload failed:', error);
-      toast.error('Upload failed. Please try again.');
+      
+      // Add failed upload to history
+      const historyEntry = {
+        id: Date.now(),
+        fileName: file.name,
+        fileSize: (file.size / 1024).toFixed(2) + ' KB',
+        recordsProcessed: 0,
+        uploadTime: new Date().toLocaleString(),
+        status: 'Failed',
+        error: error.message
+      };
+      
+      setUploadHistory(prev => [historyEntry, ...prev.slice(0, 9)]);
+      setUploadProgress(0);
+      toast.error(`Upload failed: ${error.message}`);
     } finally {
       setUploading(false);
     }
@@ -165,7 +268,11 @@ const Upload = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => setFile(null)}
+                  onClick={() => {
+                    setFile(null);
+                    setFilePreview(null);
+                    setValidationErrors([]);
+                  }}
                   className="text-sm text-red-600 hover:text-red-800"
                 >
                   Remove
@@ -174,13 +281,75 @@ const Upload = () => {
             </div>
           )}
 
+          {/* Validation Errors */}
+          {validationErrors.length > 0 && (
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">Validation Errors</h3>
+                  <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* File Preview */}
+          {filePreview && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
+              <h3 className="text-sm font-medium text-blue-800 mb-2">File Preview</h3>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-blue-700">Total Rows:</span>
+                  <span className="ml-2 text-blue-600">{filePreview.totalLines}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-blue-700">File Size:</span>
+                  <span className="ml-2 text-blue-600">{filePreview.fileSize}</span>
+                </div>
+              </div>
+              <div className="mt-3">
+                <span className="font-medium text-blue-700">Header:</span>
+                <p className="mt-1 text-xs text-blue-600 bg-white rounded px-2 py-1 font-mono">{filePreview.header}</p>
+              </div>
+              {filePreview.sampleRows.length > 0 && (
+                <div className="mt-3">
+                  <span className="font-medium text-blue-700">Sample Data:</span>
+                  {filePreview.sampleRows.map((row, index) => (
+                    <p key={index} className="mt-1 text-xs text-blue-600 bg-white rounded px-2 py-1 font-mono">{row}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Upload Progress */}
+          {uploading && (
+            <div className="mt-4">
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Uploading...</span>
+                <span>{Math.round(uploadProgress)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+
           {/* Upload Button */}
           <div className="mt-6">
             <button
               onClick={handleUpload}
-              disabled={!file || uploading}
+              disabled={!file || uploading || validationErrors.length > 0}
               className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                !file || uploading
+                !file || uploading || validationErrors.length > 0
                   ? 'bg-gray-300 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
               }`}
@@ -193,6 +362,8 @@ const Upload = () => {
                   </svg>
                   Processing...
                 </>
+              ) : validationErrors.length > 0 ? (
+                'Fix Validation Errors'
               ) : (
                 'Upload and Process'
               )}
@@ -240,6 +411,52 @@ const Upload = () => {
               >
                 Analyze Data
               </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Upload History */}
+        {uploadHistory.length > 0 && (
+          <div className="mt-8 bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Upload History</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Records</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Suspicious</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {uploadHistory.map((entry) => (
+                    <tr key={entry.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <DocumentTextIcon className="h-5 w-5 text-gray-400 mr-3" />
+                          <span className="text-sm font-medium text-gray-900">{entry.fileName}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{entry.fileSize}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.recordsProcessed}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.suspiciousRecords || 0}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          entry.status === 'Success' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {entry.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{entry.uploadTime}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
