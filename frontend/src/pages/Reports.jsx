@@ -9,8 +9,6 @@ import {
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { getReports, generateReport, deleteReport } from '../utils/api';
-import ReportModal from '../components/ReportModal';
-import toast from 'react-hot-toast';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
@@ -35,7 +33,7 @@ const Reports = () => {
       setReports(data.reports || []);
     } catch (error) {
       console.error('Failed to load reports:', error);
-      toast.error('Failed to load reports');
+      alert('Failed to load reports');
     } finally {
       setLoading(false);
     }
@@ -45,12 +43,12 @@ const Reports = () => {
     setGenerating(true);
     try {
       await generateReport(reportData);
-      toast.success('Report generated successfully!');
+      alert('Report generated successfully!');
       setShowModal(false);
       loadReports();
     } catch (error) {
       console.error('Failed to generate report:', error);
-      toast.error('Failed to generate report');
+      alert('Failed to generate report');
     } finally {
       setGenerating(false);
     }
@@ -63,11 +61,11 @@ const Reports = () => {
 
     try {
       await deleteReport(reportId);
-      toast.success('Report deleted successfully');
+      alert('Report deleted successfully');
       loadReports();
     } catch (error) {
       console.error('Failed to delete report:', error);
-      toast.error('Failed to delete report');
+      alert('Failed to delete report');
     }
   };
 
@@ -315,13 +313,31 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* Report Generation Modal */}
+      {/* Report Generation Modal - Placeholder */}
       {showModal && (
-        <ReportModal
-          onClose={() => setShowModal(false)}
-          onGenerate={handleGenerateReport}
-          generating={generating}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="card-cyber p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-cyber text-cyber-blue mb-4">Generate Report</h3>
+            <p className="text-cyber-text mb-4">Report generation feature will be implemented.</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 border border-cyber-border rounded hover:bg-gray-800 text-cyber-text"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  alert('Report generation feature coming soon!');
+                  setShowModal(false);
+                }}
+                className="btn-cyber"
+              >
+                Generate
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

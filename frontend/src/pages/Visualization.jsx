@@ -8,9 +8,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { getTopologyData, getDashboardData } from '../utils/api';
 import NetworkGraph from '../components/NetworkGraph';
-import GeographicMap from '../components/GeographicMap';
-import TrafficFlow from '../components/TrafficFlow';
-import ProtocolChart from '../components/ProtocolChart';
 
 const Visualization = () => {
   const [activeView, setActiveView] = useState('network');
@@ -174,8 +171,8 @@ const Visualization = () => {
           {activeView === 'geographic' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Geographic Distribution</h3>
-              <div className="h-96 border border-gray-200 rounded-lg">
-                <GeographicMap data={dashboardData} loading={loading} />
+              <div className="h-96 border border-gray-200 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">Geographic map visualization will be displayed here</p>
               </div>
             </div>
           )}
@@ -183,8 +180,8 @@ const Visualization = () => {
           {activeView === 'traffic' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Traffic Flow Analysis</h3>
-              <div className="h-96">
-                <TrafficFlow data={dashboardData?.timeline} loading={loading} />
+              <div className="h-96 border border-gray-200 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">Traffic flow visualization will be displayed here</p>
               </div>
             </div>
           )}
@@ -192,8 +189,8 @@ const Visualization = () => {
           {activeView === 'protocols' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Protocol Distribution</h3>
-              <div className="h-96">
-                <ProtocolChart data={dashboardData?.protocolDistribution} loading={loading} />
+              <div className="h-96 border border-gray-200 rounded-lg flex items-center justify-center">
+                <p className="text-gray-500">Protocol distribution chart will be displayed here</p>
               </div>
             </div>
           )}
