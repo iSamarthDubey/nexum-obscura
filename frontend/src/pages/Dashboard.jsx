@@ -4,6 +4,7 @@ import StatsCard from '../components/StatsCard';
 import ActivityChart from '../components/ActivityChart';
 import SuspiciousActivities from '../components/SuspiciousActivities';
 import TopSourceIPs from '../components/TopSourceIPs';
+import LogsTable from '../components/LogsTable';
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -274,6 +275,12 @@ const Dashboard = () => {
           <p className="text-xl font-cyber text-yellow-400">{networkStats?.internationalCalls}</p>
         </div>
       </div>
+
+      {/* IPDR Logs Table */}
+      <LogsTable 
+        logEntries={dashboardData?.logEntries || []}
+        totalEntries={dashboardData?.totalLogEntries || 0}
+      />
 
       {/* Quick Action Panel */}
       <div className="card-cyber p-6">

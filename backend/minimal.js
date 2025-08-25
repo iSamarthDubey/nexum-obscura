@@ -10,6 +10,7 @@ const PORT = 5000;
 
 // Global state to track uploaded files and processed data
 let uploadedFiles = [];
+let processedLogEntries = []; // Store actual IPDR log entries
 let processedStats = {
   totalRecords: 0,
   activeConnections: 0,
@@ -91,7 +92,9 @@ app.get('/api/dashboard', (req, res) => {
       { time: '--:--', event: 'No data uploaded yet', level: 'info', source: 'System' },
       { time: '--:--', event: 'Upload IPDR files to begin analysis', level: 'info', source: 'System' }
     ],
-    timeline: hasData ? timelineData : []
+    timeline: hasData ? timelineData : [],
+    logEntries: hasData ? processedLogEntries : [],
+    totalLogEntries: processedLogEntries.length
   });
 });
 
@@ -116,13 +119,26 @@ app.post('/api/upload', upload.single('logFile'), (req, res) => {
         try {
           if (data && Object.keys(data).length > 0) {
             processedCount++;
+            
+            // Create enhanced log entry
+            const logEntry = {
+              id: processedCount,
+              ...data,
+              suspicionScore: Math.floor(Math.random() * 100),
+              processedAt: new Date().toISOString(),
+              riskLevel: Math.random() > 0.7 ? 'High' : Math.random() > 0.4 ? 'Medium' : 'Low',
+              sourceFile: req.file.originalname
+            };
+            
+            // Store in global log entries (keep last 1000 entries)
+            processedLogEntries.push(logEntry);
+            if (processedLogEntries.length > 1000) {
+              processedLogEntries = processedLogEntries.slice(-1000);
+            }
+            
+            // Also keep for immediate response (first 10)
             if (results.length < 10) {
-              results.push({
-                ...data,
-                suspicionScore: Math.floor(Math.random() * 100),
-                timestamp: new Date().toISOString(),
-                riskLevel: Math.random() > 0.7 ? 'High' : Math.random() > 0.4 ? 'Medium' : 'Low'
-              });
+              results.push(logEntry);
             }
           }
         } catch (error) {
@@ -234,6 +250,43 @@ app.post('/api/upload', upload.single('logFile'), (req, res) => {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'Upload failed' });
   }
+});
+
+// Logs endpoint for paginated IPDR entries
+app.get('/api/logs', (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 50;
+  const search = req.query.search || '';
+  
+  let filteredLogs = processedLogEntries;
+  
+  // Apply search filter if provided
+  if (search) {
+    filteredLogs = processedLogEntries.filter(log => 
+      Object.values(log).some(value => 
+        String(value).toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  }
+  
+  // Calculate pagination
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
+  
+  res.json({
+    logs: paginatedLogs,
+    pagination: {
+      currentPage: page,
+      totalPages: Math.ceil(filteredLogs.length / limit),
+      totalEntries: filteredLogs.length,
+      entriesPerPage: limit,
+      hasNextPage: endIndex < filteredLogs.length,
+      hasPreviousPage: page > 1
+    },
+    searchTerm: search,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Upload status endpoint
