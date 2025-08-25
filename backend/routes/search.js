@@ -1,138 +1,240 @@
 const express = require('express');
-const Log = require('../models/Log');
-const Connection = require('../models/Connection');
-
 const router = express.Router();
 
-// Search logs with filters
-router.get('/logs', async (req, res) => {
+// Generate mock IPDR data
+const generateMockIPDRData = (count = 50) => {
+  const data = [];
+  const aParties = [
+    '+91-9876543210', '+91-8765432109', '+91-7654321098', 
+    '+91-9123456789', '+91-8765432100', '+1-555-0123',
+    '+44-20-7123-4567', '+86-138-0013-8000'
+  ];
+  const bParties = [
+    '+91-9111111111', '+91-8222222222', '+91-7333333333',
+    '+91-9444444444', '+91-8555555555', '+1-555-9999',
+    '+44-20-8888-9999', '+86-139-9999-8888'
+  ];
+  
+  for (let i = 0; i < count; i++) {
+    const aParty = aParties[Math.floor(Math.random() * aParties.length)];
+    const bParty = bParties[Math.floor(Math.random() * bParties.length)];
+    const date = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+    
+    data.push({
+      id: `IPDR-${Date.now()}-${i}`,
+      aParty,
+      bParty,
+      callDate: date.toISOString().split('T')[0],
+      callTime: date.toTimeString().split(' ')[0],
+      duration: Math.floor(Math.random() * 3600),
+      callType: Math.random() > 0.7 ? 'SMS' : 'Voice',
+      imei: `35${Math.floor(Math.random() * 1000000000000000)}`,
+      imsi: `40401${Math.floor(Math.random() * 10000000000)}`,
+      cellId: Math.floor(Math.random() * 99999),
+      lac: Math.floor(Math.random() * 9999),
+      suspicionScore: Math.floor(Math.random() * 100),
+      riskLevel: Math.random() > 0.8 ? 'High' : Math.random() > 0.5 ? 'Medium' : 'Low',
+      timestamp: date.toISOString()
+    });
+  }
+  
+  return data;
+};
+
+// Search IPDR records with filters
+router.get('/ipdr', async (req, res) => {
   try {
     const {
+      aParty,
+      bParty,
       startDate,
       endDate,
-      sourceIP,
-      destinationIP,
-      protocol,
+      minDuration,
+      maxDuration,
+      callType,
       minSuspicion,
       maxSuspicion,
-      page = 1,
-      limit = 100
-    } = req.query;
-
-    // Build filter object
-    const filter = {};
-    
-    if (startDate || endDate) {
-      filter.timestamp = {};
-      if (startDate) filter.timestamp.$gte = new Date(startDate);
-      if (endDate) filter.timestamp.$lte = new Date(endDate);
-    }
-    
-    if (sourceIP) filter.sourceIP = new RegExp(sourceIP, 'i');
-    if (destinationIP) filter.destinationIP = new RegExp(destinationIP, 'i');
-    if (protocol) filter.protocol = protocol.toUpperCase();
-    
-    if (minSuspicion || maxSuspicion) {
-      filter.suspicionScore = {};
-      if (minSuspicion) filter.suspicionScore.$gte = parseInt(minSuspicion);
-      if (maxSuspicion) filter.suspicionScore.$lte = parseInt(maxSuspicion);
-    }
-
-    const skip = (page - 1) * limit;
-    
-    const logs = await Log.find(filter)
-      .sort({ timestamp: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
-    
-    const total = await Log.countDocuments(filter);
-    
-    res.json({
-      logs,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    });
-  } catch (error) {
-    console.error('Search logs error:', error);
-    res.status(500).json({ error: 'Failed to search logs' });
-  }
-});
-
-// Search connections
-router.get('/connections', async (req, res) => {
-  try {
-    const {
-      sourceIP,
-      destinationIP,
       riskLevel,
-      minConnections,
       page = 1,
-      limit = 50
+      limit = 20
     } = req.query;
 
-    const filter = {};
+    // Generate mock data
+    let data = generateMockIPDRData(200);
     
-    if (sourceIP) filter.sourceIP = new RegExp(sourceIP, 'i');
-    if (destinationIP) filter.destinationIP = new RegExp(destinationIP, 'i');
-    if (riskLevel) filter.riskLevel = riskLevel.toUpperCase();
-    if (minConnections) filter.connectionCount = { $gte: parseInt(minConnections) };
-
-    const skip = (page - 1) * limit;
+    // Apply filters
+    if (aParty) {
+      data = data.filter(record => 
+        record.aParty.toLowerCase().includes(aParty.toLowerCase())
+      );
+    }
     
-    const connections = await Connection.find(filter)
-      .sort({ avgSuspicionScore: -1, connectionCount: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+    if (bParty) {
+      data = data.filter(record => 
+        record.bParty.toLowerCase().includes(bParty.toLowerCase())
+      );
+    }
     
-    const total = await Connection.countDocuments(filter);
+    if (startDate) {
+      data = data.filter(record => 
+        new Date(record.callDate) >= new Date(startDate)
+      );
+    }
+    
+    if (endDate) {
+      data = data.filter(record => 
+        new Date(record.callDate) <= new Date(endDate)
+      );
+    }
+    
+    if (minDuration) {
+      data = data.filter(record => record.duration >= parseInt(minDuration));
+    }
+    
+    if (maxDuration) {
+      data = data.filter(record => record.duration <= parseInt(maxDuration));
+    }
+    
+    if (callType) {
+      data = data.filter(record => 
+        record.callType.toLowerCase() === callType.toLowerCase()
+      );
+    }
+    
+    if (minSuspicion) {
+      data = data.filter(record => record.suspicionScore >= parseInt(minSuspicion));
+    }
+    
+    if (maxSuspicion) {
+      data = data.filter(record => record.suspicionScore <= parseInt(maxSuspicion));
+    }
+    
+    if (riskLevel) {
+      data = data.filter(record => 
+        record.riskLevel.toLowerCase() === riskLevel.toLowerCase()
+      );
+    }
+    
+    // Pagination
+    const total = data.length;
+    const startIndex = (page - 1) * limit;
+    const paginatedData = data.slice(startIndex, startIndex + parseInt(limit));
     
     res.json({
-      connections,
+      success: true,
+      data: paginatedData,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
         pages: Math.ceil(total / limit)
+      },
+      filters: {
+        aParty, bParty, startDate, endDate, minDuration, 
+        maxDuration, callType, minSuspicion, maxSuspicion, riskLevel
       }
     });
+    
   } catch (error) {
-    console.error('Search connections error:', error);
-    res.status(500).json({ error: 'Failed to search connections' });
+    console.error('Search error:', error);
+    res.status(500).json({ error: 'Search failed' });
   }
 });
 
-// Get suspicious activities
+// Search suspicious connections
 router.get('/suspicious', async (req, res) => {
   try {
-    const { hours = 24 } = req.query;
-    const timeThreshold = new Date(Date.now() - hours * 60 * 60 * 1000);
-    
-    const suspiciousLogs = await Log.find({
-      timestamp: { $gte: timeThreshold },
-      suspicionScore: { $gte: 70 }
-    })
-    .sort({ suspicionScore: -1, timestamp: -1 })
-    .limit(100);
-    
-    const suspiciousConnections = await Connection.find({
-      lastSeen: { $gte: timeThreshold },
-      riskLevel: { $in: ['HIGH', 'CRITICAL'] }
-    })
-    .sort({ avgSuspicionScore: -1 })
-    .limit(50);
+    const suspiciousConnections = [
+      {
+        id: 'SUSP-001',
+        aParty: '+91-9876543210',
+        bParty: '+91-9123456789',
+        frequency: 45,
+        totalDuration: 8130,
+        averageDuration: 181,
+        firstContact: '2025-08-20T09:15:00Z',
+        lastContact: '2025-08-26T14:32:00Z',
+        suspicionScore: 85,
+        riskLevel: 'High',
+        patterns: ['Frequent Short Calls', 'Unusual Hours'],
+        locations: ['Cell-1234', 'Cell-5678', 'Cell-9012']
+      },
+      {
+        id: 'SUSP-002',
+        aParty: '+91-8765432109',
+        bParty: '+1-555-0123',
+        frequency: 23,
+        totalDuration: 6322,
+        averageDuration: 275,
+        firstContact: '2025-08-22T10:20:00Z',
+        lastContact: '2025-08-26T13:45:00Z',
+        suspicionScore: 72,
+        riskLevel: 'Medium',
+        patterns: ['International Calls', 'Data Usage Spike'],
+        locations: ['Cell-2345', 'Cell-6789']
+      },
+      {
+        id: 'SUSP-003',
+        aParty: '+91-7654321098',
+        bParty: '+91-6543210987',
+        frequency: 67,
+        totalDuration: 12045,
+        averageDuration: 180,
+        firstContact: '2025-08-18T08:30:00Z',
+        lastContact: '2025-08-26T15:20:00Z',
+        suspicionScore: 91,
+        riskLevel: 'Critical',
+        patterns: ['Burst Communication', 'Tower Hopping', 'Off-hours Activity'],
+        locations: ['Cell-3456', 'Cell-7890', 'Cell-1357', 'Cell-2468']
+      }
+    ];
     
     res.json({
-      logs: suspiciousLogs,
-      connections: suspiciousConnections,
-      timeRange: `Last ${hours} hours`
+      success: true,
+      data: suspiciousConnections,
+      total: suspiciousConnections.length
     });
+    
   } catch (error) {
-    console.error('Suspicious activities error:', error);
-    res.status(500).json({ error: 'Failed to get suspicious activities' });
+    console.error('Suspicious search error:', error);
+    res.status(500).json({ error: 'Failed to retrieve suspicious connections' });
+  }
+});
+
+// Quick search endpoint
+router.get('/quick', async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q) {
+      return res.status(400).json({ error: 'Query parameter required' });
+    }
+    
+    // Mock quick search results
+    const results = {
+      phoneNumbers: [
+        { number: '+91-9876543210', riskScore: 85, lastSeen: '2 hours ago' },
+        { number: '+91-8765432109', riskScore: 72, lastSeen: '5 hours ago' }
+      ],
+      locations: [
+        { cellId: '1234', lac: '567', activity: 'High', suspiciousEvents: 12 },
+        { cellId: '5678', lac: '890', activity: 'Medium', suspiciousEvents: 5 }
+      ],
+      patterns: [
+        { type: 'Burst Communication', instances: 15, severity: 'High' },
+        { type: 'International Routing', instances: 8, severity: 'Medium' }
+      ]
+    };
+    
+    res.json({
+      success: true,
+      query: q,
+      results
+    });
+    
+  } catch (error) {
+    console.error('Quick search error:', error);
+    res.status(500).json({ error: 'Quick search failed' });
   }
 });
 
