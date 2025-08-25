@@ -257,12 +257,18 @@ app.get('/api/logs', (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 50;
   const search = req.query.search || '';
+  const sourceFile = req.query.sourceFile || ''; // New filter for specific file
   
   let filteredLogs = processedLogEntries;
   
+  // Apply source file filter first
+  if (sourceFile) {
+    filteredLogs = filteredLogs.filter(log => log.sourceFile === sourceFile);
+  }
+  
   // Apply search filter if provided
   if (search) {
-    filteredLogs = processedLogEntries.filter(log => 
+    filteredLogs = filteredLogs.filter(log => 
       Object.values(log).some(value => 
         String(value).toLowerCase().includes(search.toLowerCase())
       )
@@ -285,9 +291,125 @@ app.get('/api/logs', (req, res) => {
       hasPreviousPage: page > 1
     },
     searchTerm: search,
+    sourceFileFilter: sourceFile,
     timestamp: new Date().toISOString()
   });
 });
+
+// Get uploaded files endpoint
+app.get('/api/files', (req, res) => {
+  res.json({
+    files: uploadedFiles,
+    totalFiles: uploadedFiles.length,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Delete uploaded file endpoint
+app.delete('/api/files/:filename', (req, res) => {
+  const filename = req.params.filename;
+  
+  try {
+    // Find the file in uploadedFiles array
+    const fileIndex = uploadedFiles.findIndex(file => file.filename === filename);
+    
+    if (fileIndex === -1) {
+      return res.status(404).json({ 
+        error: 'File not found',
+        filename: filename 
+      });
+    }
+    
+    const fileToDelete = uploadedFiles[fileIndex];
+    
+    // Remove physical file from disk
+    const filePath = path.join(uploadsDir, fileToDelete.storedFilename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    
+    // Remove from uploadedFiles array
+    uploadedFiles.splice(fileIndex, 1);
+    
+    // Remove associated log entries
+    const originalEntriesCount = processedLogEntries.length;
+    processedLogEntries = processedLogEntries.filter(log => log.sourceFile !== filename);
+    const removedEntriesCount = originalEntriesCount - processedLogEntries.length;
+    
+    // Update stats after removing entries
+    updateProcessedStats();
+    
+    // Add to activity log
+    recentActivityLog.unshift({
+      time: new Date().toLocaleTimeString(),
+      event: `File deleted: ${filename}`,
+      level: 'info',
+      source: 'System',
+      details: `Removed ${removedEntriesCount} log entries`
+    });
+    
+    // Keep only last 100 activity entries
+    if (recentActivityLog.length > 100) {
+      recentActivityLog = recentActivityLog.slice(0, 100);
+    }
+    
+    res.json({
+      success: true,
+      message: `File ${filename} deleted successfully`,
+      deletedFile: fileToDelete,
+      removedEntries: removedEntriesCount,
+      remainingFiles: uploadedFiles.length,
+      remainingEntries: processedLogEntries.length
+    });
+    
+  } catch (error) {
+    console.error('Delete file error:', error);
+    res.status(500).json({ 
+      error: 'Failed to delete file',
+      filename: filename,
+      details: error.message 
+    });
+  }
+});
+
+// Helper function to update processed stats
+function updateProcessedStats() {
+  if (processedLogEntries.length === 0) {
+    processedStats = {
+      totalRecords: 0,
+      activeConnections: 0,
+      flaggedNumbers: 0,
+      investigationCases: 0,
+      suspiciousPatterns: 0,
+      networkNodes: 0,
+      dataProcessed: 0,
+      riskScore: 0
+    };
+    return;
+  }
+  
+  const uniqueNumbers = new Set();
+  let suspiciousCount = 0;
+  
+  processedLogEntries.forEach(log => {
+    uniqueNumbers.add(log['A-Party'] || log.a_party);
+    uniqueNumbers.add(log['B-Party'] || log.b_party);
+    if (log.suspicionScore && log.suspicionScore > 50) {
+      suspiciousCount++;
+    }
+  });
+  
+  processedStats = {
+    totalRecords: processedLogEntries.length,
+    activeConnections: Math.floor(processedLogEntries.length * 0.7),
+    flaggedNumbers: suspiciousCount,
+    investigationCases: Math.floor(suspiciousCount / 10),
+    suspiciousPatterns: Math.floor(suspiciousCount / 5),
+    networkNodes: uniqueNumbers.size,
+    dataProcessed: (processedLogEntries.length * 0.1).toFixed(1),
+    riskScore: suspiciousCount > 0 ? Math.floor((suspiciousCount / processedLogEntries.length) * 100) : 0
+  };
+}
 
 // Analysis endpoint for pattern detection and anomalies
 app.get('/api/analysis', (req, res) => {

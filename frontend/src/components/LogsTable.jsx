@@ -6,6 +6,8 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   const [logs, setLogs] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [selectedFile, setSelectedFile] = useState('');
   const [filters, setFilters] = useState({
     riskLevel: '',
     dateFrom: '',
@@ -15,10 +17,31 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  const loadLogs = async (page = 1, search = '') => {
+  // Load uploaded files for filtering
+  const loadUploadedFiles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/files');
+      if (response.ok) {
+        const data = await response.json();
+        setUploadedFiles(data.files);
+      }
+    } catch (error) {
+      console.error('Error loading uploaded files:', error);
+    }
+  };
+
+  // Load logs with file filtering
+  const loadLogs = async (page = 1, search = '', sourceFile = '') => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/logs?page=${page}&limit=20&search=${encodeURIComponent(search)}`);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '20',
+        search: search,
+        ...(sourceFile && { sourceFile })
+      });
+      
+      const response = await fetch(`http://localhost:5000/api/logs?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch logs');
@@ -33,6 +56,37 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
       setLogs(logEntries.slice(0, 20));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Delete uploaded file
+  const deleteFile = async (filename) => {
+    if (!confirm(`Are you sure you want to delete "${filename}"? This will remove all associated log entries.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/files/${encodeURIComponent(filename)}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        alert(`Successfully deleted ${filename}. Removed ${result.removedEntries} log entries.`);
+        
+        // Reload files and logs
+        await loadUploadedFiles();
+        if (selectedFile === filename) {
+          setSelectedFile('');
+        }
+        loadLogs(1, searchTerm, selectedFile === filename ? '' : selectedFile);
+      } else {
+        const error = await response.json();
+        alert(`Failed to delete file: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      alert('Failed to delete file. Please try again.');
     }
   };
 
@@ -85,19 +139,34 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   };
 
   useEffect(() => {
+    loadUploadedFiles(); // Load available files for filtering
     if (totalEntries > 0) {
-      loadLogs(currentPage, searchTerm);
+      loadLogs(currentPage, searchTerm, selectedFile);
     } else {
       const filtered = applyLocalFilters(logEntries);
       setLogs(filtered.slice(0, 20));
     }
-  }, [currentPage, totalEntries, logEntries, searchTerm, filters]);
+  }, [currentPage, totalEntries, logEntries, searchTerm, selectedFile, filters]);
 
   const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setCurrentPage(1);
+    loadLogs(1, value, selectedFile);
+  };
+
+  const handleFileFilter = (e) => {
+    const file = e.target.value;
+    setSelectedFile(file);
+    setCurrentPage(1);
+    loadLogs(1, searchTerm, file);
+  };
+
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
     setCurrentPage(1);
     if (totalEntries > 0) {
-      loadLogs(1, searchTerm);
+      loadLogs(1, searchTerm, selectedFile);
     } else {
       const filtered = applyLocalFilters(logEntries);
       setLogs(filtered.slice(0, 20));
@@ -167,15 +236,27 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
           )}
         </h3>
         
-        <form onSubmit={handleSearch} className="flex flex-col gap-2">
-          <div className="flex gap-2">
+        <form onSubmit={handleSearchSubmit} className="flex flex-col gap-2">
+          <div className="flex gap-2 flex-wrap">
             <input
               type="text"
               placeholder="Search logs..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearch}
               className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
             />
+            <select
+              value={selectedFile}
+              onChange={handleFileFilter}
+              className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-blue-500"
+            >
+              <option value="">All Files</option>
+              {uploadedFiles.map((file, index) => (
+                <option key={index} value={file.filename}>
+                  {file.filename} ({file.recordCount} records)
+                </option>
+              ))}
+            </select>
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
@@ -190,6 +271,32 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
               {showAdvancedFilters ? 'Hide' : 'Filters'}
             </button>
           </div>
+          
+          {/* File Management Section */}
+          {uploadedFiles.length > 0 && (
+            <div className="mt-2 p-3 bg-gray-800 rounded border border-gray-600">
+              <h4 className="text-sm font-medium text-white mb-2">Uploaded Files ({uploadedFiles.length})</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                {uploadedFiles.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between bg-gray-700 p-2 rounded text-xs">
+                    <div>
+                      <div className="text-white font-medium">{file.filename}</div>
+                      <div className="text-gray-400">{file.recordCount} records • {file.size}</div>
+                      <div className="text-gray-500">{new Date(file.uploadedAt).toLocaleDateString()}</div>
+                    </div>
+                    <button
+                      onClick={() => deleteFile(file.filename)}
+                      className="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                      title="Delete file and all associated logs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </form>
           
           {showAdvancedFilters && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2 p-3 bg-gray-800 rounded">
@@ -240,11 +347,86 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
         </form>
       </div>
 
-      {loading ? (
+      {loading && (
         <div className="text-center py-8">
           <div className="text-blue-400">Loading logs...</div>
         </div>
-      ) : (
+      )}
+      
+      {!loading && (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left p-3 text-white font-medium">A-Party</th>
+                  <th className="text-left p-3 text-white font-medium">B-Party</th>
+                  <th className="text-left p-3 text-white font-medium">Date/Time</th>
+                  <th className="text-left p-3 text-white font-medium">Duration</th>
+                  <th className="text-left p-3 text-white font-medium">Type</th>
+                  <th className="text-left p-3 text-white font-medium">Risk</th>
+                  <th className="text-left p-3 text-white font-medium">Source File</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.map((log, index) => (
+                  <tr key={index} className="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                    <td className="p-3 text-gray-300">{log['A-Party'] || log.a_party}</td>
+                    <td className="p-3 text-gray-300">{log['B-Party'] || log.b_party}</td>
+                    <td className="p-3 text-gray-400 text-xs">
+                      {log['Call-Date'] || log.timestamp?.split('T')[0]} {log['Call-Time'] || log.timestamp?.split('T')[1]?.split('.')[0]}
+                    </td>
+                    <td className="p-3 text-gray-400">{formatDuration(log.Duration || log.duration)}</td>
+                    <td className="p-3 text-gray-400">{log['Call-Type'] || log.type || 'Voice'}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded text-xs ${getSuspicionColor(log.suspicionScore || 0)}`}>
+                        {log.suspicionScore ? `${log.suspicionScore}%` : '-'}
+                      </span>
+                    </td>
+                    <td className="p-3 text-gray-500 text-xs">{log.sourceFile || 'Unknown'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 text-sm">
+              <div className="text-gray-400">
+                Showing {((pagination.currentPage - 1) * pagination.entriesPerPage) + 1} to{' '}
+                {Math.min(pagination.currentPage * pagination.entriesPerPage, pagination.totalEntries)} of{' '}
+                {pagination.totalEntries} entries
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setCurrentPage(pagination.currentPage - 1);
+                    loadLogs(pagination.currentPage - 1, searchTerm, selectedFile);
+                  }}
+                  disabled={!pagination.hasPreviousPage}
+                  className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
+                >
+                  Previous
+                </button>
+                <span className="px-3 py-1 bg-gray-800 text-white rounded">
+                  {pagination.currentPage} / {pagination.totalPages}
+                </span>
+                <button
+                  onClick={() => {
+                    setCurrentPage(pagination.currentPage + 1);
+                    loadLogs(pagination.currentPage + 1, searchTerm, selectedFile);
+                  }}
+                  disabled={!pagination.hasNextPage}
+                  className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
