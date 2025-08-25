@@ -438,7 +438,12 @@ app.get('/api/network', (req, res) => {
       hasData: false,
       nodes: [],
       edges: [],
-      stats: { totalNodes: 0, totalEdges: 0, clusters: 0 }
+      statistics: { 
+        totalNodes: 0, 
+        totalConnections: 0, 
+        highRiskConnections: 0,
+        clusters: 0 
+      }
     });
   }
 
@@ -553,9 +558,10 @@ app.get('/api/network', (req, res) => {
     hasData: true,
     nodes,
     edges,
-    stats: {
+    statistics: {
       totalNodes: nodes.length,
-      totalEdges: edges.length,
+      totalConnections: edges.length,
+      highRiskConnections: edges.filter(e => e.avgRisk > 70).length,
       clusters: Object.keys(clusters).length,
       riskDistribution: clusters
     },

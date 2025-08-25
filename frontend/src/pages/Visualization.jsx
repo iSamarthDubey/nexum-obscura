@@ -6,17 +6,16 @@ import {
   ShareIcon,
   AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
-import { getTopologyData, getDashboardData } from '../utils/api';
 import NetworkGraph from '../components/NetworkGraph';
 
 const Visualization = () => {
   const [activeView, setActiveView] = useState('network');
-  const [topologyData, setTopologyData] = useState(null);
-  const [dashboardData, setDashboardData] = useState(null);
+  const [networkData, setNetworkData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     timeRange: '24h',
-    minConnections: 5,
+    minConnections: 2,
     showOnlySuspicious: false
   });
 
@@ -26,15 +25,23 @@ const Visualization = () => {
 
   const loadData = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const [topology, dashboard] = await Promise.all([
-        getTopologyData({ limit: 100 }),
-        getDashboardData({ hours: 24 })
-      ]);
-      setTopologyData(topology);
-      setDashboardData(dashboard);
+      // Load network data
+      const params = new URLSearchParams({
+        minConnections: filters.minConnections.toString(),
+        showOnlySuspicious: filters.showOnlySuspicious.toString()
+      });
+      
+      const response = await fetch(`http://localhost:5000/api/network?${params}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setNetworkData(data);
     } catch (error) {
       console.error('Failed to load visualization data:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -93,16 +100,19 @@ const Visualization = () => {
 
             {/* Filters */}
             <div className="flex items-center space-x-4">
-              <select
-                value={filters.timeRange}
-                onChange={(e) => setFilters({ ...filters, timeRange: e.target.value })}
-                className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-              >
-                <option value="1h">Last 1 Hour</option>
-                <option value="6h">Last 6 Hours</option>
-                <option value="24h">Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
-              </select>
+              <div className="flex items-center">
+                <label className="text-sm text-gray-600 mr-2">Min Connections:</label>
+                <select
+                  value={filters.minConnections}
+                  onChange={(e) => setFilters({ ...filters, minConnections: parseInt(e.target.value) })}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                >
+                  <option value="1">1+</option>
+                  <option value="2">2+</option>
+                  <option value="5">5+</option>
+                  <option value="10">10+</option>
+                </select>
+              </div>
 
               <div className="flex items-center">
                 <input
@@ -130,39 +140,54 @@ const Visualization = () => {
 
         {/* Visualization Content */}
         <div className="bg-white rounded-lg shadow">
+          {error && (
+            <div className="p-4 bg-red-50 border-l-4 border-red-400">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-700">Error loading network data: {error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeView === 'network' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-medium text-gray-900">Network Topology</h3>
                 <div className="text-sm text-gray-500">
-                  {topologyData?.metadata && (
+                  {networkData?.statistics && (
                     <>
-                      {topologyData.metadata.totalNodes} nodes, {topologyData.metadata.totalConnections} connections
+                      {networkData.statistics.totalNodes} nodes, {networkData.statistics.totalConnections} connections
                     </>
                   )}
                 </div>
               </div>
               <div className="h-96 border border-gray-200 rounded-lg">
-                <NetworkGraph data={topologyData} loading={loading} />
+                <NetworkGraph data={networkData} loading={loading} filters={filters} />
               </div>
               
               {/* Legend */}
               <div className="mt-4 flex items-center justify-center space-x-6 text-sm text-gray-600">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                  Low Risk
+                  Low Risk (0-40%)
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                  Medium Risk
+                  Medium Risk (40-70%)
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                  High Risk
+                  High Risk (70%+)
                 </div>
                 <div className="flex items-center">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
-                  Critical Risk
+                  <div className="w-3 h-1 bg-gray-600 mr-2"></div>
+                  Connection Strength
                 </div>
               </div>
             </div>
@@ -197,29 +222,37 @@ const Visualization = () => {
         </div>
 
         {/* Statistics Panel */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
             <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Active Connections</h4>
             <p className="mt-2 text-3xl font-semibold text-gray-900">
-              {topologyData?.metadata?.totalConnections || 0}
+              {networkData?.statistics?.totalConnections || 0}
             </p>
             <p className="mt-1 text-sm text-gray-600">Network connections</p>
           </div>
           
           <div className="bg-white rounded-lg shadow p-6">
-            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Unique IPs</h4>
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Phone Numbers</h4>
             <p className="mt-2 text-3xl font-semibold text-gray-900">
-              {topologyData?.metadata?.totalNodes || 0}
+              {networkData?.statistics?.totalNodes || 0}
             </p>
-            <p className="mt-1 text-sm text-gray-600">IP addresses</p>
+            <p className="mt-1 text-sm text-gray-600">Unique numbers</p>
           </div>
           
           <div className="bg-white rounded-lg shadow p-6">
-            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Suspicious Rate</h4>
-            <p className="mt-2 text-3xl font-semibold text-gray-900">
-              {dashboardData?.overview?.suspiciousPercentage || 0}%
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide">High Risk</h4>
+            <p className="mt-2 text-3xl font-semibold text-red-600">
+              {networkData?.statistics?.highRiskConnections || 0}
             </p>
-            <p className="mt-1 text-sm text-gray-600">Of total traffic</p>
+            <p className="mt-1 text-sm text-gray-600">Suspicious connections</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Clusters</h4>
+            <p className="mt-2 text-3xl font-semibold text-purple-600">
+              {networkData?.statistics?.clusters || 0}
+            </p>
+            <p className="mt-1 text-sm text-gray-600">Network clusters</p>
           </div>
         </div>
 

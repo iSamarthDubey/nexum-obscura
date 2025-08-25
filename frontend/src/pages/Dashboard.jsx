@@ -107,7 +107,12 @@ const Dashboard = () => {
       <div className="page-header">
         <h1 className="page-title">Investigation Dashboard</h1>
         <p className="page-subtitle">
-          Real-time IPDR analysis and threat monitoring • Live: {currentTime.toLocaleTimeString()}
+          Real-time IPDR analysis and threat monitoring • Live: {currentTime.toLocaleTimeString('en-US', { 
+            hour12: true, 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+          })}
           {dashboardData?.source && (
             <span className="ml-2 text-xs text-cyber-blue">• Data from: {dashboardData.source}</span>
           )}

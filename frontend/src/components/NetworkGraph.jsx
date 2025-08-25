@@ -5,9 +5,24 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
   const cyRef = useRef(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [networkStats, setNetworkStats] = useState(null);
+  const [containerReady, setContainerReady] = useState(false);
+
+  // Ensure container is ready
+  useEffect(() => {
+    if (cyRef.current) {
+      setContainerReady(true);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!data || !data.nodes || !data.edges || loading) return;
+    // Check if container ref exists and data is available
+    if (!containerReady || !cyRef.current || !data || !data.nodes || !data.edges || loading) return;
+
+    // Clear any existing cytoscape instance
+    if (cyRef.current._cytoscapeInstance) {
+      cyRef.current._cytoscapeInstance.destroy();
+      cyRef.current._cytoscapeInstance = null;
+    }
 
     // Initialize Cytoscape
     const cy = cytoscape({
@@ -130,12 +145,20 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
         (data.nodes.reduce((sum, n) => sum + n.connectionCount, 0) / data.nodes.length).toFixed(1) : 0
     });
 
+    // Store the instance reference for cleanup
+    if (cyRef.current) {
+      cyRef.current._cytoscapeInstance = cy;
+    }
+
     return () => {
       if (cy) {
         cy.destroy();
       }
+      if (cyRef.current) {
+        cyRef.current._cytoscapeInstance = null;
+      }
     };
-  }, [data, loading]);
+  }, [data, loading, containerReady]);
 
   if (loading) {
     return (
