@@ -296,7 +296,6 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
               </div>
             </div>
           )}
-        </form>
           
           {showAdvancedFilters && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2 p-3 bg-gray-800 rounded">
@@ -419,97 +418,6 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
                   }}
                   disabled={!pagination.hasNextPage}
                   className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-        <>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="text-left py-3 px-2 text-gray-300">ID</th>
-                  <th className="text-left py-3 px-2 text-gray-300">A-Party</th>
-                  <th className="text-left py-3 px-2 text-gray-300">B-Party</th>
-                  <th className="text-left py-3 px-2 text-gray-300">Date/Time</th>
-                  <th className="text-left py-3 px-2 text-gray-300">Duration</th>
-                  <th className="text-left py-3 px-2 text-gray-300">Risk</th>
-                  <th className="text-left py-3 px-2 text-gray-300">Suspicion</th>
-                  <th className="text-left py-3 px-2 text-gray-300">Source</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log, index) => (
-                  <tr key={log.id || index} className="border-b border-gray-800 hover:bg-gray-800/50">
-                    <td className="py-3 px-2 text-gray-300 font-mono">
-                      #{log.id || index + 1}
-                    </td>
-                    <td className="py-3 px-2 text-white font-mono">
-                      {log['A-Party'] || log.a_party || log.caller || log.source || 'N/A'}
-                    </td>
-                    <td className="py-3 px-2 text-white font-mono">
-                      {log['B-Party'] || log.b_party || log.called || log.destination || 'N/A'}
-                    </td>
-                    <td className="py-3 px-2 text-gray-300">
-                      <div>
-                        {log['Call-Date'] || log.date || (log.timestamp ? new Date(log.timestamp).toLocaleDateString() : new Date(log.processedAt).toLocaleDateString())}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {log['Call-Time'] || log.time || (log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : new Date(log.processedAt).toLocaleTimeString())}
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-gray-300">
-                      {formatDuration(log.Duration || log.duration)}
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className={`px-2 py-1 rounded-full text-xs border ${getRiskBadge(log.riskLevel)}`}>
-                        {log.riskLevel}
-                      </span>
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className={`font-medium ${getSuspicionColor(log.suspicionScore)}`}>
-                        {log.suspicionScore}%
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-gray-400 text-xs">
-                      {log.sourceFile?.substring(0, 20) || 'Unknown'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-700">
-              <div className="text-sm text-gray-400">
-                Showing {((pagination.currentPage - 1) * pagination.entriesPerPage) + 1} to{' '}
-                {Math.min(pagination.currentPage * pagination.entriesPerPage, pagination.totalEntries)} of{' '}
-                {pagination.totalEntries} entries
-              </div>
-              
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={!pagination.hasPreviousPage}
-                  className="px-3 py-1 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                
-                <span className="px-3 py-1 text-gray-300 text-sm">
-                  Page {pagination.currentPage} of {pagination.totalPages}
-                </span>
-                
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={!pagination.hasNextPage}
-                  className="px-3 py-1 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
