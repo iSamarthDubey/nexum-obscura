@@ -6,6 +6,7 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
   const [selectedNode, setSelectedNode] = useState(null);
   const [networkStats, setNetworkStats] = useState(null);
   const [containerReady, setContainerReady] = useState(false);
+  const [error, setError] = useState(null);
 
   // Ensure container is ready
   useEffect(() => {
@@ -16,16 +17,36 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
 
   useEffect(() => {
     // Check if container ref exists and data is available
-    if (!containerReady || !cyRef.current || !data || !data.nodes || !data.edges || loading) return;
-
-    // Clear any existing cytoscape instance
-    if (cyRef.current._cytoscapeInstance) {
-      cyRef.current._cytoscapeInstance.destroy();
-      cyRef.current._cytoscapeInstance = null;
+    if (!containerReady || !cyRef.current || loading) return;
+    
+    console.log('🔄 NetworkGraph received data:', data);
+    
+    // Check if we have valid data
+    if (!data || !data.hasData || !data.nodes || !data.edges) {
+      console.log('⚠️ No network data available');
+      setError('No network data available. Upload IPDR files to generate network visualization.');
+      return;
     }
+    
+    if (data.nodes.length === 0) {
+      console.log('⚠️ No nodes in network data');
+      setError('No network connections found. Try adjusting filters or uploading more data.');
+      return;
+    }
+    
+    setError(null);
+    
+    try {
+      // Clear any existing cytoscape instance
+      if (cyRef.current._cytoscapeInstance) {
+        cyRef.current._cytoscapeInstance.destroy();
+        cyRef.current._cytoscapeInstance = null;
+      }
 
-    // Initialize Cytoscape
-    const cy = cytoscape({
+      console.log(`✅ Creating network graph with ${data.nodes.length} nodes and ${data.edges.length} edges`);
+
+      // Initialize Cytoscape
+      const cy = cytoscape({
       container: cyRef.current,
       elements: [
         // Add nodes
@@ -146,15 +167,19 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
     });
 
     // Store the instance reference for cleanup
+    // Store the cytoscape instance for cleanup
     if (cyRef.current) {
       cyRef.current._cytoscapeInstance = cy;
     }
+    
+    } catch (error) {
+      console.error('❌ Error creating network graph:', error);
+      setError('Failed to create network visualization. Please try again.');
+    }
 
     return () => {
-      if (cy) {
-        cy.destroy();
-      }
-      if (cyRef.current) {
+      if (cyRef.current && cyRef.current._cytoscapeInstance) {
+        cyRef.current._cytoscapeInstance.destroy();
         cyRef.current._cytoscapeInstance = null;
       }
     };
@@ -166,6 +191,18 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-2 text-sm text-gray-400">Loading network topology...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-center">
+          <div className="text-red-400 text-6xl mb-4">⚠️</div>
+          <p className="text-red-400 mb-2">Network Visualization Error</p>
+          <p className="text-gray-400 text-sm">{error}</p>
         </div>
       </div>
     );

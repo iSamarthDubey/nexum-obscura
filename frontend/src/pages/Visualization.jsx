@@ -27,6 +27,7 @@ const Visualization = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('🔄 Loading network visualization data...');
       // Load network data
       const params = new URLSearchParams({
         minConnections: filters.minConnections.toString(),
@@ -38,10 +39,18 @@ const Visualization = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log('✅ Network data loaded:', data);
       setNetworkData(data);
     } catch (error) {
-      console.error('Failed to load visualization data:', error);
+      console.error('❌ Failed to load visualization data:', error);
       setError(error.message);
+      // Set empty data instead of failing completely
+      setNetworkData({
+        hasData: false,
+        nodes: [],
+        edges: [],
+        statistics: { totalNodes: 0, totalConnections: 0 }
+      });
     } finally {
       setLoading(false);
     }
