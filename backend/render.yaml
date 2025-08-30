@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: nexum-obscura
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        fromDatabase:
+          name: nexum-obscura-db
+          property: connectionString
+    healthCheckPath: /api/health
