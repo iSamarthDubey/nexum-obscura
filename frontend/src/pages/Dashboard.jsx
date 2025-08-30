@@ -54,37 +54,31 @@ const Dashboard = () => {
     } catch (error) {
       console.error('❌ Failed to load dashboard data from API:', error);
       setApiConnected(false);
-      // Fallback to mock data if API fails
-      const mockData = {
+      // Set empty/zero data instead of mock data
+      const emptyData = {
         overview: {
-          totalRecords: 2847362,
-          activeConnections: 15847,
-          flaggedNumbers: 342,
-          investigationCases: 28,
-          suspiciousPatterns: 89,
-          networkNodes: 5634,
-          dataProcessed: "847.2",
-          riskScore: 67
+          totalRecords: 0,
+          activeConnections: 0,
+          flaggedNumbers: 0,
+          investigationCases: 0,
+          suspiciousPatterns: 0,
+          networkNodes: 0,
+          dataProcessed: "0",
+          riskScore: 0
         },
         recentActivity: [
-          { time: '14:32', event: 'Suspicious call pattern detected', level: 'high', source: '+91-98765-43210' },
-          { time: '14:28', event: 'New IPDR batch processed', level: 'info', source: 'Operator: Airtel' },
-          { time: '14:25', event: 'International roaming anomaly', level: 'medium', source: '+1-555-0123' },
-          { time: '14:20', event: 'Bulk SMS activity flagged', level: 'high', source: '+91-87654-32109' },
+          { time: '--:--', event: 'No data available - Backend API not responding', level: 'info', source: 'System' },
+          { time: '--:--', event: 'Please check backend connection and upload IPDR files', level: 'info', source: 'System' }
         ],
-        activeInvestigations: [
-          { id: 'INV-2025-001', suspect: '+91-98765-43210', priority: 'Critical', status: 'Active', lastActivity: '2 min ago' },
-          { id: 'INV-2025-002', suspect: '+91-87654-32109', priority: 'High', status: 'Under Review', lastActivity: '15 min ago' },
-          { id: 'INV-2025-003', suspect: '+1-555-0123', priority: 'Medium', status: 'Monitoring', lastActivity: '1 hr ago' },
-        ],
+        activeInvestigations: [],
         networkStats: {
-          totalCells: 8947,
-          activeCells: 8234,
-          roamingActive: 1847,
-          internationalCalls: 234
+          totalCells: 0,
+          activeCells: 0,
+          roamingActive: 0,
+          internationalCalls: 0
         }
       };
-      setDashboardData(mockData);
+      setDashboardData(emptyData);
     } finally {
       setLoading(false);
     }
@@ -116,6 +110,9 @@ const Dashboard = () => {
           {dashboardData?.source && (
             <span className="ml-2 text-xs text-cyber-blue">• Data from: {dashboardData.source}</span>
           )}
+          <span className={`ml-2 text-xs ${apiConnected ? 'text-cyber-green' : 'text-cyber-red'}`}>
+            • Backend: {apiConnected ? 'Connected' : 'Disconnected'}
+          </span>
         </p>
       </div>
 
@@ -246,27 +243,35 @@ const Dashboard = () => {
             Active Investigations
           </h3>
           <div className="space-y-3">
-            {activeInvestigations?.map((investigation, index) => (
-              <div key={index} className="p-3 rounded border border-cyber-border hover:border-cyber-blue/50 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono-cyber text-cyber-blue text-sm">{investigation.id}</span>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    investigation.priority === 'Critical' ? 'bg-red-900/30 text-red-300' :
-                    investigation.priority === 'High' ? 'bg-yellow-900/30 text-yellow-300' :
-                    'bg-blue-900/30 text-blue-300'
-                  }`}>
-                    {investigation.priority}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-cyber-text">{investigation.suspect}</p>
-                    <p className="text-xs text-cyber-text-muted">{investigation.status}</p>
+            {activeInvestigations && activeInvestigations.length > 0 ? (
+              activeInvestigations.map((investigation, index) => (
+                <div key={index} className="p-3 rounded border border-cyber-border hover:border-cyber-blue/50 transition-colors">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono-cyber text-cyber-blue text-sm">{investigation.id}</span>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      investigation.priority === 'Critical' ? 'bg-red-900/30 text-red-300' :
+                      investigation.priority === 'High' ? 'bg-yellow-900/30 text-yellow-300' :
+                      'bg-blue-900/30 text-blue-300'
+                    }`}>
+                      {investigation.priority}
+                    </span>
                   </div>
-                  <div className="text-xs text-cyber-text-muted">{investigation.lastActivity}</div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-cyber-text">{investigation.suspect}</p>
+                      <p className="text-xs text-cyber-text-muted">{investigation.status}</p>
+                    </div>
+                    <div className="text-xs text-cyber-text-muted">{investigation.lastActivity}</div>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-cyber-text-muted">
+                <div className="text-4xl mb-2">🔍</div>
+                <p className="text-sm">No active investigations</p>
+                <p className="text-xs mt-1">Upload IPDR files to start investigation</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
