@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Global state to track uploaded files and processed data
 let uploadedFiles = [];
@@ -59,7 +59,21 @@ if (processedLogEntries.length === 0) {
   console.log('✅ Sample data loaded:', processedLogEntries.length, 'records');
 }
 
-app.use(cors());
+// CORS configuration for production deployment
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'https://nexum-obscura-frontend.vercel.app',
+    'https://nexum-obscura.vercel.app',
+    /\.vercel\.app$/,
+    /localhost/
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Create uploads directory if it doesn't exist
