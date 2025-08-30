@@ -4,6 +4,11 @@ const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
+
+// Database imports
+const { connectDB } = require('./config/database');
+const DatabaseService = require('./services/DatabaseService');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -75,6 +80,43 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Initialize Database Connection
+async function initializeDatabase() {
+  console.log('🔄 Initializing database connection...');
+  const isConnected = await connectDB();
+  DatabaseService.setConnectionStatus(isConnected);
+  
+  if (isConnected) {
+    console.log('✅ Database integration active');
+    // Try to save sample data to database if it's empty
+    try {
+      const stats = await DatabaseService.getIPDRStats();
+      if (stats && stats.totalRecords === 0) {
+        console.log('📊 Populating database with sample IPDR data...');
+        await DatabaseService.saveIPDRLogs(processedLogEntries.map(log => ({
+          aParty: log['A-Party'],
+          bParty: log['B-Party'],
+          duration: parseInt(log.Duration),
+          callTime: new Date(log['Call-Time']),
+          cellId: log['Cell-ID'],
+          suspicionScore: log.suspicionScore,
+          riskLevel: log.riskLevel,
+          sourceFile: log.sourceFile,
+          processedAt: new Date(log.processedAt)
+        })));
+        console.log('✅ Sample data populated in database');
+      }
+    } catch (error) {
+      console.error('⚠️ Error populating sample data:', error.message);
+    }
+  } else {
+    console.log('⚠️ Using in-memory storage for demo purposes');
+  }
+}
+
+// Initialize database on startup
+initializeDatabase();
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');

@@ -22,7 +22,17 @@
    ```
    NODE_ENV=production
    PORT=10000
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/nexum-obscura?retryWrites=true&w=majority
+   JWT_SECRET=your-super-secure-production-jwt-secret
+   MAX_FILE_SIZE=10485760
    ```
+
+   **Setting up MongoDB Atlas:**
+   - Create free MongoDB Atlas account at mongodb.com/atlas
+   - Create new cluster (free tier: 512MB)
+   - Create database user with read/write permissions  
+   - Add network access (0.0.0.0/0 for testing, specific IPs for production)
+   - Copy connection string and replace `<password>` with your database password
 
 4. **Auto-Deploy Settings**
    - Enable "Auto-Deploy" for automatic deployments on git push
