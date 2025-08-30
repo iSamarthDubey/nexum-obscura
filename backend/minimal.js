@@ -24,6 +24,41 @@ let processedStats = {
 let recentActivityLog = [];
 let timelineData = [];
 
+// Initialize with sample data for demo (remove this in production)
+if (processedLogEntries.length === 0) {
+  console.log('🔄 Loading sample IPDR data for demo...');
+  const sampleData = [
+    { 'A-Party': '+91-9876543210', 'B-Party': '+91-9123456789', 'Duration': '120', 'Call-Time': '2025-08-30 14:30:00', 'Cell-ID': 'CELL001', suspicionScore: 85, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-9876543210', 'B-Party': '+91-8765432109', 'Duration': '45', 'Call-Time': '2025-08-30 14:35:00', 'Cell-ID': 'CELL002', suspicionScore: 72, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-9123456789', 'B-Party': '+91-7654321098', 'Duration': '300', 'Call-Time': '2025-08-30 14:40:00', 'Cell-ID': 'CELL001', suspicionScore: 45, riskLevel: 'Low', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-8765432109', 'B-Party': '+91-9876543210', 'Duration': '60', 'Call-Time': '2025-08-30 14:45:00', 'Cell-ID': 'CELL003', suspicionScore: 91, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-7654321098', 'B-Party': '+91-6543210987', 'Duration': '180', 'Call-Time': '2025-08-30 14:50:00', 'Cell-ID': 'CELL002', suspicionScore: 38, riskLevel: 'Low', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-6543210987', 'B-Party': '+91-9876543210', 'Duration': '90', 'Call-Time': '2025-08-30 14:55:00', 'Cell-ID': 'CELL001', suspicionScore: 67, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-9876543210', 'B-Party': '+91-5432109876', 'Duration': '240', 'Call-Time': '2025-08-30 15:00:00', 'Cell-ID': 'CELL004', suspicionScore: 89, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-5432109876', 'B-Party': '+91-4321098765', 'Duration': '150', 'Call-Time': '2025-08-30 15:05:00', 'Cell-ID': 'CELL003', suspicionScore: 55, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-4321098765', 'B-Party': '+91-9876543210', 'Duration': '75', 'Call-Time': '2025-08-30 15:10:00', 'Cell-ID': 'CELL002', suspicionScore: 73, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
+    { 'A-Party': '+91-9876543210', 'B-Party': '+91-3210987654', 'Duration': '210', 'Call-Time': '2025-08-30 15:15:00', 'Cell-ID': 'CELL001', suspicionScore: 94, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() }
+  ];
+  
+  processedLogEntries = sampleData;
+  
+  // Update stats
+  processedStats = {
+    totalRecords: sampleData.length,
+    activeConnections: Math.floor(sampleData.length * 0.7),
+    flaggedNumbers: sampleData.filter(log => log.suspicionScore > 70).length,
+    investigationCases: 3,
+    suspiciousPatterns: 5,
+    networkNodes: new Set([...sampleData.map(log => log['A-Party']), ...sampleData.map(log => log['B-Party'])]).size,
+    dataProcessed: (sampleData.length * 0.1).toFixed(1),
+    riskScore: Math.round(sampleData.reduce((sum, log) => sum + log.suspicionScore, 0) / sampleData.length)
+  };
+  
+  uploadedFiles = [{ filename: 'sample_data.csv', recordsProcessed: sampleData.length, uploadTime: new Date().toISOString() }];
+  
+  console.log('✅ Sample data loaded:', processedLogEntries.length, 'records');
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -694,6 +729,291 @@ app.get('/api/network', (req, res) => {
     },
     timestamp: new Date().toISOString()
   });
+});
+
+// Real-time alerts endpoint
+app.get('/api/alerts', (req, res) => {
+  const alerts = [];
+  
+  if (processedLogEntries.length === 0) {
+    alerts.push({
+      id: 'no-data',
+      type: 'info',
+      severity: 'low',
+      title: 'No Data Available',
+      message: 'Upload IPDR files to begin monitoring for security threats',
+      timestamp: new Date().toISOString(),
+      acknowledged: false
+    });
+  } else {
+    // Check for high-risk activities
+    const highRiskEntries = processedLogEntries.filter(log => log.suspicionScore > 80);
+    if (highRiskEntries.length > 0) {
+      alerts.push({
+        id: `high-risk-${Date.now()}`,
+        type: 'security',
+        severity: 'critical',
+        title: `${highRiskEntries.length} Critical Risk Communications Detected`,
+        message: `Immediate investigation required for ${highRiskEntries.length} high-risk communications`,
+        timestamp: new Date().toISOString(),
+        acknowledged: false,
+        details: highRiskEntries.slice(0, 3).map(log => ({
+          aParty: log['A-Party'] || log.a_party,
+          bParty: log['B-Party'] || log.b_party,
+          riskScore: log.suspicionScore
+        }))
+      });
+    }
+    
+    // Check for burst communications
+    const recentEntries = processedLogEntries.filter(log => {
+      const logTime = new Date(log.processedAt);
+      const now = new Date();
+      return (now - logTime) < 300000; // Last 5 minutes
+    });
+    
+    if (recentEntries.length > 10) {
+      alerts.push({
+        id: `burst-comm-${Date.now()}`,
+        type: 'pattern',
+        severity: 'high',
+        title: 'Burst Communication Pattern Detected',
+        message: `${recentEntries.length} communications in rapid succession detected`,
+        timestamp: new Date().toISOString(),
+        acknowledged: false
+      });
+    }
+    
+    // Check for international activity
+    const internationalCalls = processedLogEntries.filter(log => {
+      const aParty = log['A-Party'] || log.a_party || '';
+      const bParty = log['B-Party'] || log.b_party || '';
+      return aParty.includes('+1-') || aParty.includes('+44-') || 
+             bParty.includes('+1-') || bParty.includes('+44-');
+    });
+    
+    if (internationalCalls.length > processedLogEntries.length * 0.1) {
+      alerts.push({
+        id: `intl-activity-${Date.now()}`,
+        type: 'anomaly',
+        severity: 'medium',
+        title: 'High International Activity',
+        message: `${internationalCalls.length} international communications detected (${Math.round(internationalCalls.length/processedLogEntries.length*100)}% of total)`,
+        timestamp: new Date().toISOString(),
+        acknowledged: false
+      });
+    }
+    
+    // Data processing health check
+    if (uploadedFiles.length > 0) {
+      alerts.push({
+        id: `health-check-${Date.now()}`,
+        type: 'system',
+        severity: 'low',
+        title: 'System Status: Operational',
+        message: `Processing ${processedLogEntries.length} records from ${uploadedFiles.length} files`,
+        timestamp: new Date().toISOString(),
+        acknowledged: false
+      });
+    }
+  }
+  
+  res.json({
+    alerts: alerts.slice(0, 10), // Limit to 10 most recent alerts
+    totalAlerts: alerts.length,
+    criticalCount: alerts.filter(a => a.severity === 'critical').length,
+    highCount: alerts.filter(a => a.severity === 'high').length,
+    mediumCount: alerts.filter(a => a.severity === 'medium').length,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Reports endpoint for generating investigation reports
+app.get('/api/reports', (req, res) => {
+  const { type = 'summary', format = 'json', dateRange = '24h' } = req.query;
+  
+  if (processedLogEntries.length === 0) {
+    return res.json({
+      error: 'No data available for report generation',
+      message: 'Upload IPDR files to generate reports',
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  const now = new Date();
+  const reportData = {
+    reportId: `RPT-${Date.now()}`,
+    generatedAt: now.toISOString(),
+    reportType: type,
+    dateRange: dateRange,
+    dataSource: 'IPDR Analysis System',
+    summary: {
+      totalRecords: processedLogEntries.length,
+      filesProcessed: uploadedFiles.length,
+      analysisTimeframe: dateRange,
+      overallRiskScore: processedStats.riskScore
+    }
+  };
+  
+  if (type === 'summary') {
+    // High-level summary report
+    const riskDistribution = {
+      critical: processedLogEntries.filter(log => log.suspicionScore > 80).length,
+      high: processedLogEntries.filter(log => log.suspicionScore > 60 && log.suspicionScore <= 80).length,
+      medium: processedLogEntries.filter(log => log.suspicionScore > 40 && log.suspicionScore <= 60).length,
+      low: processedLogEntries.filter(log => log.suspicionScore <= 40).length
+    };
+    
+    reportData.analysis = {
+      riskDistribution,
+      topRiskNumbers: processedLogEntries
+        .sort((a, b) => (b.suspicionScore || 0) - (a.suspicionScore || 0))
+        .slice(0, 10)
+        .map(log => ({
+          number: log['A-Party'] || log.a_party,
+          riskScore: log.suspicionScore,
+          lastActivity: log.processedAt
+        })),
+      patternsSummary: {
+        suspiciousConnections: processedStats.flaggedNumbers,
+        networkNodes: processedStats.networkNodes,
+        investigations: processedStats.investigationCases
+      }
+    };
+  } else if (type === 'detailed') {
+    // Detailed forensic report
+    reportData.forensicAnalysis = {
+      connectionMatrix: processedLogEntries.slice(0, 100).map(log => ({
+        timestamp: log.processedAt,
+        aParty: log['A-Party'] || log.a_party,
+        bParty: log['B-Party'] || log.b_party,
+        duration: log.Duration || log.duration,
+        location: log['Cell-ID'] || log.cell_id || 'Unknown',
+        riskScore: log.suspicionScore,
+        sourceFile: log.sourceFile
+      })),
+      timeline: recentActivityLog.slice(0, 20),
+      recommendations: [
+        {
+          priority: 'High',
+          action: 'Investigate high-risk connections immediately',
+          numbers: processedLogEntries
+            .filter(log => log.suspicionScore > 70)
+            .slice(0, 5)
+            .map(log => log['A-Party'] || log.a_party)
+        },
+        {
+          priority: 'Medium',
+          action: 'Monitor suspicious patterns for 24-48 hours',
+          count: processedStats.suspiciousPatterns
+        }
+      ]
+    };
+  }
+  
+  // Add export timestamp and metadata
+  reportData.metadata = {
+    analyst: 'Nexum Obscura System',
+    confidentialityLevel: 'RESTRICTED',
+    reportVersion: '1.0',
+    exportFormat: format,
+    totalPages: Math.ceil(processedLogEntries.length / 50),
+    disclaimer: 'This report is generated by automated analysis. Manual verification recommended.'
+  };
+  
+  res.json(reportData);
+});
+
+// Export endpoint for downloading data in various formats
+app.get('/api/export/:type', (req, res) => {
+  const { type } = req.params;
+  const { format = 'csv', filter = 'all' } = req.query;
+  
+  if (processedLogEntries.length === 0) {
+    return res.status(400).json({
+      error: 'No data available for export'
+    });
+  }
+  
+  let exportData = [];
+  
+  switch (type) {
+    case 'logs':
+      exportData = processedLogEntries.map(log => ({
+        'A-Party': log['A-Party'] || log.a_party,
+        'B-Party': log['B-Party'] || log.b_party,
+        'Duration': log.Duration || log.duration,
+        'Timestamp': log['Call-Time'] || log.timestamp,
+        'Cell-ID': log['Cell-ID'] || log.cell_id,
+        'Risk-Score': log.suspicionScore,
+        'Risk-Level': log.riskLevel,
+        'Source-File': log.sourceFile,
+        'Processed-At': log.processedAt
+      }));
+      break;
+      
+    case 'suspicious':
+      exportData = processedLogEntries
+        .filter(log => log.suspicionScore > 60)
+        .map(log => ({
+          'A-Party': log['A-Party'] || log.a_party,
+          'B-Party': log['B-Party'] || log.b_party,
+          'Risk-Score': log.suspicionScore,
+          'Duration': log.Duration || log.duration,
+          'Investigation-Priority': log.suspicionScore > 80 ? 'Critical' : 'High',
+          'Source-File': log.sourceFile
+        }));
+      break;
+      
+    case 'summary':
+      exportData = [{
+        'Total-Records': processedLogEntries.length,
+        'High-Risk-Count': processedLogEntries.filter(log => log.suspicionScore > 70).length,
+        'Medium-Risk-Count': processedLogEntries.filter(log => log.suspicionScore > 40 && log.suspicionScore <= 70).length,
+        'Low-Risk-Count': processedLogEntries.filter(log => log.suspicionScore <= 40).length,
+        'Files-Processed': uploadedFiles.length,
+        'Overall-Risk-Score': processedStats.riskScore,
+        'Generated-At': new Date().toISOString()
+      }];
+      break;
+      
+    default:
+      return res.status(400).json({ error: 'Invalid export type' });
+  }
+  
+  if (format === 'csv') {
+    // Convert to CSV format
+    if (exportData.length === 0) {
+      return res.status(400).json({ error: 'No data to export' });
+    }
+    
+    const headers = Object.keys(exportData[0]);
+    const csvContent = [
+      headers.join(','),
+      ...exportData.map(row => 
+        headers.map(header => 
+          typeof row[header] === 'string' && row[header].includes(',') 
+            ? `"${row[header]}"` 
+            : row[header] || ''
+        ).join(',')
+      )
+    ].join('\n');
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="nexum-export-${type}-${Date.now()}.csv"`);
+    res.send(csvContent);
+  } else {
+    // JSON format
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="nexum-export-${type}-${Date.now()}.json"`);
+    res.json({
+      exportType: type,
+      format: format,
+      generatedAt: new Date().toISOString(),
+      recordCount: exportData.length,
+      data: exportData
+    });
+  }
 });
 
 // Upload status endpoint

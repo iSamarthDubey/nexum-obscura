@@ -5,6 +5,7 @@ import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import Visualization from './pages/Visualization';
 import Reports from './pages/Reports';
+import AlertsPanel from './components/AlertsPanel';
 import './App.css';
 
 // Navigation Component
@@ -127,6 +128,8 @@ function App() {
               <Route path="/reports" element={<Reports />} />
             </Routes>
           </main>
+          {/* Real-time Security Alerts Panel */}
+          <AlertsPanel />
         </div>
       </div>
     </Router>

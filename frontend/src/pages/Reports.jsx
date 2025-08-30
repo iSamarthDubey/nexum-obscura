@@ -6,7 +6,9 @@ import {
   EyeIcon,
   TrashIcon,
   CalendarIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ArrowDownTrayIcon,
+  DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
 import { getReports, generateReport, deleteReport } from '../utils/api';
 
@@ -21,6 +23,74 @@ const Reports = () => {
     limit: 20
   });
   const [generating, setGenerating] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+
+  // Export functions
+  const handleExport = async (type, format = 'csv') => {
+    setExportLoading(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/export/${type}?format=${format}`);
+      
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+      
+      // Get filename from Content-Disposition header or generate one
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition 
+        ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+        : `nexum-export-${type}-${Date.now()}.${format}`;
+      
+      // Download the file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log(`✅ ${type} data exported as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert(`Failed to export ${type} data`);
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const generateQuickReport = async (reportType) => {
+    setGenerating(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/reports?type=${reportType}&format=json`);
+      
+      if (!response.ok) {
+        throw new Error('Report generation failed');
+      }
+      
+      const reportData = await response.json();
+      
+      // Create and download the report
+      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nexum-report-${reportType}-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log(`✅ ${reportType} report generated`);
+    } catch (error) {
+      console.error('Report generation failed:', error);
+      alert(`Failed to generate ${reportType} report`);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
     loadReports();
@@ -109,6 +179,77 @@ const Reports = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quick Export & Reports Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Quick Export */}
+          <div className="card-cyber p-6">
+            <h3 className="text-lg font-cyber text-cyber-blue mb-4 flex items-center">
+              <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
+              Quick Export
+            </h3>
+            <div className="space-y-3">
+              <button
+                onClick={() => handleExport('logs', 'csv')}
+                disabled={exportLoading}
+                className="w-full btn-cyber-secondary flex items-center justify-center space-x-2"
+              >
+                <DocumentArrowDownIcon className="w-4 h-4" />
+                <span>Export All Logs (CSV)</span>
+              </button>
+              <button
+                onClick={() => handleExport('suspicious', 'csv')}
+                disabled={exportLoading}
+                className="w-full btn-cyber-secondary flex items-center justify-center space-x-2"
+              >
+                <ExclamationTriangleIcon className="w-4 h-4" />
+                <span>Export Suspicious Records (CSV)</span>
+              </button>
+              <button
+                onClick={() => handleExport('summary', 'json')}
+                disabled={exportLoading}
+                className="w-full btn-cyber-secondary flex items-center justify-center space-x-2"
+              >
+                <DocumentTextIcon className="w-4 h-4" />
+                <span>Export Summary (JSON)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Reports */}
+          <div className="card-cyber p-6">
+            <h3 className="text-lg font-cyber text-cyber-blue mb-4 flex items-center">
+              <DocumentTextIcon className="w-5 h-5 mr-2" />
+              Generate Reports
+            </h3>
+            <div className="space-y-3">
+              <button
+                onClick={() => generateQuickReport('summary')}
+                disabled={generating}
+                className="w-full btn-cyber-primary flex items-center justify-center space-x-2"
+              >
+                <DocumentTextIcon className="w-4 h-4" />
+                <span>Summary Report</span>
+              </button>
+              <button
+                onClick={() => generateQuickReport('detailed')}
+                disabled={generating}
+                className="w-full btn-cyber-primary flex items-center justify-center space-x-2"
+              >
+                <EyeIcon className="w-4 h-4" />
+                <span>Detailed Forensic Report</span>
+              </button>
+              {(generating || exportLoading) && (
+                <div className="text-center">
+                  <div className="inline-flex items-center text-cyber-blue">
+                    <div className="w-4 h-4 border-2 border-cyber-blue border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span className="text-sm">Processing...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Controls */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
