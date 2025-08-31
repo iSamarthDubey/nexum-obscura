@@ -2,7 +2,7 @@
 
 ## Advanced Cybersecurity Log Analysis Platform
 
-> Empowering security teams with intelligent threat detection and network analysis
+> Empowering security teams with advance & intelligent threat detection and network analysis.
 
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
@@ -17,15 +17,7 @@
 
 ## 🎯 Overview
 
-**Nexum Obscura** is a cutting-edge cybersecurity platform designed for real-time network log analysis, suspicious activity detection, and comprehensive security reporting. Built for the **National CyberShield Hackathon 2025**, it empowers security teams to identify threats, visualize network patterns, and generate actionable intelligence.
-
-### 🏆 Hackathon Details
-
-- **Event**: National CyberShield Hackathon 2025
-- **Organizer**: Madhya Pradesh Police (CIIS 2025)
-- **Team**: Obscura Collective
-- **Problem Statement**: Mapping A-party to B-party in IPDR logs
-- **Status**: 🚀 **LIVE IN PRODUCTION**
+**Nexum Obscura** is an advanced cybersecurity platform designed for real-time network log analysis, suspicious activity detection, and comprehensive security reporting. Built for the **National CyberShield Hackathon 2025**, it empowers security teams to identify threats, visualize network patterns, and generate actionable intelligence.
 
 ---
 
@@ -33,26 +25,26 @@
 
 ### 🔍 Intelligent Analysis
 
-- Advanced anomaly detection algorithms
-- Real-time threat scoring system
+- Rule-based advanced anomaly detection algorithms
+- Automated threat scoring system
 - Pattern recognition and behavioral analysis
-- Geographic threat mapping and visualization
+- Network topology visualization
 - Suspicious activity correlation engine
 
 ### 📊 Powerful Visualization
 
-- Interactive network topology graphs
-- Real-time monitoring dashboards
-- Comprehensive reporting suite
-- Data export capabilities (CSV, JSON, PDF)
-- Timeline-based incident visualization
+- Interactive network topology graphs (Cytoscape.js)
+- Real-time monitoring dashboards with auto-refresh
+- Comprehensive reporting interface
+- CSV data export capabilities
+- Timeline-based activity visualization
 
 ### ⚡ Performance & Scalability
 
-- High-volume log processing engine
-- Efficient MongoDB data indexing
-- Real-time monitoring and alerts
-- Scalable microservices architecture
+- High-volume CSV log processing (50MB+ files)
+- Efficient MongoDB data storage and indexing
+- 30-second dashboard auto-refresh
+- RESTful API architecture
 - Production-ready deployment
 
 ### 🛠️ User Experience
@@ -61,7 +53,7 @@
 - Drag-and-drop file upload system
 - Advanced search and filtering
 - Mobile-responsive design
-- Professional dark/light themes
+- Professional dark theme interface
 
 ---
 
@@ -82,7 +74,7 @@
         ↓
 ⚙️ Analysis Engine
         ↓
-    ┌───────┴───────┐
+    ┌───────────────┐
     ↓               ↓
 🚨 Anomaly     📈 Pattern
  Detection       Analysis
@@ -301,25 +293,25 @@ REACT_APP_ENVIRONMENT=development
 
 ### 🧠 Intelligent Suspicion Scoring Engine
 
-Our proprietary scoring system evaluates multiple threat indicators:
+Our rule-based scoring system evaluates multiple threat indicators:
 
-- **� Communication Patterns**: Unusual call frequencies and durations
+- **📞 Communication Patterns**: Unusual call frequencies and durations
 - **⏰ Temporal Anomalies**: Off-hours or irregular timing patterns
 - **📊 Volume Analysis**: Abnormal traffic spikes and data volumes
-- **🌍 Geographic Intelligence**: Multi-location activities and roaming
-- **� Device Fingerprinting**: IMEI/IMSI correlation analysis
-- **🔄 Network Behavior**: Protocol usage and routing anomalies
+- **🌍 Network Intelligence**: Multi-location activities and routing patterns
+- **📱 Device Fingerprinting**: IMEI/IMSI correlation analysis
+- **🔄 Protocol Behavior**: Network protocol usage and routing analysis
 
 ### 🔍 Multi-Layer Anomaly Detection
 
-Advanced detection algorithms identify:
+Pattern detection algorithms identify:
 
 - **Volume Anomalies**: Unusual traffic spikes and patterns
-- **Behavioral Anomalies**: Deviation from normal user patterns
-- **Geographic Anomalies**: Impossible location combinations
+- **Behavioral Anomalies**: Deviation from normal communication patterns
 - **Temporal Anomalies**: Time-based suspicious activities
 - **Network Anomalies**: Protocol and routing irregularities
-- **Communication Anomalies**: Unusual contact patterns
+- **Communication Anomalies**: Unusual contact and frequency patterns
+- **Duration Anomalies**: Suspiciously short or long call durations
 
 ---
 
@@ -378,16 +370,17 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **Event**: Cybercrime Investigation and Intelligence Summit (CIIS) 2025
 - **Team**: Obscura Collective
 - **Problem Statement**: Mapping A-party to B-party in IPDR logs.
-- **Solution**: Real-time cybersecurity intelligence platform
+- **Solution**: Nexum Obscura
+- **Status**: **🚀 LIVE IN PRODUCTION**
 
 ### 🥇 Achievement Highlights
 
 - ✅ **Fully Functional Production Deployment**
-- ✅ **Advanced AI-Powered Threat Detection**
-- ✅ **Real-time Processing Capabilities**
+- ✅ **Rule-Based Threat Detection System**
+- ✅ **Interactive Network Visualization**
 - ✅ **Professional-Grade User Interface**
-- ✅ **Comprehensive Security Analysis**
-- ✅ **Scalable Cloud Architecture**
+- ✅ **IPDR Log Processing & Analysis**
+- ✅ **RESTful API Architecture**
 
 ---
 
