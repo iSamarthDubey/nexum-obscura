@@ -359,4 +359,5 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-Made with 🛡️ for cybersecurity professionals by the **Obscura Collective** team
+Made with 🛡️ for cybersecurity professionals by the **Obscura Collective** team 
+ 
