@@ -371,7 +371,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **Team**: Obscura Collective
 - **Problem Statement**: Mapping A-party to B-party in IPDR logs.
 - **Solution**: Nexum Obscura
-- **Status**: **🚀 LIVE IN PRODUCTION**
 
 ### 🥇 Achievement Highlights
 
