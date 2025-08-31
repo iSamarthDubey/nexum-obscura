@@ -2,16 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
+const authRoutes = require("./routes/authRoutes"); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
 // Middleware
 app.use(cors());
+ 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 console.log('Starting Nexum Obscura Backend...');
+
+app.use("/api/auth", authRoutes);
 
 // Routes
 try {
@@ -73,5 +78,9 @@ app.listen(PORT, () => {
   console.log(`✓ API Health: http://localhost:${PORT}/api/health`);
   console.log(`✓ Dashboard: http://localhost:${PORT}/api/dashboard`);
 });
+
+
+
+
 
 module.exports = app;

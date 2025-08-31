@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // Database configuration
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nexum-obscura';
+    const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://abhinaywow:abhinaywow@cluster0.u2ydu.mongodb.net/nexum-obscura';
     
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
