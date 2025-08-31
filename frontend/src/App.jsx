@@ -7,6 +7,10 @@ import Visualization from './pages/Visualization';
 import Reports from './pages/Reports';
 import AlertsPanel from './components/AlertsPanel';
 import './App.css';
+ 
+import LandingRoutes from './landing/LandingRoutes';
+import Test from './test/Test';
+ 
 
 // Navigation Component
 function Navigation() {
@@ -115,6 +119,7 @@ function Navigation() {
 
 function App() {
   return (
+    <>
     <Router>
       <div className="App">
         <div className="main-layout">
@@ -133,6 +138,8 @@ function App() {
         </div>
       </div>
     </Router>
+    
+    </>
   );
 }
 
