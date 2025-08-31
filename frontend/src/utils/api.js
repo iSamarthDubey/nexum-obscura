@@ -1,6 +1,16 @@
 import axios from 'axios';
 
+// Debug environment variables
+console.log('🔧 Environment Variables:');
+console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://nexum-obscura.onrender.com/api';
+
+console.log('🌐 Using API Base URL:', API_BASE_URL);
+
+// Export the base URL for other components to use
+export const API_URL = API_BASE_URL;
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -69,6 +69,7 @@ const corsOptions = {
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
+    'https://obscura-collective.vercel.app',
     'https://nexum-obscura-frontend.vercel.app',
     'https://nexum-obscura.vercel.app',
     /\.vercel\.app$/,

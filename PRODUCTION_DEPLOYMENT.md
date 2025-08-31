@@ -153,9 +153,9 @@ If database connection fails:
 
 | Service | URL Pattern |
 |---------|-------------|
-| Backend | `https://nexum-obscura-backend-[random].onrender.com` |
-| Frontend | `https://nexum-obscura-[random].vercel.app` |
-| Health Check | `[backend-url]/api/health` |
+| Backend | `https://nexum-obscura.onrender.com` |
+| Frontend | `https://obscura-collective.vercel.app` |
+| Health Check | `https://nexum-obscura.onrender.com/api/health` |
 
 ---
 

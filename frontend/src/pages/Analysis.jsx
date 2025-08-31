@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../utils/api';
 import { 
   MagnifyingGlassIcon, 
   ChartBarIcon, 
@@ -26,7 +27,7 @@ const Analysis = () => {
     try {
       setLoading(true);
       console.log('🔄 Loading analysis data from backend...');
-      const response = await fetch('http://localhost:5000/api/analysis');
+      const response = await fetch(`${API_URL}/analysis`);
       if (!response.ok) {
         throw new Error(`Failed to load analysis data: ${response.status}`);
       }

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { API_URL } from '../utils/api';
 import { Link } from 'react-router-dom';
 import { 
   ChartBarIcon, 
@@ -34,7 +35,7 @@ const Visualization = () => {
         showOnlySuspicious: filters.showOnlySuspicious.toString()
       });
       
-      const response = await fetch(`http://localhost:5000/api/network?${params}`);
+      const response = await fetch(`${API_URL}/network?${params}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

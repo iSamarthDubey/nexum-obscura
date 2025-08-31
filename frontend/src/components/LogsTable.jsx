@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../utils/api';
 
 const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,7 +21,7 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   // Load uploaded files for filtering
   const loadUploadedFiles = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/files');
+      const response = await fetch(`${API_URL}/files`);
       if (response.ok) {
         const data = await response.json();
         setUploadedFiles(data.files);
@@ -41,7 +42,7 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
         ...(sourceFile && { sourceFile })
       });
       
-      const response = await fetch(`http://localhost:5000/api/logs?${params}`);
+      const response = await fetch(`${API_URL}/logs?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch logs');
@@ -66,7 +67,7 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/files/${encodeURIComponent(filename)}`, {
+      const response = await fetch(`${API_URL}/files/${encodeURIComponent(filename)}`, {
         method: 'DELETE'
       });
       

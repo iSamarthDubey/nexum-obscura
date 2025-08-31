@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../utils/api';
 import { Link } from 'react-router-dom';
 import { 
   DocumentTextIcon, 
@@ -29,7 +30,7 @@ const Reports = () => {
   const handleExport = async (type, format = 'csv') => {
     setExportLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/export/${type}?format=${format}`);
+      const response = await fetch(`${API_URL}/export/${type}?format=${format}`);
       
       if (!response.ok) {
         throw new Error('Export failed');
@@ -64,7 +65,7 @@ const Reports = () => {
   const generateQuickReport = async (reportType) => {
     setGenerating(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/reports?type=${reportType}&format=json`);
+      const response = await fetch(`${API_URL}/reports?type=${reportType}&format=json`);
       
       if (!response.ok) {
         throw new Error('Report generation failed');

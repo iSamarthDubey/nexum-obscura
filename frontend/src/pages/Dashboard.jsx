@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../utils/api';
 import { Link } from 'react-router-dom';
 import StatsCard from '../components/StatsCard';
 import ActivityChart from '../components/ActivityChart';
@@ -40,7 +41,7 @@ const Dashboard = () => {
       console.log('🔄 Fetching dashboard data from backend API...');
       
       // Fetch real data from backend API
-      const response = await fetch('http://localhost:5000/api/dashboard');
+      const response = await fetch(`${API_URL}/dashboard`);
       console.log('📡 API Response status:', response.status);
       
       if (!response.ok) {

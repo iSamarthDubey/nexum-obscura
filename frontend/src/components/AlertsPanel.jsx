@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../utils/api';
 import { 
   ExclamationTriangleIcon, 
   ShieldExclamationIcon,
@@ -21,7 +22,7 @@ const AlertsPanel = () => {
   const loadAlerts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/alerts');
+      const response = await fetch(`${API_URL}/alerts`);
       if (response.ok) {
         const data = await response.json();
         setAlerts(data.alerts || []);
