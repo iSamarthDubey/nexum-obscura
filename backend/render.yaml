@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: nexum-obscura
+    name: nexum-obscura-backend
     env: node
     plan: free
     buildCommand: npm install
@@ -8,7 +8,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        value: mongodb+srv://samarthdubey:Samarth*07@cluster0.keyuc38.mongodb.net/nexum-obscura?retryWrites=true&w=majority&appName=Cluster0
-          property: connectionString
+      - key: PORT
+        value: 10000
     healthCheckPath: /api/health

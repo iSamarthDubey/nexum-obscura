@@ -68,14 +68,16 @@ if (processedLogEntries.length === 0) {
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://localhost:3001',
     'https://nexum-obscura-frontend.vercel.app',
     'https://nexum-obscura.vercel.app',
     /\.vercel\.app$/,
-    /localhost/
+    /localhost:\d+$/
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
