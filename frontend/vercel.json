@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "nexum-obscura-frontend",
+  "name": "nexum-obscura",
   "builds": [
     {
       "src": "package.json",
@@ -12,18 +12,15 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "headers": {
+        "cache-control": "s-maxage=31536000,immutable"
+      },
+      "dest": "/static/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/index.html"
     }
-  ],
-  "env": {
-    "REACT_APP_API_URL": "https://nexum-obscura-backend.onrender.com/api",
-    "REACT_APP_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "REACT_APP_API_URL": "https://nexum-obscura-backend.onrender.com/api",
-      "REACT_APP_ENV": "production"
-    }
-  }
+  ]
 }

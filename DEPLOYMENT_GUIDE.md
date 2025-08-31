@@ -1,168 +1,137 @@
-# 🚀 Nexum Obscura Deployment Guide
+# 🚀 Complete Deployment Guide - Nexum Obscura
 
-Complete guide to deploy the Nexum Obscura cybersecurity investigation platform to production.
+## 📋 Prerequisites Checklist
+- [x] GitHub repository ready
+- [x] MongoDB Atlas cluster configured
+- [x] Render account created
+- [x] Vercel account created
 
-## 📋 Prerequisites
+## 🔧 Step-by-Step Deployment
 
-- GitHub account with the repository pushed
-- Render account (for backend) - [render.com](https://render.com)
-- Vercel account (for frontend) - [vercel.com](https://vercel.com)
+### 1️⃣ **Deploy Backend to Render**
 
-## 🔧 Step 1: Backend Deployment (Render)
+1. **Go to Render Dashboard**
+   - Visit: https://render.com
+   - Click "New" → "Web Service"
 
-### 1.1 Create Render Service
-1. Go to [render.com](https://render.com) and sign in
-2. Click **"New +"** → **"Web Service"**
-3. Connect your GitHub account if not already connected
-4. Select repository: `iSamarthDubey/nexum-obscura`
+2. **Connect Repository**
+   - Select "Build and deploy from a Git repository"
+   - Connect your GitHub account
+   - Select `nexum-obscura` repository
+   - Set **Root Directory**: `backend`
 
-### 1.2 Configure Service Settings
+3. **Configure Service**
+   - **Name**: `nexum-obscura-backend`
+   - **Region**: Choose closest to you
+   - **Branch**: `main`
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+
+4. **Environment Variables**
+   ```
+   NODE_ENV=production
+   MONGODB_URI=mongodb+srv://samarthdubey:Samarth*07@cluster0.keyuc38.mongodb.net/nexum-obscura?retryWrites=true&w=majority&appName=Cluster0
+   PORT=5000
+   ```
+
+5. **Deploy**
+   - Click "Create Web Service"
+   - Wait for deployment (5-10 minutes)
+   - Copy your backend URL: `https://nexum-obscura-backend-xxxx.onrender.com`
+
+### 2️⃣ **Deploy Frontend to Vercel**
+
+1. **Go to Vercel Dashboard**
+   - Visit: https://vercel.com
+   - Click "New Project"
+
+2. **Import Repository**
+   - Select `nexum-obscura` repository
+   - Set **Root Directory**: `frontend`
+   - **Framework Preset**: Create React App
+
+3. **Environment Variables**
+   ```
+   REACT_APP_API_URL=https://YOUR_RENDER_BACKEND_URL.onrender.com/api
+   ```
+   ⚠️ **Replace with your actual Render URL from Step 1**
+
+4. **Deploy**
+   - Click "Deploy"
+   - Wait for deployment (3-5 minutes)
+   - Your frontend will be live at: `https://nexum-obscura-xxxx.vercel.app`
+
+### 3️⃣ **Update Backend CORS (Important!)**
+
+After both are deployed, update your backend CORS settings:
+
+1. Go to Render backend logs
+2. Find your Vercel frontend URL
+3. Update `minimal.js` CORS configuration if needed
+
+### 4️⃣ **Test Deployment**
+
+1. **Backend Health Check**
+   ```
+   https://YOUR_RENDER_URL.onrender.com/api/health
+   ```
+   Should return: `{"status":"OK"}`
+
+2. **Frontend Access**
+   ```
+   https://YOUR_VERCEL_URL.vercel.app
+   ```
+   Should load the dashboard
+
+3. **API Integration**
+   - Open browser developer tools
+   - Check Network tab for API calls
+   - Verify calls go to Render backend, not localhost
+
+## 🔍 **Troubleshooting**
+
+### ❌ "Cannot connect to backend"
+- Check Vercel environment variables
+- Verify Render backend is running
+- Check CORS configuration
+
+### ❌ "MongoDB connection failed"
+- Verify MongoDB Atlas IP whitelist (0.0.0.0/0 for all IPs)
+- Check connection string in Render environment variables
+- Ensure database user has read/write permissions
+
+### ❌ "Build failed"
+- Check build logs in Render/Vercel dashboard
+- Verify all dependencies in package.json
+- Check for any syntax errors
+
+## 🎯 **Final Architecture**
+
 ```
-Name: nexum-obscura-backend
-Environment: Node
-Region: Oregon (US West) or your preferred region
-Branch: main
-Root Directory: backend
-Build Command: npm install
-Start Command: npm start
+Internet User
+    ↓
+Vercel Frontend (React)
+    ↓ (API calls)
+Render Backend (Node.js/Express)
+    ↓ (Database queries)
+MongoDB Atlas (Cloud Database)
 ```
 
-### 1.3 Environment Variables
-Add these environment variables in Render dashboard:
-```
-NODE_ENV=production
-PORT=10000
-```
-
-### 1.4 Deploy
-- Click **"Create Web Service"**
-- Render will automatically build and deploy your backend
-- Note the deployment URL: `https://nexum-obscura-backend.onrender.com`
-
-## 🎨 Step 2: Frontend Deployment (Vercel)
-
-### 2.1 Create Vercel Project
-1. Go to [vercel.com](https://vercel.com) and sign in
-2. Click **"New Project"**
-3. Import your GitHub repository: `iSamarthDubey/nexum-obscura`
-
-### 2.2 Configure Project Settings
-```
-Project Name: nexum-obscura-frontend
-Framework Preset: Create React App
-Root Directory: frontend
-Build Command: npm run build (auto-detected)
-Output Directory: build (auto-detected)
-Install Command: npm install (auto-detected)
-```
-
-### 2.3 Environment Variables
-Vercel will automatically use the production environment variables from `.env.production`:
-```
-REACT_APP_API_URL=https://nexum-obscura-backend.onrender.com/api
-REACT_APP_ENV=production
-GENERATE_SOURCEMAP=false
-```
-
-### 2.4 Deploy
-- Click **"Deploy"**
-- Vercel will build and deploy your frontend
-- Note the deployment URL: `https://nexum-obscura-frontend.vercel.app`
-
-## 🔄 Step 3: Update Backend CORS (if needed)
-
-If you use a different Vercel domain, update the CORS configuration in `backend/minimal.js`:
-
-```javascript
-const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'https://your-actual-vercel-domain.vercel.app',
-    /\.vercel\.app$/,
-    /localhost/
-  ],
-  credentials: true
-};
-```
-
-## ✅ Step 4: Verify Deployment
-
-### 4.1 Test Backend
-Visit: `https://nexum-obscura-backend.onrender.com/api/health`
-Expected response:
-```json
-{
-  "status": "healthy",
-  "message": "Nexum Obscura Backend is running",
-  "timestamp": "2025-08-30T..."
-}
-```
-
-### 4.2 Test Frontend
-Visit: `https://nexum-obscura-frontend.vercel.app`
-- Should load the dashboard
-- Should display "Backend: Connected" status
-- Should show sample IPDR data
-
-## 🔧 Step 5: Custom Domain (Optional)
-
-### 5.1 Vercel Custom Domain
-1. Go to your Vercel project dashboard
-2. Click **"Domains"**
-3. Add your custom domain
-4. Configure DNS records as instructed
-
-### 5.2 Render Custom Domain
-1. Go to your Render service dashboard
-2. Click **"Settings"** → **"Custom Domains"**
-3. Add your custom domain
-4. Configure DNS records as instructed
-
-## 🚀 Deployment URLs
-
-After successful deployment:
-
-- **Frontend**: https://nexum-obscura-frontend.vercel.app
-- **Backend**: https://nexum-obscura-backend.onrender.com
-- **API Health**: https://nexum-obscura-backend.onrender.com/api/health
-
-## 📝 Deployment Checklist
-
-- [ ] Backend deployed to Render
-- [ ] Frontend deployed to Vercel
+## 🏆 **Success Checklist**
+- [ ] Backend deployed on Render
+- [ ] Frontend deployed on Vercel
 - [ ] Environment variables configured
-- [ ] CORS settings updated
-- [ ] Health check endpoint working
-- [ ] Frontend connecting to backend
-- [ ] Sample data loading correctly
-- [ ] All features functional (Upload, Analysis, Visualization)
+- [ ] API calls working between frontend/backend
+- [ ] MongoDB connection active
+- [ ] Dashboard loading with data
+- [ ] Upload functionality working
 
-## 🐛 Troubleshooting
+## 📞 **Support**
+If you encounter issues:
+1. Check deployment logs
+2. Verify environment variables
+3. Test API endpoints individually
+4. Check browser console for errors
 
-### Backend Issues
-- Check Render logs in the service dashboard
-- Verify environment variables are set
-- Ensure `package.json` start script is correct
-
-### Frontend Issues
-- Check Vercel function logs
-- Verify API URL in environment variables
-- Check browser console for CORS errors
-
-### CORS Issues
-- Verify backend CORS configuration includes Vercel domain
-- Check that credentials are properly configured
-
-## 🎉 Success!
-
-Your Nexum Obscura cybersecurity investigation platform is now live and ready for the National CyberShield Hackathon 2025!
-
-### Features Available:
-- ✅ Real-time IPDR analysis dashboard
-- ✅ CSV file upload and processing
-- ✅ Network visualization with Cytoscape.js
-- ✅ Security alerts and threat monitoring
-- ✅ Investigation reports and export functionality
-- ✅ Geographic threat mapping
-- ✅ System health monitoring
-- ✅ Incident timeline tracking
+**Your Nexum Obscura platform is ready for the National CyberShield Hackathon 2025!** 🎉
