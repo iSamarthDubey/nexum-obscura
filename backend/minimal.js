@@ -10,8 +10,22 @@ require('dotenv').config();
 const { connectDB } = require('./config/database');
 const DatabaseService = require('./services/DatabaseService');
 
+// Allow everything 🚀
+// app.use(cors());
 const app = express();
+// or more explicit:
+app.use(cors({
+  origin: "*",               // allow all origins
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["*"],     // allow all headers
+}));
+app.use(express.json());
+
 const PORT = process.env.PORT || 5000;
+
+// import routes
+const authRoutes = require("./routes/authRoutes");
+app.use("/api/auth", authRoutes);
 
 // Global state to track uploaded files and processed data
 let uploadedFiles = [];
