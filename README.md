@@ -69,17 +69,17 @@
 
 ```mermaid
 graph TB
-    A[📁 CSV Log Files] --> B[⬆️ Upload Interface]
-    B --> C[🔄 Parser Engine]
-    C --> D[🔍 Suspicion Scoring]
-    D --> E[🗄️ MongoDB Database]
-    E --> F[⚙️ Analysis Engine]
-    F --> G[🚨 Anomaly Detection]
-    F --> H[📈 Pattern Analysis]
-    G --> I[📊 Real-time Dashboard]
+    A --> B [📁 CSV Log Files] --> [⬆️ Upload Interface]
+    B --> C [🔄 Parser Engine]
+    C --> D [🔍 Suspicion Scoring]
+    D --> E [🗄️ MongoDB Database]
+    E --> F [⚙️ Analysis Engine]
+    F --> G [🚨 Anomaly Detection]
+    F --> H [📈 Pattern Analysis]
+    G --> I [📊 Real-time Dashboard]
     H --> I
-    I --> J[🎨 Visualization Layer]
-    I --> K[📋 Report Generator]
+    I --> J [🎨 Visualization Layer]
+    I --> K [📋 Report Generator]
 ```
 
 ### 📂 Project Structure
