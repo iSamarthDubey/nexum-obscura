@@ -8,10 +8,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5000
       - key: MONGODB_URI
-        fromDatabase:
-          name: nexum-obscura-db
+        value: mongodb+srv://samarthdubey:Samarth*07@cluster0.keyuc38.mongodb.net/nexum-obscura?retryWrites=true&w=majority&appName=Cluster0
           property: connectionString
     healthCheckPath: /api/health
