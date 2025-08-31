@@ -335,10 +335,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ### 🎯 Competition Details
 
 - **Organizer**: Madhya Pradesh Police
-- **Event**: Cyber Intelligence and Information Security (CIIS) 2025
+- **Event**: Cybercrime Investigation and Intelligence Summit (CIIS) 2025
 - **Team**: Obscura Collective
-- **Challenge**: Advanced IPDR Log Analysis and Threat Detection
-- **Objective**: Real-time cybersecurity intelligence platform
+- **Problem Statement**: Mapping A-party to B-party in IPDR logs.
+- **Solution**: Real-time cybersecurity intelligence platform
 
 ### 🥇 Achievement Highlights
 
@@ -359,5 +359,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-Made with 🛡️ for cybersecurity professionals by the **Obscura Collective** team 
- 
+Made with 🛡️ for cybersecurity professionals by the **Obscura Collective** team.
