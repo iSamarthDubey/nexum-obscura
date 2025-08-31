@@ -18,6 +18,24 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
+  // Use passed props if available, otherwise load from API
+  useEffect(() => {
+    if (logEntries && logEntries.length > 0) {
+      setLogs(logEntries);
+      setPagination({
+        currentPage: 1,
+        totalPages: 1,
+        totalEntries: totalEntries,
+        entriesPerPage: logEntries.length,
+        hasNextPage: false,
+        hasPreviousPage: false
+      });
+    } else {
+      loadLogs();
+      loadUploadedFiles();
+    }
+  }, [logEntries, totalEntries]);
+
   // Load uploaded files for filtering
   const loadUploadedFiles = async () => {
     try {
@@ -53,8 +71,6 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
       setPagination(data.pagination);
     } catch (error) {
       console.error('Error loading logs:', error);
-      // Fallback to provided logEntries
-      setLogs(logEntries.slice(0, 20));
     } finally {
       setLoading(false);
     }
@@ -139,16 +155,6 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     return filteredLogs;
   };
 
-  useEffect(() => {
-    loadUploadedFiles(); // Load available files for filtering
-    if (totalEntries > 0) {
-      loadLogs(currentPage, searchTerm, selectedFile);
-    } else {
-      const filtered = applyLocalFilters(logEntries);
-      setLogs(filtered.slice(0, 20));
-    }
-  }, [currentPage, totalEntries, logEntries, searchTerm, selectedFile, filters]);
-
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -166,12 +172,7 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setCurrentPage(1);
-    if (totalEntries > 0) {
-      loadLogs(1, searchTerm, selectedFile);
-    } else {
-      const filtered = applyLocalFilters(logEntries);
-      setLogs(filtered.slice(0, 20));
-    }
+    loadLogs(1, searchTerm, selectedFile);
   };
 
   const getRiskBadge = (riskLevel) => {
@@ -211,19 +212,6 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     if (score >= 50) return 'text-yellow-400';
     return 'text-green-400';
   };
-
-  if (totalEntries === 0 && logEntries.length === 0) {
-    return (
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-white mb-4">IPDR Log Entries</h3>
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg mb-2">📄</div>
-          <p className="text-gray-400">No IPDR logs uploaded yet</p>
-          <p className="text-gray-500 text-sm mt-1">Upload CSV files to view log entries here</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg p-6">
@@ -359,11 +347,12 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-700">
-                  <th className="text-left p-3 text-white font-medium">A-Party</th>
-                  <th className="text-left p-3 text-white font-medium">B-Party</th>
-                  <th className="text-left p-3 text-white font-medium">Date/Time</th>
-                  <th className="text-left p-3 text-white font-medium">Duration</th>
-                  <th className="text-left p-3 text-white font-medium">Type</th>
+                  <th className="text-left p-3 text-white font-medium">Source IP</th>
+                  <th className="text-left p-3 text-white font-medium">Dest IP</th>
+                  <th className="text-left p-3 text-white font-medium">Timestamp</th>
+                  <th className="text-left p-3 text-white font-medium">Protocol</th>
+                  <th className="text-left p-3 text-white font-medium">Action</th>
+                  <th className="text-left p-3 text-white font-medium">Bytes</th>
                   <th className="text-left p-3 text-white font-medium">Risk</th>
                   <th className="text-left p-3 text-white font-medium">Source File</th>
                 </tr>
@@ -371,17 +360,51 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
               <tbody>
                 {logs.map((log, index) => (
                   <tr key={index} className="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                    <td className="p-3 text-gray-300">{log['A-Party'] || log.a_party}</td>
-                    <td className="p-3 text-gray-300">{log['B-Party'] || log.b_party}</td>
+                    <td className="p-3 text-gray-300 font-mono text-sm">{log.source_ip}</td>
+                    <td className="p-3 text-gray-300 font-mono text-sm">{log.dest_ip}</td>
                     <td className="p-3 text-gray-400 text-xs">
-                      {log['Call-Date'] || log.timestamp?.split('T')[0]} {log['Call-Time'] || log.timestamp?.split('T')[1]?.split('.')[0]}
+                      {log.timestamp}
                     </td>
-                    <td className="p-3 text-gray-400">{formatDuration(log.Duration || log.duration)}</td>
-                    <td className="p-3 text-gray-400">{log['Call-Type'] || log.type || 'Voice'}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-xs ${getSuspicionColor(log.suspicionScore || 0)}`}>
-                        {log.suspicionScore ? `${log.suspicionScore}%` : '-'}
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        log.protocol === 'TCP' ? 'bg-blue-900 text-blue-200' :
+                        log.protocol === 'UDP' ? 'bg-green-900 text-green-200' :
+                        log.protocol === 'ICMP' ? 'bg-yellow-900 text-yellow-200' :
+                        'bg-gray-900 text-gray-200'
+                      }`}>
+                        {log.protocol}
                       </span>
+                    </td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        log.action === 'ALLOW' ? 'bg-green-900 text-green-200' :
+                        log.action === 'BLOCK' || log.action === 'DROP' || log.action === 'DENY' ? 'bg-red-900 text-red-200' :
+                        'bg-gray-900 text-gray-200'
+                      }`}>
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="p-3 text-gray-400 text-sm">
+                      {log.bytes ? (parseInt(log.bytes) / 1024).toFixed(1) + 'KB' : '-'}
+                    </td>
+                    <td className="p-3">
+                      <div className="flex flex-col">
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          log.riskLevel === 'High' ? 'bg-red-900 text-red-200' :
+                          log.riskLevel === 'Medium' ? 'bg-yellow-900 text-yellow-200' :
+                          'bg-green-900 text-green-200'
+                        }`}>
+                          {log.riskLevel}
+                        </span>
+                        <span className={`text-xs mt-1 ${getSuspicionColor(log.suspicionScore || 0)}`}>
+                          {log.suspicionScore ? `${log.suspicionScore}%` : '-'}
+                        </span>
+                        {log.anomaly_type && log.anomaly_type !== 'None' && (
+                          <span className="text-xs text-orange-400 mt-1">
+                            {log.anomaly_type}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-3 text-gray-500 text-xs">{log.sourceFile || 'Unknown'}</td>
                   </tr>

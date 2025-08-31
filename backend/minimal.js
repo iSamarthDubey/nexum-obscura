@@ -29,41 +29,6 @@ let processedStats = {
 let recentActivityLog = [];
 let timelineData = [];
 
-// Initialize with sample data for demo (remove this in production)
-if (processedLogEntries.length === 0) {
-  console.log('🔄 Loading sample IPDR data for demo...');
-  const sampleData = [
-    { 'A-Party': '+91-9876543210', 'B-Party': '+91-9123456789', 'Duration': '120', 'Call-Time': '2025-08-30 14:30:00', 'Cell-ID': 'CELL001', suspicionScore: 85, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-9876543210', 'B-Party': '+91-8765432109', 'Duration': '45', 'Call-Time': '2025-08-30 14:35:00', 'Cell-ID': 'CELL002', suspicionScore: 72, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-9123456789', 'B-Party': '+91-7654321098', 'Duration': '300', 'Call-Time': '2025-08-30 14:40:00', 'Cell-ID': 'CELL001', suspicionScore: 45, riskLevel: 'Low', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-8765432109', 'B-Party': '+91-9876543210', 'Duration': '60', 'Call-Time': '2025-08-30 14:45:00', 'Cell-ID': 'CELL003', suspicionScore: 91, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-7654321098', 'B-Party': '+91-6543210987', 'Duration': '180', 'Call-Time': '2025-08-30 14:50:00', 'Cell-ID': 'CELL002', suspicionScore: 38, riskLevel: 'Low', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-6543210987', 'B-Party': '+91-9876543210', 'Duration': '90', 'Call-Time': '2025-08-30 14:55:00', 'Cell-ID': 'CELL001', suspicionScore: 67, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-9876543210', 'B-Party': '+91-5432109876', 'Duration': '240', 'Call-Time': '2025-08-30 15:00:00', 'Cell-ID': 'CELL004', suspicionScore: 89, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-5432109876', 'B-Party': '+91-4321098765', 'Duration': '150', 'Call-Time': '2025-08-30 15:05:00', 'Cell-ID': 'CELL003', suspicionScore: 55, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-4321098765', 'B-Party': '+91-9876543210', 'Duration': '75', 'Call-Time': '2025-08-30 15:10:00', 'Cell-ID': 'CELL002', suspicionScore: 73, riskLevel: 'Medium', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() },
-    { 'A-Party': '+91-9876543210', 'B-Party': '+91-3210987654', 'Duration': '210', 'Call-Time': '2025-08-30 15:15:00', 'Cell-ID': 'CELL001', suspicionScore: 94, riskLevel: 'High', sourceFile: 'sample_data.csv', processedAt: new Date().toISOString() }
-  ];
-  
-  processedLogEntries = sampleData;
-  
-  // Update stats
-  processedStats = {
-    totalRecords: sampleData.length,
-    activeConnections: Math.floor(sampleData.length * 0.7),
-    flaggedNumbers: sampleData.filter(log => log.suspicionScore > 70).length,
-    investigationCases: 3,
-    suspiciousPatterns: 5,
-    networkNodes: new Set([...sampleData.map(log => log['A-Party']), ...sampleData.map(log => log['B-Party'])]).size,
-    dataProcessed: (sampleData.length * 0.1).toFixed(1),
-    riskScore: Math.round(sampleData.reduce((sum, log) => sum + log.suspicionScore, 0) / sampleData.length)
-  };
-  
-  uploadedFiles = [{ filename: 'sample_data.csv', recordsProcessed: sampleData.length, uploadTime: new Date().toISOString() }];
-  
-  console.log('✅ Sample data loaded:', processedLogEntries.length, 'records');
-}
-
 // CORS configuration for production deployment
 const corsOptions = {
   origin: [
@@ -118,8 +83,132 @@ async function initializeDatabase() {
   }
 }
 
+// Function to load shared CSV files on startup
+async function loadSharedData() {
+  console.log('📂 Loading shared IPDR data...');
+  
+  const sharedDir = path.join(__dirname, '..', 'shared');
+  const baseLogsPath = path.join(sharedDir, 'ipdr-logs_base.csv');
+  const enrichedLogsPath = path.join(sharedDir, 'ipdr-logs_enriched.csv');
+  
+  try {
+    // Load base logs
+    if (fs.existsSync(baseLogsPath)) {
+      await loadCSVFile(baseLogsPath, 'ipdr-logs_base.csv');
+      console.log('✅ Loaded base IPDR logs');
+    }
+    
+    // Load enriched logs
+    if (fs.existsSync(enrichedLogsPath)) {
+      await loadCSVFile(enrichedLogsPath, 'ipdr-logs_enriched.csv');
+      console.log('✅ Loaded enriched IPDR logs');
+    }
+    
+    console.log(`📊 Total log entries loaded: ${processedLogEntries.length}`);
+  } catch (error) {
+    console.error('⚠️ Error loading shared data:', error.message);
+  }
+}
+
+// Helper function to load CSV file
+function loadCSVFile(filePath, filename) {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    let processedCount = 0;
+    
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (data) => {
+        if (data && Object.keys(data).length > 0) {
+          processedCount++;
+          
+          // Create enhanced log entry
+          const logEntry = {
+            id: `${filename}-${processedCount}`,
+            ...data,
+            suspicionScore: data.threat_flag === 'Suspicious' ? Math.floor(Math.random() * 30) + 70 : Math.floor(Math.random() * 40),
+            processedAt: new Date().toISOString(),
+            riskLevel: data.threat_flag === 'Suspicious' ? 'High' : 
+                      data.action === 'BLOCK' || data.action === 'DROP' || data.action === 'DENY' ? 'Medium' : 'Low',
+            sourceFile: filename,
+            anomalyType: data.anomaly_type || 'None'
+          };
+          
+          processedLogEntries.push(logEntry);
+          results.push(logEntry);
+        }
+      })
+      .on('end', () => {
+        // Update stats based on loaded data
+        updateStatsFromData(results);
+        
+        // Add to recent activity
+        recentActivityLog.unshift({
+          time: new Date().toLocaleTimeString(),
+          event: `Loaded ${processedCount} records from ${filename}`,
+          level: 'success',
+          source: 'System'
+        });
+        
+        // Keep recent activity log manageable
+        if (recentActivityLog.length > 20) {
+          recentActivityLog = recentActivityLog.slice(0, 20);
+        }
+        
+        resolve(results);
+      })
+      .on('error', (error) => {
+        reject(error);
+      });
+  });
+}
+
+// Helper function to update stats from loaded data
+function updateStatsFromData(data) {
+  if (data.length === 0) return;
+  
+  processedStats.totalRecords += data.length;
+  processedStats.activeConnections = processedLogEntries.filter(entry => 
+    entry.action === 'ALLOW').length;
+  processedStats.flaggedNumbers = processedLogEntries.filter(entry => 
+    entry.suspicionScore > 70).length;
+  processedStats.investigationCases = processedLogEntries.filter(entry => 
+    entry.threat_flag === 'Suspicious').length;
+  processedStats.suspiciousPatterns = processedLogEntries.filter(entry => 
+    entry.anomaly_type && entry.anomaly_type !== 'None').length;
+  processedStats.networkNodes = new Set(processedLogEntries.map(entry => 
+    entry.source_ip)).size + new Set(processedLogEntries.map(entry => 
+    entry.dest_ip)).size;
+  processedStats.dataProcessed = Math.round(processedLogEntries.reduce((sum, entry) => 
+    sum + (parseInt(entry.bytes) || 0), 0) / 1024 / 1024); // MB
+  processedStats.riskScore = Math.round(processedLogEntries.reduce((sum, entry) => 
+    sum + entry.suspicionScore, 0) / processedLogEntries.length);
+    
+  // Update timeline data
+  updateTimelineData(data);
+}
+
+// Helper function to update timeline data
+function updateTimelineData(data) {
+  const timelineEvents = data.filter(entry => entry.suspicionScore > 60).map(entry => ({
+    time: entry.timestamp,
+    event: `${entry.anomaly_type || 'Suspicious Activity'} detected`,
+    severity: entry.riskLevel,
+    details: `${entry.source_ip} → ${entry.dest_ip} (${entry.protocol})`
+  }));
+  
+  timelineData.push(...timelineEvents);
+  // Keep only recent 50 events
+  if (timelineData.length > 50) {
+    timelineData = timelineData.slice(-50);
+  }
+}
+
 // Initialize database on startup
 // initializeDatabase(); // Disabled for demo
+
+// Load shared data on startup
+loadSharedData();
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -164,14 +253,15 @@ app.get('/api/health', (req, res) => {
 app.get('/api/dashboard', (req, res) => {
   console.log('📊 Dashboard API called at:', new Date().toLocaleTimeString());
   
-  // Return real stats based on uploaded files
-  const hasData = uploadedFiles.length > 0;
+  // Return real stats based on both uploaded files and shared data
+  const hasData = uploadedFiles.length > 0 || processedLogEntries.length > 0;
   
   res.json({
     timestamp: new Date().toISOString(),
     source: 'BACKEND_API',
     hasData: hasData,
     uploadedFiles: uploadedFiles.length,
+    sharedDataLoaded: processedLogEntries.length > 0,
     overview: hasData ? processedStats : {
       totalRecords: 0,
       activeConnections: 0,
