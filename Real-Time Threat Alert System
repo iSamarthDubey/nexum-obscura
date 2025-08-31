@@ -1,0 +1,427 @@
+import React, { useState, useEffect } from 'react';
+import { AlertTriangle, Shield, Clock, MapPin, Phone, Users, Zap, X, Eye, Download } from 'lucide-react';
+
+const ThreatAlertSystem = () => {
+  const [alerts, setAlerts] = useState([]);
+  const [isMonitoring, setIsMonitoring] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState(null);
+  const [alertStats, setAlertStats] = useState({
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0
+  });
+
+  // Simulate real-time threat detection
+  useEffect(() => {
+    let interval;
+    if (isMonitoring) {
+      interval = setInterval(() => {
+        // Simulate threat detection with random but realistic patterns
+        if (Math.random() < 0.3) { // 30% chance of new alert
+          generateThreatAlert();
+        }
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isMonitoring]);
+
+  const threatPatterns = [
+    {
+      type: 'BURNER_PHONE_DETECTED',
+      severity: 'critical',
+      title: 'Burner Phone Pattern Detected',
+      description: 'Short-term usage pattern with high activity followed by abandonment',
+      icon: Phone,
+      color: 'red'
+    },
+    {
+      type: 'LOCATION_SPOOFING',
+      severity: 'high',
+      title: 'Location Spoofing Detected',
+      description: 'Impossible movement pattern detected between cell towers',
+      icon: MapPin,
+      color: 'orange'
+    },
+    {
+      type: 'NETWORK_INFILTRATION',
+      severity: 'critical',
+      title: 'Network Infiltration Attempt',
+      description: 'Unusual access patterns to communication infrastructure',
+      icon: Shield,
+      color: 'red'
+    },
+    {
+      type: 'COORDINATED_ACTIVITY',
+      severity: 'high',
+      title: 'Coordinated Group Activity',
+      description: 'Synchronized communication patterns across multiple suspects',
+      icon: Users,
+      color: 'orange'
+    },
+    {
+      type: 'FREQUENCY_ANOMALY',
+      severity: 'medium',
+      title: 'Communication Frequency Anomaly',
+      description: 'Unusual spike in communication activity detected',
+      icon: Zap,
+      color: 'yellow'
+    }
+  ];
+
+  const generateThreatAlert = () => {
+    const pattern = threatPatterns[Math.floor(Math.random() * threatPatterns.length)];
+    const newAlert = {
+      id: Date.now() + Math.random(),
+      ...pattern,
+      timestamp: new Date(),
+      aParty: `+91${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+      bParty: `+91${Math.floor(Math.random() * 9000000000) + 1000000000}`,
+      location: ['Mumbai Central', 'Delhi NCR', 'Bangalore Tech Park', 'Pune Station', 'Chennai Marina'][Math.floor(Math.random() * 5)],
+      confidence: Math.floor(Math.random() * 30) + 70,
+      evidence: {
+        callCount: Math.floor(Math.random() * 50) + 10,
+        duration: Math.floor(Math.random() * 3600) + 300,
+        towers: Math.floor(Math.random() * 5) + 2,
+        timeWindow: `${Math.floor(Math.random() * 12) + 1}h ${Math.floor(Math.random() * 60)}m`
+      }
+    };
+
+    setAlerts(prev => [newAlert, ...prev.slice(0, 19)]); // Keep last 20 alerts
+    
+    setAlertStats(prev => ({
+      ...prev,
+      [pattern.severity]: prev[pattern.severity] + 1
+    }));
+  };
+
+  const getSeverityColor = (severity) => {
+    const colors = {
+      critical: 'border-red-500 bg-red-50 text-red-900',
+      high: 'border-orange-500 bg-orange-50 text-orange-900',
+      medium: 'border-yellow-500 bg-yellow-50 text-yellow-900',
+      low: 'border-blue-500 bg-blue-50 text-blue-900'
+    };
+    return colors[severity] || colors.medium;
+  };
+
+  const getSeverityBadge = (severity) => {
+    const colors = {
+      critical: 'bg-red-500 text-white',
+      high: 'bg-orange-500 text-white',
+      medium: 'bg-yellow-500 text-white',
+      low: 'bg-blue-500 text-white'
+    };
+    return colors[severity] || colors.medium;
+  };
+
+  const dismissAlert = (alertId) => {
+    setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+  };
+
+  const exportAlerts = () => {
+    const exportData = alerts.map(alert => ({
+      timestamp: alert.timestamp.toISOString(),
+      type: alert.type,
+      severity: alert.severity,
+      aParty: alert.aParty,
+      bParty: alert.bParty,
+      location: alert.location,
+      confidence: alert.confidence
+    }));
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `threat_alerts_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-red-600 rounded-lg">
+              <AlertTriangle className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Real-Time Threat Alert System</h1>
+              <p className="text-gray-600">AI-Powered IPDR Anomaly Detection</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setIsMonitoring(!isMonitoring)}
+              className={`px-4 py-2 rounded-lg font-medium flex items-center space-x-2 ${
+                isMonitoring 
+                  ? 'bg-red-600 hover:bg-red-700 text-white' 
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
+            >
+              <Zap className="h-4 w-4" />
+              <span>{isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}</span>
+            </button>
+            <button
+              onClick={exportAlerts}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Bar */}
+      <div className="grid grid-cols-5 gap-4 mb-6">
+        <div className="bg-white p-4 rounded-lg border">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Monitoring Status</p>
+              <p className="text-lg font-semibold">{isMonitoring ? 'ACTIVE' : 'INACTIVE'}</p>
+            </div>
+            <div className={`h-3 w-3 rounded-full ${isMonitoring ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+          </div>
+        </div>
+        {Object.entries(alertStats).map(([severity, count]) => (
+          <div key={severity} className="bg-white p-4 rounded-lg border">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 capitalize">{severity} Alerts</p>
+                <p className="text-lg font-semibold">{count}</p>
+              </div>
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${getSeverityBadge(severity)}`}>
+                <AlertTriangle className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Alerts Feed */}
+      <div className="bg-white rounded-lg border">
+        <div className="p-4 border-b">
+          <h2 className="text-lg font-semibold text-gray-900">Live Threat Alerts</h2>
+          <p className="text-sm text-gray-600">Real-time detection of suspicious IPDR patterns</p>
+        </div>
+        
+        <div className="max-h-96 overflow-y-auto">
+          {alerts.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <Shield className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+              <p>No alerts detected. {isMonitoring ? 'Monitoring active...' : 'Start monitoring to detect threats.'}</p>
+            </div>
+          ) : (
+            alerts.map((alert) => {
+              const IconComponent = alert.icon;
+              return (
+                <div
+                  key={alert.id}
+                  className={`p-4 border-b border-l-4 hover:bg-gray-50 cursor-pointer ${getSeverityColor(alert.severity)}`}
+                  onClick={() => setSelectedAlert(alert)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start space-x-3">
+                      <div className={`p-2 rounded-lg ${getSeverityBadge(alert.severity)}`}>
+                        <IconComponent className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-semibold">{alert.title}</h3>
+                          <span className={`px-2 py-1 text-xs rounded-full font-medium ${getSeverityBadge(alert.severity)}`}>
+                            {alert.severity.toUpperCase()}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{alert.description}</p>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          <span className="flex items-center space-x-1">
+                            <Clock className="h-3 w-3" />
+                            <span>{alert.timestamp.toLocaleTimeString()}</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <MapPin className="h-3 w-3" />
+                            <span>{alert.location}</span>
+                          </span>
+                          <span>Confidence: {alert.confidence}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedAlert(alert);
+                        }}
+                        className="p-1 text-gray-400 hover:text-blue-600"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          dismissAlert(alert.id);
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Alert Detail Modal */}
+      {selectedAlert && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 rounded-lg ${getSeverityBadge(selectedAlert.severity)}`}>
+                  <selectedAlert.icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">{selectedAlert.title}</h2>
+                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${getSeverityBadge(selectedAlert.severity)}`}>
+                    {selectedAlert.severity.toUpperCase()} PRIORITY
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedAlert(null)}
+                className="p-2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">Alert Details</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Detection Time:</span>
+                    <p className="font-medium">{selectedAlert.timestamp.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Confidence Level:</span>
+                    <p className="font-medium">{selectedAlert.confidence}%</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">A-Party:</span>
+                    <p className="font-medium font-mono">{selectedAlert.aParty}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">B-Party:</span>
+                    <p className="font-medium font-mono">{selectedAlert.bParty}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Location:</span>
+                    <p className="font-medium">{selectedAlert.location}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Pattern Type:</span>
+                    <p className="font-medium">{selectedAlert.type.replace(/_/g, ' ')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">Evidence Summary</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Call Count:</span>
+                    <p className="font-medium">{selectedAlert.evidence.callCount}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Total Duration:</span>
+                    <p className="font-medium">{Math.floor(selectedAlert.evidence.duration / 60)}m {selectedAlert.evidence.duration % 60}s</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Cell Towers:</span>
+                    <p className="font-medium">{selectedAlert.evidence.towers} towers</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Time Window:</span>
+                    <p className="font-medium">{selectedAlert.evidence.timeWindow}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 p-4 rounded-lg">
+                <h3 className="font-semibold mb-2">Recommended Actions</h3>
+                <ul className="text-sm space-y-1">
+                  <li>• Initiate detailed investigation of identified parties</li>
+                  <li>• Cross-reference with existing case databases</li>
+                  <li>• Request additional surveillance data from telecom provider</li>
+                  <li>• Monitor for continued suspicious activity</li>
+                </ul>
+              </div>
+
+              <div className="flex space-x-3">
+                <button className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium">
+                  Flag for Investigation
+                </button>
+                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium">
+                  Generate Report
+                </button>
+                <button 
+                  onClick={() => dismissAlert(selectedAlert.id)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Configuration Panel */}
+      <div className="mt-6 bg-white rounded-lg border p-4">
+        <h3 className="font-semibold mb-3">Alert Configuration</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Minimum Confidence Threshold
+            </label>
+            <select className="w-full p-2 border rounded-lg">
+              <option>70%</option>
+              <option>80%</option>
+              <option>90%</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Alert Frequency
+            </label>
+            <select className="w-full p-2 border rounded-lg">
+              <option>Real-time</option>
+              <option>Every 5 minutes</option>
+              <option>Every 15 minutes</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Severity Filter
+            </label>
+            <select className="w-full p-2 border rounded-lg">
+              <option>All Severities</option>
+              <option>Critical & High Only</option>
+              <option>Critical Only</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ThreatAlertSystem;
