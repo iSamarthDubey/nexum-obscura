@@ -8,6 +8,9 @@ import {
   AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
 import NetworkGraph from '../components/NetworkGraph';
+import TrafficFlowChart from '../components/TrafficFlowChart';
+import ProtocolDistribution from '../components/ProtocolDistribution';
+import GeographicMapEnhanced from '../components/GeographicMapEnhanced';
 
 const Visualization = () => {
   const [activeView, setActiveView] = useState('network');
@@ -206,27 +209,21 @@ const Visualization = () => {
           {activeView === 'geographic' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Geographic Distribution</h3>
-              <div className="h-96 border border-gray-200 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Geographic map visualization will be displayed here</p>
-              </div>
+              <GeographicMapEnhanced />
             </div>
           )}
 
           {activeView === 'traffic' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Traffic Flow Analysis</h3>
-              <div className="h-96 border border-gray-200 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Traffic flow visualization will be displayed here</p>
-              </div>
+              <TrafficFlowChart timeRange="24h" />
             </div>
           )}
 
           {activeView === 'protocols' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Protocol Distribution</h3>
-              <div className="h-96 border border-gray-200 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Protocol distribution chart will be displayed here</p>
-              </div>
+              <ProtocolDistribution />
             </div>
           )}
         </div>

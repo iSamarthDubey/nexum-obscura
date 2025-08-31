@@ -60,12 +60,12 @@ export const getUploadStatus = async () => {
 
 // Search API
 export const searchLogs = async (filters) => {
-  const response = await api.get('/search/logs', { params: filters });
+  const response = await api.get('/logs', { params: filters });
   return response.data;
 };
 
 export const searchConnections = async (filters) => {
-  const response = await api.get('/search/connections', { params: filters });
+  const response = await api.get('/search/ipdr', { params: filters });
   return response.data;
 };
 
@@ -76,22 +76,22 @@ export const getSuspiciousActivities = async (params = {}) => {
 
 // Analysis API
 export const getDashboardData = async (params = {}) => {
-  const response = await api.get('/analysis/dashboard', { params });
+  const response = await api.get('/dashboard', { params });
   return response.data;
 };
 
 export const getPatterns = async (params = {}) => {
-  const response = await api.get('/analysis/patterns', { params });
+  const response = await api.get('/analysis', { params });
   return response.data;
 };
 
 export const getAnomalies = async (params = {}) => {
-  const response = await api.get('/analysis/anomalies', { params });
+  const response = await api.get('/analysis', { params });
   return response.data;
 };
 
 export const getTopologyData = async (params = {}) => {
-  const response = await api.get('/analysis/topology', { params });
+  const response = await api.get('/network', { params });
   return response.data;
 };
 
@@ -124,6 +124,24 @@ export const deleteReport = async (id) => {
 // Health check
 export const checkApiHealth = async () => {
   const response = await api.get('/health');
+  return response.data;
+};
+
+// Traffic Flow Analysis API
+export const getTrafficFlowData = async (params = {}) => {
+  const response = await api.get('/traffic-flow', { params });
+  return response.data;
+};
+
+// Protocol Analysis API
+export const getProtocolAnalysisData = async () => {
+  const response = await api.get('/protocol-analysis');
+  return response.data;
+};
+
+// Geographic Data API
+export const getGeographicData = async () => {
+  const response = await api.get('/geographic-data');
   return response.data;
 };
 

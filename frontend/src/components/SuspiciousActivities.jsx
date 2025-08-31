@@ -13,9 +13,10 @@ const SuspiciousActivities = () => {
   const loadActivities = async () => {
     try {
       const data = await getSuspiciousActivities({ hours: 24 });
-      setActivities(data.logs?.slice(0, 10) || []);
+      setActivities(data.data?.slice(0, 10) || []);
     } catch (error) {
       console.error('Failed to load suspicious activities:', error);
+      setActivities([]);
     } finally {
       setLoading(false);
     }
@@ -45,25 +46,25 @@ const SuspiciousActivities = () => {
   return (
     <div className="space-y-4">
       {activities.map((activity, index) => (
-        <div key={activity._id || index} className="border-l-4 border-red-400 pl-4">
+        <div key={activity.id || index} className="border-l-4 border-red-400 pl-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="text-sm font-medium text-gray-900">
-                {activity.sourceIP} → {activity.destinationIP}
+                {activity.aParty} → {activity.bParty}
               </span>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSuspicionColor(activity.suspicionScore)}`}>
                 {activity.suspicionScore}/100
               </span>
             </div>
             <span className="text-xs text-gray-500">
-              {formatRelativeTime(activity.timestamp)}
+              {formatRelativeTime(activity.lastContact)}
             </span>
           </div>
           <div className="mt-1 text-sm text-gray-600">
-            Port {activity.destinationPort} • {activity.protocol} • {activity.action}
-            {activity.flags && activity.flags.length > 0 && (
+            {activity.frequency} calls • Avg {activity.averageDuration}s • {activity.riskLevel} Risk
+            {activity.patterns && activity.patterns.length > 0 && (
               <span className="ml-2 text-red-600">
-                [{activity.flags.join(', ')}]
+                [{activity.patterns.join(', ')}]
               </span>
             )}
           </div>
