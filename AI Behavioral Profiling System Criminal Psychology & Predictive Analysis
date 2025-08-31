@@ -1,0 +1,604 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Brain, Clock, Phone, TrendingUp, AlertTriangle, Eye, Target, Zap, Calendar, MapPin, Activity, Users, Download, Play, Pause } from 'lucide-react';
+
+const BehavioralAnalysisAI = () => {
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [behaviorData, setBehaviorData] = useState([]);
+  const [psychoProfile, setPsychoProfile] = useState(null);
+  const [predictionData, setPredictionData] = useState([]);
+  const [timelineData, setTimelineData] = useState([]);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    generateBehaviorData();
+    generateTimelineData();
+  }, []);
+
+  // Behavioral pattern visualization
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    let animationId;
+    let time = 0;
+
+    const animate = () => {
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      time += 0.05;
+
+      // Draw behavior pattern waves
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${100 + i * 30}, ${150 + i * 20}, 255, ${0.6 - i * 0.1})`;
+        ctx.lineWidth = 2;
+
+        for (let x = 0; x < canvas.width; x += 2) {
+          const y = canvas.height / 2 + 
+                   Math.sin(x * 0.02 + time + i) * (30 + i * 10) +
+                   Math.sin(x * 0.005 + time * 2) * 20;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // Stress indicators
+      if (isAnalyzing) {
+        for (let i = 0; i < 10; i++) {
+          const x = (time * 50 + i * 80) % canvas.width;
+          const y = Math.sin(time * 3 + i) * 20 + canvas.height / 4;
+          
+          ctx.beginPath();
+          ctx.arc(x, y, 3 + Math.sin(time * 5 + i) * 2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(239, 68, 68, ${0.7 + Math.sin(time * 4 + i) * 0.3})`;
+          ctx.fill();
+        }
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => cancelAnimationFrame(animationId);
+  }, [isAnalyzing]);
+
+  const generateBehaviorData = () => {
+    const profiles = [
+      {
+        id: 1,
+        phone: '+919876543210',
+        name: 'Subject Alpha',
+        riskLevel: 'HIGH',
+        behaviorType: 'Organized Criminal',
+        stressLevel: 78,
+        deceptionIndicators: 85,
+        aggressionLevel: 62,
+        socialInfluence: 91,
+        patterns: {
+          callFrequency: 'High during night hours (2-5 AM)',
+          durationPattern: 'Short, frequent calls (<2 min average)',
+          locationPattern: 'Frequent movement between 3 key locations',
+          timingPattern: 'Avoids peak hours, prefers off-business times',
+          communicationStyle: 'Authoritative, gives instructions',
+          stressTriggers: 'Law enforcement mentions, financial discussions'
+        },
+        predictions: [
+          { action: 'Planning Phase Complete', probability: 89, timeframe: '24-48 hours' },
+          { action: 'Meeting Coordination', probability: 76, timeframe: '12-24 hours' },
+          { action: 'Operational Activity', probability: 94, timeframe: '2-7 days' }
+        ],
+        psychoMarkers: {
+          leadership: 92,
+          impulsivity: 34,
+          paranoia: 67,
+          manipulation: 88,
+          planning: 91
+        }
+      },
+      {
+        id: 2,
+        phone: '+919876543211',
+        name: 'Subject Beta',
+        riskLevel: 'MEDIUM',
+        behaviorType: 'Follower/Associate',
+        stressLevel: 45,
+        deceptionIndicators: 41,
+        aggressionLevel: 28,
+        socialInfluence: 34,
+        patterns: {
+          callFrequency: 'Reactive - responds to Alpha calls',
+          durationPattern: 'Longer calls when receiving instructions',
+          locationPattern: 'Limited to 2 primary locations',
+          timingPattern: 'Mirrors Alpha activity with 1-2 hour delay',
+          communicationStyle: 'Submissive, seeks confirmation',
+          stressTriggers: 'Pressure from superiors, unfamiliar numbers'
+        },
+        predictions: [
+          { action: 'Following Instructions', probability: 91, timeframe: 'Immediate' },
+          { action: 'Information Gathering', probability: 67, timeframe: '6-12 hours' },
+          { action: 'Physical Movement', probability: 78, timeframe: '24 hours' }
+        ],
+        psychoMarkers: {
+          leadership: 23,
+          impulsivity: 67,
+          paranoia: 45,
+          manipulation: 31,
+          planning: 42
+        }
+      }
+    ];
+    setBehaviorData(profiles);
+    setSelectedProfile(profiles[0]);
+  };
+
+  const generateTimelineData = () => {
+    const events = Array.from({length: 20}, (_, i) => ({
+      time: new Date(Date.now() - (19 - i) * 2 * 60 * 60 * 1000),
+      type: ['call', 'sms', 'location_change', 'stress_spike', 'pattern_break'][Math.floor(Math.random() * 5)],
+      significance: Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'medium' : 'low',
+      description: [
+        'Encrypted call to unknown number',
+        'Rapid SMS exchange detected',
+        'Unusual location movement',
+        'Stress indicators in voice pattern',
+        'Communication pattern deviation'
+      ][Math.floor(Math.random() * 5)]
+    }));
+    setTimelineData(events);
+  };
+
+  const runBehaviorAnalysis = () => {
+    setIsAnalyzing(true);
+    
+    setTimeout(() => {
+      setPsychoProfile({
+        criminalType: 'Organized Crime Leader',
+        experience: 'Highly Experienced',
+        methodology: 'Systematic and Calculated',
+        weaknesses: ['Overconfidence in subordinates', 'Predictable timing patterns'],
+        recommendations: [
+          'Focus surveillance during 2-5 AM window',
+          'Monitor subordinate communications for pressure points',
+          'Track financial transaction patterns',
+          'Intercept during known meeting locations'
+        ],
+        threatLevel: 'EXTREME',
+        nextAction: {
+          predicted: 'Coordinating major operation',
+          confidence: 87,
+          timeframe: '24-72 hours',
+          indicators: 'Increased secure communications, subordinate activation'
+        }
+      });
+      setIsAnalyzing(false);
+    }, 3000);
+  };
+
+  const getEventIcon = (type) => {
+    const icons = {
+      call: Phone,
+      sms: Zap,
+      location_change: MapPin,
+      stress_spike: AlertTriangle,
+      pattern_break: Target
+    };
+    return icons[type] || Activity;
+  };
+
+  const getEventColor = (significance) => {
+    const colors = {
+      high: 'border-red-500 bg-red-50 text-red-800',
+      medium: 'border-yellow-500 bg-yellow-50 text-yellow-800',
+      low: 'border-blue-500 bg-blue-50 text-blue-800'
+    };
+    return colors[significance];
+  };
+
+  return (
+    <div className="h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 bg-black/40 backdrop-blur-sm border-b border-white/20">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg">
+            <Brain className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-pink-400 to-violet-400 bg-clip-text text-transparent">
+              AI Behavioral Profiling System
+            </h1>
+            <p className="text-sm text-white/70">Criminal Psychology & Predictive Analysis</p>
+          </div>
+        </div>
+        
+        <button
+          onClick={runBehaviorAnalysis}
+          disabled={isAnalyzing}
+          className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 rounded-lg font-medium flex items-center space-x-2 disabled:opacity-50"
+        >
+          {isAnalyzing ? <Pause className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+          <span>{isAnalyzing ? 'Analyzing Psyche...' : 'Run Deep Analysis'}</span>
+        </button>
+      </div>
+
+      <div className="flex h-full">
+        {/* Left Panel - Subject Profiles */}
+        <div className="w-80 bg-black/30 backdrop-blur-sm border-r border-white/20 p-4">
+          <h2 className="font-bold text-cyan-400 mb-4 flex items-center space-x-2">
+            <Users className="h-5 w-5" />
+            <span>Subject Profiles</span>
+          </h2>
+          
+          <div className="space-y-3">
+            {behaviorData.map(profile => (
+              <div
+                key={profile.id}
+                onClick={() => setSelectedProfile(profile)}
+                className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                  selectedProfile?.id === profile.id
+                    ? 'border-cyan-500 bg-cyan-500/20 shadow-lg shadow-cyan-500/20'
+                    : 'border-white/20 bg-white/5 hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">{profile.name}</h3>
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                    profile.riskLevel === 'HIGH' ? 'bg-red-600' : 'bg-yellow-600'
+                  }`}>
+                    {profile.riskLevel}
+                  </span>
+                </div>
+                <p className="text-xs text-white/70 mb-2">{profile.phone}</p>
+                <div className="text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span>Stress Level:</span>
+                    <span className="text-red-400">{profile.stressLevel}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Deception:</span>
+                    <span className="text-amber-400">{profile.deceptionIndicators}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Influence:</span>
+                    <span className="text-cyan-400">{profile.socialInfluence}%</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Timeline */}
+          <div className="mt-6">
+            <h3 className="font-bold text-purple-400 mb-3 flex items-center space-x-2">
+              <Clock className="h-4 w-4" />
+              <span>Behavioral Timeline</span>
+            </h3>
+            <div className="max-h-64 overflow-y-auto space-y-2">
+              {timelineData.slice(0, 8).map((event, i) => {
+                const IconComponent = getEventIcon(event.type);
+                return (
+                  <div key={i} className="flex items-center space-x-3 p-2 bg-white/5 rounded border border-white/10">
+                    <div className={`p-1 rounded ${event.significance === 'high' ? 'bg-red-600' : event.significance === 'medium' ? 'bg-yellow-600' : 'bg-blue-600'}`}>
+                      <IconComponent className="h-3 w-3" />
+                    </div>
+                    <div className="flex-1 text-xs">
+                      <p className="font-medium">{event.description}</p>
+                      <p className="text-white/50">{event.time.toLocaleTimeString()}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Center - Visualization */}
+        <div className="flex-1 relative">
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full"
+          />
+          
+          {/* Analysis Overlay */}
+          {isAnalyzing && (
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center">
+              <div className="bg-gradient-to-br from-purple-900/90 to-pink-900/90 border border-purple-500/50 rounded-lg p-8 max-w-md">
+                <div className="text-center">
+                  <div className="relative mb-4">
+                    <div className="w-20 h-20 mx-auto border-4 border-purple-500 rounded-full animate-spin border-t-transparent"></div>
+                    <Brain className="h-8 w-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-purple-400 animate-pulse" />
+                  </div>
+                  <h3 className="text-lg font-bold text-purple-400 mb-2">Deep Psychological Analysis</h3>
+                  <p className="text-sm text-white/70 mb-4">AI scanning behavioral patterns, stress indicators, and criminal psychology markers</p>
+                  <div className="space-y-2 text-xs text-left">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span>Analyzing call duration patterns</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <span>Detecting stress voice indicators</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                      <span>Mapping social hierarchy</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span>Predicting next actions</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Floating Stats */}
+          <div className="absolute top-4 left-4 space-y-3">
+            <div className="bg-black/60 backdrop-blur-sm border border-cyan-500/30 rounded-lg p-3">
+              <h4 className="text-sm font-bold text-cyan-400 mb-2">Live Metrics</h4>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span>Subjects Monitored:</span>
+                  <span className="text-cyan-400 font-mono">247</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Patterns Detected:</span>
+                  <span className="text-green-400 font-mono">1,429</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>High Risk Alerts:</span>
+                  <span className="text-red-400 font-mono">23</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Prediction Accuracy:</span>
+                  <span className="text-purple-400 font-mono">94.7%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-black/60 backdrop-blur-sm border border-red-500/30 rounded-lg p-3">
+              <h4 className="text-sm font-bold text-red-400 mb-2">Threat Indicators</h4>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs">Coordinated planning detected</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs">Stress levels elevated</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs">Deception patterns active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Analysis Results */}
+        <div className="w-96 bg-black/30 backdrop-blur-sm border-l border-white/20 overflow-y-auto">
+          {selectedProfile && (
+            <div className="p-4">
+              {/* Profile Header */}
+              <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="font-bold text-lg">{selectedProfile.name}</h2>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    selectedProfile.riskLevel === 'HIGH' ? 'bg-red-600' : 'bg-yellow-600'
+                  }`}>
+                    {selectedProfile.riskLevel} RISK
+                  </span>
+                </div>
+                <p className="text-sm text-white/70 mb-3">{selectedProfile.behaviorType}</p>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="bg-black/30 p-2 rounded">
+                    <span className="text-white/60">Stress Level</span>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="flex-1 bg-white/20 rounded-full h-2">
+                        <div className="bg-red-500 h-2 rounded-full" style={{width: `${selectedProfile.stressLevel}%`}}></div>
+                      </div>
+                      <span className="text-red-400 font-mono">{selectedProfile.stressLevel}%</span>
+                    </div>
+                  </div>
+                  <div className="bg-black/30 p-2 rounded">
+                    <span className="text-white/60">Deception</span>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="flex-1 bg-white/20 rounded-full h-2">
+                        <div className="bg-amber-500 h-2 rounded-full" style={{width: `${selectedProfile.deceptionIndicators}%`}}></div>
+                      </div>
+                      <span className="text-amber-400 font-mono">{selectedProfile.deceptionIndicators}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Behavioral Patterns */}
+              <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-4">
+                <h3 className="font-bold text-blue-400 mb-3 flex items-center space-x-2">
+                  <Activity className="h-4 w-4" />
+                  <span>Behavioral Patterns</span>
+                </h3>
+                <div className="space-y-3 text-xs">
+                  {Object.entries(selectedProfile.patterns).map(([key, value]) => (
+                    <div key={key} className="bg-black/30 p-2 rounded">
+                      <span className="text-white/60 capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span>
+                      <p className="text-white/90 mt-1">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Psychological Profile */}
+              {psychoProfile && (
+                <div className="bg-gradient-to-br from-red-900/30 to-orange-900/30 border border-red-500/30 rounded-lg p-4 mb-4">
+                  <h3 className="font-bold text-red-400 mb-3 flex items-center space-x-2">
+                    <Target className="h-4 w-4" />
+                    <span>Psychological Profile</span>
+                  </h3>
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <span className="text-white/60">Criminal Type:</span>
+                      <p className="text-red-300 font-semibold">{psychoProfile.criminalType}</p>
+                    </div>
+                    <div>
+                      <span className="text-white/60">Methodology:</span>
+                      <p className="text-white/90">{psychoProfile.methodology}</p>
+                    </div>
+                    <div>
+                      <span className="text-white/60">Key Weaknesses:</span>
+                      <ul className="text-white/90 mt-1 space-y-1">
+                        {psychoProfile.weaknesses.map((weakness, i) => (
+                          <li key={i}>• {weakness}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Predictions */}
+              <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-lg p-4 mb-4">
+                <h3 className="font-bold text-green-400 mb-3 flex items-center space-x-2">
+                  <TrendingUp className="h-4 w-4" />
+                  <span>AI Predictions</span>
+                </h3>
+                <div className="space-y-2">
+                  {selectedProfile.predictions.map((pred, i) => (
+                    <div key={i} className="bg-black/30 p-3 rounded border border-green-500/20">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-semibold text-green-300">{pred.action}</span>
+                        <span className="text-xs px-2 py-1 bg-green-600 rounded-full">{pred.probability}%</span>
+                      </div>
+                      <div className="text-xs text-white/70">
+                        <span>Timeframe: {pred.timeframe}</span>
+                      </div>
+                      <div className="mt-2">
+                        <div className="w-full bg-white/20 rounded-full h-1">
+                          <div 
+                            className="bg-gradient-to-r from-green-500 to-cyan-500 h-1 rounded-full transition-all duration-1000"
+                            style={{width: `${pred.probability}%`}}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Psychological Markers */}
+              <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                <h3 className="font-bold text-purple-400 mb-3 flex items-center space-x-2">
+                  <Brain className="h-4 w-4" />
+                  <span>Psychological Markers</span>
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(selectedProfile.psychoMarkers).map(([trait, score]) => (
+                    <div key={trait}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="capitalize text-white/80">{trait}</span>
+                        <span className="text-purple-400 font-mono">{score}%</span>
+                      </div>
+                      <div className="w-full bg-white/20 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-500 ${
+                            score > 70 ? 'bg-gradient-to-r from-red-500 to-pink-500' :
+                            score > 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                            'bg-gradient-to-r from-blue-500 to-cyan-500'
+                          }`}
+                          style={{width: `${score}%`}}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom Control Panel */}
+      <div className="bg-black/50 backdrop-blur-sm border-t border-white/20 p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-6 text-xs">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>AI Models: Active</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span>Voice Analysis: Running</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+              <span>Pattern Recognition: Online</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+              <span>Prediction Engine: Calibrated</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <button className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded text-xs font-medium flex items-center space-x-1">
+              <Download className="h-3 w-3" />
+              <span>Export Profile</span>
+            </button>
+            <button className="px-3 py-1 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded text-xs font-medium flex items-center space-x-1">
+              <AlertTriangle className="h-3 w-3" />
+              <span>Generate Alert</span>
+            </button>
+            <span className="text-xs text-white/50">
+              Last Analysis: {new Date().toLocaleTimeString()}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Next Action Prediction Popup */}
+      {psychoProfile && (
+        <div className="absolute bottom-20 right-4 w-80 bg-gradient-to-br from-emerald-900/90 to-cyan-900/90 border border-emerald-500/50 rounded-lg p-4 shadow-2xl">
+          <div className="flex items-center space-x-2 mb-3">
+            <Zap className="h-5 w-5 text-emerald-400" />
+            <h3 className="font-bold text-emerald-400">Next Action Prediction</h3>
+          </div>
+          <div className="bg-black/30 p-3 rounded border border-emerald-500/30">
+            <h4 className="font-semibold text-emerald-300 mb-2">{psychoProfile.nextAction.predicted}</h4>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-white/70">Confidence:</span>
+                <span className="text-emerald-400 font-mono">{psychoProfile.nextAction.confidence}%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/70">Timeframe:</span>
+                <span className="text-cyan-400">{psychoProfile.nextAction.timeframe}</span>
+              </div>
+              <div className="mt-2">
+                <span className="text-white/70">Indicators:</span>
+                <p className="text-white/90 text-xs mt-1">{psychoProfile.nextAction.indicators}</p>
+              </div>
+            </div>
+            <div className="mt-3 flex space-x-2">
+              <button className="flex-1 bg-red-600 hover:bg-red-700 py-2 px-3 rounded text-xs font-medium">
+                Alert Team
+              </button>
+              <button className="flex-1 bg-blue-600 hover:bg-blue-700 py-2 px-3 rounded text-xs font-medium">
+                Monitor
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default BehavioralAnalysisAI;
