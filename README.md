@@ -65,22 +65,62 @@
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-```mermaid
-graph TB
-    A --> B [📁 CSV Log Files] --> [⬆️ Upload Interface]
-    B --> C [🔄 Parser Engine]
-    C --> D [🔍 Suspicion Scoring]
-    D --> E [🗄️ MongoDB Database]
-    E --> F [⚙️ Analysis Engine]
-    F --> G [🚨 Anomaly Detection]
-    F --> H [📈 Pattern Analysis]
-    G --> I [📊 Real-time Dashboard]
-    H --> I
-    I --> J [🎨 Visualization Layer]
-    I --> K [📋 Report Generator]
+### 🔄 Data Flow Pipeline
+
+```text
+📁 CSV Log Files
+        ↓
+⬆️ Upload Interface
+        ↓
+🔄 Parser Engine
+        ↓
+🔍 Suspicion Scoring
+        ↓
+🗄️ MongoDB Database
+        ↓
+⚙️ Analysis Engine
+        ↓
+    ┌───────┴───────┐
+    ↓               ↓
+🚨 Anomaly     📈 Pattern
+ Detection       Analysis
+    ↓               ↓
+    └───────┬───────┘
+            ↓
+📊 Real-time Dashboard
+            ↓
+    ┌───────┴───────┐
+    ↓               ↓
+🎨 Visualization  📋 Report
+   Layer           Generator
 ```
+
+### 🎯 Processing Stages
+
+#### Stage 1: Data Ingestion
+
+- 📁 **CSV Log Files** → Raw IPDR data entry point
+- ⬆️ **Upload Interface** → Secure file upload and validation
+
+#### Stage 2: Data Processing
+
+- 🔄 **Parser Engine** → CSV parsing and data normalization
+- 🔍 **Suspicion Scoring** → Threat assessment and risk calculation
+- 🗄️ **MongoDB Database** → Structured data storage and indexing
+
+#### Stage 3: Intelligence Analysis
+
+- ⚙️ **Analysis Engine** → Core processing hub
+  - 🚨 **Anomaly Detection** → Identifies unusual patterns and behaviors
+  - 📈 **Pattern Analysis** → Recognizes communication trends and relationships
+
+#### Stage 4: Visualization & Reporting
+
+- 📊 **Real-time Dashboard** → Centralized monitoring and insights
+  - 🎨 **Visualization Layer** → Interactive charts, graphs, and network maps
+  - 📋 **Report Generator** → Automated security reports and forensic documentation
 
 ### 📂 Project Structure
 
@@ -359,4 +399,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-Made with 🛡️ for cybersecurity professionals by the **Obscura Collective** team.
+Made with 🛡️ by security enthusiasts, for security professionals. **Team Obscura Collective**.
