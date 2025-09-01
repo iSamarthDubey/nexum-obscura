@@ -10,7 +10,7 @@ import {
 import NetworkGraph from '../components/NetworkGraph';
 import TrafficFlowChart from '../components/TrafficFlowChart';
 import ProtocolDistribution from '../components/ProtocolDistribution';
-import GeographicMapReal from '../components/GeographicMapReal';
+import GeographicMap from '../components/GeographicMap';
 
 const Visualization = () => {
   const [activeView, setActiveView] = useState('network');
@@ -210,7 +210,7 @@ const Visualization = () => {
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Geographic Distribution</h3>
               <div className="h-[600px] w-full border border-gray-200 rounded-lg bg-white">
-                <GeographicMapReal />
+                <GeographicMap />
               </div>
             </div>
           )}
