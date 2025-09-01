@@ -84,21 +84,53 @@ async function initializeDatabase() {
 async function loadSharedData() {
   console.log('📂 Loading shared IPDR data...');
   
-  const sharedDir = path.join(__dirname, '..', 'shared');
+  // Try multiple possible paths for the shared directory
+  const possibleSharedPaths = [
+    path.join(__dirname, 'shared'),  // Local shared folder in backend directory (for deployment)
+    path.join(__dirname, '..', 'shared'),  // Relative to backend folder
+    path.join(__dirname, '..', '..', 'shared'),  // One level up from nexum-obscura
+    path.join(process.cwd(), 'shared'),  // From current working directory
+    path.join(process.cwd(), 'nexum-obscura', 'shared')  // From project root
+  ];
+  
+  let sharedDir = null;
+  for (const testPath of possibleSharedPaths) {
+    console.log(`🔍 Testing path: ${testPath}`);
+    if (fs.existsSync(testPath)) {
+      console.log(`✅ Found shared directory at: ${testPath}`);
+      sharedDir = testPath;
+      break;
+    }
+  }
+  
+  if (!sharedDir) {
+    console.error('❌ Could not find shared directory');
+    console.log('📁 Current working directory:', process.cwd());
+    console.log('📁 __dirname:', __dirname);
+    return;
+  }
+  
   const baseLogsPath = path.join(sharedDir, 'ipdr-logs_base.csv');
   const enrichedLogsPath = path.join(sharedDir, 'ipdr-logs_enriched.csv');
+  
+  console.log(`📂 Base logs path: ${baseLogsPath}`);
+  console.log(`📂 Enriched logs path: ${enrichedLogsPath}`);
   
   try {
     // Load base logs
     if (fs.existsSync(baseLogsPath)) {
       await loadCSVFile(baseLogsPath, 'ipdr-logs_base.csv');
       console.log('✅ Loaded base IPDR logs');
+    } else {
+      console.log('⚠️ Base logs file not found');
     }
     
     // Load enriched logs
     if (fs.existsSync(enrichedLogsPath)) {
       await loadCSVFile(enrichedLogsPath, 'ipdr-logs_enriched.csv');
       console.log('✅ Loaded enriched IPDR logs');
+    } else {
+      console.log('⚠️ Enriched logs file not found');
     }
     
     console.log(`📊 Total log entries loaded: ${processedLogEntries.length}`);
@@ -438,13 +470,51 @@ app.get('/api/logs', (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 50;
   const search = req.query.search || '';
-  const sourceFile = req.query.sourceFile || ''; // New filter for specific file
+  const sourceFile = req.query.sourceFile || '';
+  const dateFrom = req.query.dateFrom || '';
+  const dateTo = req.query.dateTo || '';
+  const riskLevel = req.query.riskLevel || '';
+  const protocol = req.query.protocol || '';
+  const action = req.query.action || '';
   
   let filteredLogs = processedLogEntries;
   
   // Apply source file filter first
   if (sourceFile) {
     filteredLogs = filteredLogs.filter(log => log.sourceFile === sourceFile);
+  }
+  
+  // Apply date range filter
+  if (dateFrom) {
+    const fromDate = new Date(dateFrom);
+    filteredLogs = filteredLogs.filter(log => {
+      const logDate = new Date(log.timestamp);
+      return logDate >= fromDate;
+    });
+  }
+  
+  if (dateTo) {
+    const toDate = new Date(dateTo);
+    toDate.setHours(23, 59, 59, 999); // Include the entire day
+    filteredLogs = filteredLogs.filter(log => {
+      const logDate = new Date(log.timestamp);
+      return logDate <= toDate;
+    });
+  }
+  
+  // Apply risk level filter
+  if (riskLevel) {
+    filteredLogs = filteredLogs.filter(log => log.riskLevel === riskLevel);
+  }
+  
+  // Apply protocol filter
+  if (protocol) {
+    filteredLogs = filteredLogs.filter(log => log.protocol === protocol);
+  }
+  
+  // Apply action filter
+  if (action) {
+    filteredLogs = filteredLogs.filter(log => log.action === action);
   }
   
   // Apply search filter if provided
@@ -471,8 +541,15 @@ app.get('/api/logs', (req, res) => {
       hasNextPage: endIndex < filteredLogs.length,
       hasPreviousPage: page > 1
     },
-    searchTerm: search,
-    sourceFileFilter: sourceFile,
+    filters: {
+      searchTerm: search,
+      sourceFileFilter: sourceFile,
+      dateFrom,
+      dateTo,
+      riskLevel,
+      protocol,
+      action
+    },
     timestamp: new Date().toISOString()
   });
 });
@@ -750,56 +827,68 @@ app.get('/api/network', (req, res) => {
     });
   }
 
-  // Create network graph from call data
+  // Create network graph from IPDR data
   const connectionMap = new Map();
   const nodeMap = new Map();
   
-  // Process all log entries to build connections
+  // Process all IPDR log entries to build connections
   processedLogEntries.forEach(log => {
-    const aParty = log['A-Party'] || log.a_party;
-    const bParty = log['B-Party'] || log.b_party;
+    const sourceIP = log.source_ip;
+    const destIP = log.dest_ip;
     
-    if (!aParty || !bParty) return;
+    if (!sourceIP || !destIP) return;
+    
+    // Skip if we only want suspicious connections and this isn't suspicious
+    if (showOnlySuspicious === 'true' && (log.suspicionScore || 0) < 50) return;
     
     // Create connection key (normalize direction)
-    const connectionKey = aParty < bParty ? `${aParty}-${bParty}` : `${bParty}-${aParty}`;
+    const connectionKey = sourceIP < destIP ? `${sourceIP}-${destIP}` : `${destIP}-${sourceIP}`;
     
     if (!connectionMap.has(connectionKey)) {
       connectionMap.set(connectionKey, {
-        source: aParty < bParty ? aParty : bParty,
-        target: aParty < bParty ? bParty : aParty,
+        source: sourceIP < destIP ? sourceIP : destIP,
+        target: sourceIP < destIP ? destIP : sourceIP,
         weight: 0,
-        totalDuration: 0,
+        totalBytes: 0,
         avgRisk: 0,
         riskSum: 0,
-        calls: []
+        connections: [],
+        protocols: new Set(),
+        actions: new Set()
       });
     }
     
     const connection = connectionMap.get(connectionKey);
     connection.weight++;
-    connection.totalDuration += parseInt(log.Duration || log.duration || 0);
+    connection.totalBytes += parseInt(log.bytes || 0);
     connection.riskSum += (log.suspicionScore || 0);
     connection.avgRisk = connection.riskSum / connection.weight;
-    connection.calls.push(log);
+    connection.connections.push(log);
+    connection.protocols.add(log.protocol);
+    connection.actions.add(log.action);
     
     // Track nodes
-    [aParty, bParty].forEach(number => {
-      if (!nodeMap.has(number)) {
-        nodeMap.set(number, {
-          id: number,
-          label: number,
+    [sourceIP, destIP].forEach(ip => {
+      if (!nodeMap.has(ip)) {
+        nodeMap.set(ip, {
+          id: ip,
+          label: ip,
           connectionCount: 0,
           totalRisk: 0,
           riskCount: 0,
-          isInternational: number.includes('+1-') || number.includes('+44-') || number.includes('+86-'),
-          callVolume: 0
+          isExternal: isExternalIP(ip),
+          dataVolume: 0,
+          city: getLocationFromIP(ip),
+          protocols: new Set(),
+          actions: new Set()
         });
       }
       
-      const node = nodeMap.get(number);
+      const node = nodeMap.get(ip);
       node.connectionCount++;
-      node.callVolume++;
+      node.dataVolume += parseInt(log.bytes || 0);
+      node.protocols.add(log.protocol);
+      node.actions.add(log.action);
       if (log.suspicionScore) {
         node.totalRisk += log.suspicionScore;
         node.riskCount++;
@@ -813,16 +902,18 @@ app.get('/api/network', (req, res) => {
     .filter(conn => !showOnlySuspicious || conn.avgRisk > 50);
 
   // Create nodes array with calculated metrics
-  const activeNumbers = new Set();
+  const activeIPs = new Set();
   filteredConnections.forEach(conn => {
-    activeNumbers.add(conn.source);
-    activeNumbers.add(conn.target);
+    activeIPs.add(conn.source);
+    activeIPs.add(conn.target);
   });
 
   const nodes = Array.from(nodeMap.values())
-    .filter(node => activeNumbers.has(node.id))
+    .filter(node => activeIPs.has(node.id))
     .map(node => ({
       ...node,
+      protocols: Array.from(node.protocols),
+      actions: Array.from(node.actions),
       avgRisk: node.riskCount > 0 ? node.totalRisk / node.riskCount : 0,
       size: Math.max(8, Math.min(25, node.connectionCount * 2)),
       color: node.riskCount > 0 ? 
@@ -834,17 +925,19 @@ app.get('/api/network', (req, res) => {
 
   // Create edges array
   const edges = filteredConnections
-    .filter(conn => activeNumbers.has(conn.source) && activeNumbers.has(conn.target))
+    .filter(conn => activeIPs.has(conn.source) && activeIPs.has(conn.target))
     .map(conn => ({
       source: conn.source,
       target: conn.target,
       weight: conn.weight,
-      totalDuration: conn.totalDuration,
+      totalBytes: conn.totalBytes,
       avgRisk: Math.round(conn.avgRisk),
       width: Math.max(1, Math.min(8, conn.weight * 0.5)),
       color: conn.avgRisk > 70 ? '#ef4444' : 
              conn.avgRisk > 40 ? '#f59e0b' : '#10b981',
-      label: `${conn.weight} calls`,
+      label: `${conn.weight} connections`,
+      protocols: Array.from(conn.protocols),
+      actions: Array.from(conn.actions),
       riskLevel: conn.avgRisk > 70 ? 'high' : 
                  conn.avgRisk > 40 ? 'medium' : 'low'
     }))
@@ -1506,6 +1599,15 @@ function getCountryFromCity(city) {
 
 function getCountryCode(city) {
   return 'IN';
+}
+
+// Helper function to detect external IPs
+function isExternalIP(ip) {
+  // Simple detection - IPs starting with certain ranges are considered external
+  if (ip.startsWith('106.200') || ip.startsWith('117.195') || ip.startsWith('202.142')) {
+    return false; // Internal/local networks
+  }
+  return true; // Consider others as external
 }
 
 app.listen(PORT, () => {

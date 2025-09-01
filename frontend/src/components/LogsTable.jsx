@@ -13,8 +13,8 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     riskLevel: '',
     dateFrom: '',
     dateTo: '',
-    minDuration: '',
-    maxDuration: ''
+    protocol: '',
+    action: ''
   });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
@@ -82,7 +82,7 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     }
   };
 
-  // Load logs with file filtering
+  // Load logs with filtering
   const loadLogs = async (page = 1, search = '', sourceFile = '') => {
     try {
       setLoading(true);
@@ -90,20 +90,33 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
         page: page.toString(),
         limit: '20',
         search: search,
-        ...(sourceFile && { sourceFile })
+        ...(sourceFile && { sourceFile }),
+        ...(filters.dateFrom && { dateFrom: filters.dateFrom }),
+        ...(filters.dateTo && { dateTo: filters.dateTo }),
+        ...(filters.riskLevel && { riskLevel: filters.riskLevel }),
+        ...(filters.protocol && { protocol: filters.protocol }),
+        ...(filters.action && { action: filters.action })
       });
       
-      const response = await fetch(`${API_URL}/logs?${params}`);
+      const url = `${API_URL}/logs?${params}`;
+      console.log('🔍 Loading logs from:', url);
+      console.log('🔧 API_URL:', API_URL);
+      console.log('🌍 Environment:', process.env.NODE_ENV);
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
-        throw new Error('Failed to fetch logs');
+        console.error('❌ Response not OK:', response.status, response.statusText);
+        throw new Error(`Failed to fetch logs: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
+      console.log('✅ Logs loaded successfully:', data.logs?.length, 'entries');
       setLogs(data.logs);
       setPagination(data.pagination);
     } catch (error) {
-      console.error('Error loading logs:', error);
+      console.error('❌ Error loading logs:', error);
+      console.error('🔧 API_URL used:', API_URL);
     } finally {
       setLoading(false);
     }
@@ -206,6 +219,24 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     e.preventDefault();
     setCurrentPage(1);
     loadLogs(1, searchTerm, selectedFile);
+  };
+
+  const applyFilters = () => {
+    setCurrentPage(1);
+    loadLogs(1, searchTerm, selectedFile);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      riskLevel: '',
+      dateFrom: '',
+      dateTo: '',
+      protocol: '',
+      action: ''
+    });
+    setCurrentPage(1);
+    // Load logs after state update
+    setTimeout(() => loadLogs(1, searchTerm, selectedFile), 100);
   };
 
   const getRiskBadge = (riskLevel) => {
@@ -323,7 +354,11 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2 p-3 bg-gray-800 rounded">
               <select
                 value={filters.riskLevel}
-                onChange={(e) => setFilters({...filters, riskLevel: e.target.value})}
+                onChange={(e) => {
+                  const newFilters = {...filters, riskLevel: e.target.value};
+                  setFilters(newFilters);
+                  loadLogs(1, newFilters);
+                }}
                 className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
               >
                 <option value="">All Risk Levels</option>
@@ -336,7 +371,11 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
                 type="date"
                 placeholder="From Date"
                 value={filters.dateFrom}
-                onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
+                onChange={(e) => {
+                  const newFilters = {...filters, dateFrom: e.target.value};
+                  setFilters(newFilters);
+                  loadLogs(1, newFilters);
+                }}
                 className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
               />
               
@@ -344,25 +383,48 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
                 type="date"
                 placeholder="To Date"
                 value={filters.dateTo}
-                onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
+                onChange={(e) => {
+                  const newFilters = {...filters, dateTo: e.target.value};
+                  setFilters(newFilters);
+                  loadLogs(1, newFilters);
+                }}
                 className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
               />
               
-              <input
-                type="number"
-                placeholder="Min Duration (s)"
-                value={filters.minDuration}
-                onChange={(e) => setFilters({...filters, minDuration: e.target.value})}
+              <select
+                value={filters.protocol}
+                onChange={(e) => {
+                  const newFilters = {...filters, protocol: e.target.value};
+                  setFilters(newFilters);
+                  loadLogs(1, newFilters);
+                }}
                 className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
-              />
+              >
+                <option value="">All Protocols</option>
+                <option value="HTTP">HTTP</option>
+                <option value="HTTPS">HTTPS</option>
+                <option value="FTP">FTP</option>
+                <option value="SSH">SSH</option>
+                <option value="TCP">TCP</option>
+                <option value="UDP">UDP</option>
+                <option value="ICMP">ICMP</option>
+              </select>
               
-              <input
-                type="number"
-                placeholder="Max Duration (s)"
-                value={filters.maxDuration}
-                onChange={(e) => setFilters({...filters, maxDuration: e.target.value})}
+              <select
+                value={filters.action}
+                onChange={(e) => {
+                  const newFilters = {...filters, action: e.target.value};
+                  setFilters(newFilters);
+                  loadLogs(1, newFilters);
+                }}
                 className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs"
-              />
+              >
+                <option value="">All Actions</option>
+                <option value="Allow">Allow</option>
+                <option value="Block">Block</option>
+                <option value="Drop">Drop</option>
+                <option value="Alert">Alert</option>
+              </select>
             </div>
           )}
         </form>

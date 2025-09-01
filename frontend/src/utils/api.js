@@ -5,7 +5,23 @@ console.log('🔧 Environment Variables:');
 console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://nexum-obscura.onrender.com/api';
+// Determine API base URL
+const getApiBaseUrl = () => {
+  // If REACT_APP_API_URL is explicitly set, use it
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // In development, use localhost
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:5000/api';
+  }
+  
+  // In production, use Render
+  return 'https://nexum-obscura.onrender.com/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 console.log('🌐 Using API Base URL:', API_BASE_URL);
 

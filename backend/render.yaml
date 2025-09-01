@@ -3,7 +3,7 @@ services:
     name: nexum-obscura-backend
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm install && cp -r ../shared ./shared
     startCommand: npm start
     envVars:
       - key: NODE_ENV
