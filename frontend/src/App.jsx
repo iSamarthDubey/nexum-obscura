@@ -5,7 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import Visualization from './pages/Visualization';
-import VisualizationEnhanced from './pages/VisualizationEnhanced';
+import DemoDashboard from './pages/DemoDashboard';
 import Reports from './pages/Reports';
 import AlertsPanel from './components/AlertsPanel';
 import './App.css';
@@ -153,7 +153,7 @@ function App() {
         } />
         
         {/* Demo Dashboard Route */}
-        <Route path="/demo-dashboard" element={<VisualizationEnhanced />} />
+  <Route path="/demo-dashboard" element={<DemoDashboard />} />
         
         {/* Upload Routes with Navigation */}
         <Route path="/upload" element={
