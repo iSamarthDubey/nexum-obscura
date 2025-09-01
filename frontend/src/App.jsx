@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import Visualization from './pages/Visualization';
+import VisualizationEnhanced from './pages/VisualizationEnhanced';
 import Reports from './pages/Reports';
 import AlertsPanel from './components/AlertsPanel';
 import './App.css';
@@ -14,6 +15,12 @@ function Navigation() {
   const location = useLocation();
 
   const navItems = [
+    { 
+      path: '/', 
+      label: 'Home', 
+      icon: '🏠',
+      description: 'Home Page'
+    },
     { 
       path: '/dashboard', 
       label: 'Dashboard', 
@@ -133,6 +140,11 @@ function App() {
             </div>
           </div>
         } />
+        
+        {/* Demo Dashboard Route */}
+        <Route path="/demo-dashboard" element={<VisualizationEnhanced />} />
+        
+        {/* Upload Routes with Navigation */}
         <Route path="/upload" element={
           <div className="App">
             <div className="main-layout">

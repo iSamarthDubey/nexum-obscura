@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cytoscape from 'cytoscape';
+import { getChartData } from '../utils/sampleData';
 
 const NetworkGraph = ({ data, loading, filters = {} }) => {
   const cyRef = useRef(null);
@@ -21,8 +22,11 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
     
     console.log('🔄 NetworkGraph received data:', data);
     
+    // Use sample data if no data is provided
+    const displayData = data || getChartData('network');
+    
     // Check if we have valid data
-    if (!data) {
+    if (!displayData) {
       console.log('⚠️ No data provided to NetworkGraph');
       setError('No network data available. Upload IPDR files to generate network visualization.');
       return;
@@ -34,19 +38,19 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
       return;
     }
     
-    if (!data.nodes || !Array.isArray(data.nodes)) {
-      console.log('⚠️ Invalid nodes data:', data.nodes);
+    if (!displayData.nodes || !Array.isArray(displayData.nodes)) {
+      console.log('⚠️ Invalid nodes data:', displayData.nodes);
       setError('Invalid network data format. Please try uploading data again.');
       return;
     }
     
-    if (!data.edges || !Array.isArray(data.edges)) {
-      console.log('⚠️ Invalid edges data:', data.edges);
+    if (!displayData.edges || !Array.isArray(displayData.edges)) {
+      console.log('⚠️ Invalid edges data:', displayData.edges);
       setError('Invalid network data format. Please try uploading data again.');
       return;
     }
     
-    if (data.nodes.length === 0) {
+    if (displayData.nodes.length === 0) {
       console.log('⚠️ No nodes in network data');
       setError('No network connections found. Try adjusting filters or uploading more data.');
       return;
@@ -61,25 +65,30 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
         cyRef.current._cytoscapeInstance = null;
       }
 
-      console.log(`✅ Creating network graph with ${data.nodes.length} nodes and ${data.edges.length} edges`);
+      console.log(`✅ Creating network graph with ${displayData.nodes.length} nodes and ${displayData.edges.length} edges`);
 
       // Initialize Cytoscape
       const cy = cytoscape({
       container: cyRef.current,
       elements: [
         // Add nodes
-        ...(data.nodes || []).map(node => ({
+        ...(displayData.nodes || []).map(node => ({
           data: {
             id: node.id || `node-${Math.random()}`,
             label: node.label || node.id || 'Unknown',
             avgRisk: node.avgRisk || 0,
-            connectionCount: node.connectionCount || 0,
-            isInternational: node.isInternational || false
+            connectionCount: node.connectionCount || node.connections || 0,
+            isInternational: node.isInternational || false,
+            type: node.type || 'client',
+            location: node.location || 'Unknown'
           },
           style: {
             'width': node.size || 30,
             'height': node.size || 30,
-            'background-color': node.color || '#3b82f6',
+            'background-color': node.color || (
+              node.type === 'threat' ? '#dc2626' :
+              node.type === 'server' ? '#059669' : '#3b82f6'
+            ),
             'border-width': 2,
             'border-color': (node.avgRisk || 0) > 70 ? '#dc2626' : '#6b7280',
             'label': (node.label || node.id || 'Unknown').length > 15 ? (node.label || node.id || 'Unknown').substring(0, 12) + '...' : (node.label || node.id || 'Unknown'),
@@ -92,7 +101,7 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
           }
         })),
         // Add edges
-        ...(data.edges || []).map(edge => ({
+        ...(displayData.edges || []).map(edge => ({
           data: {
             id: `${edge.source}-${edge.target}` || `edge-${Math.random()}`,
             source: edge.source,

@@ -271,6 +271,19 @@ const LandingPage = () => {
                 <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               
+              <Link
+                to="/demo-dashboard"
+                className="group px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 cyber-glow"
+                style={{ 
+                  backgroundColor: 'var(--cyber-green)', 
+                  color: 'var(--cyber-bg)' 
+                }}
+              >
+                <ChartBarIcon className="w-5 h-5" />
+                <span>Dashboard Sample</span>
+                <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              
               <a
                 href="#features"
                 className="px-8 py-4 border-2 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center space-x-3"
@@ -305,6 +318,90 @@ const LandingPage = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Dashboard Sample Preview */}
+        <section className="max-w-7xl mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-cyber mb-6" style={{ color: 'var(--cyber-blue)' }}>
+              Live Demo Dashboard
+            </h2>
+            <p className="text-xl max-w-2xl mx-auto mb-8" style={{ color: 'var(--cyber-text-muted)' }}>
+              Experience our platform with 500+ realistic cybersecurity data entries
+            </p>
+            <Link
+              to="/demo-dashboard"
+              className="inline-flex items-center space-x-3 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 cyber-glow"
+              style={{ 
+                backgroundColor: 'var(--cyber-green)', 
+                color: 'var(--cyber-bg)' 
+              }}
+            >
+              <ChartBarIcon className="w-6 h-6" />
+              <span>Explore Dashboard Sample</span>
+              <ArrowRightIcon className="w-5 h-5" />
+            </Link>
+          </div>
+
+          {/* Dashboard Preview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-xl border cyber-glow hover:scale-105 transition-transform duration-300" 
+                 style={{ 
+                   background: 'var(--cyber-surface)', 
+                   borderColor: 'var(--cyber-border)' 
+                 }}>
+              <div className="flex items-center mb-4">
+                <div className="p-3 rounded-lg mr-4" style={{ backgroundColor: 'var(--cyber-blue)', opacity: 0.1 }}>
+                  <ChartBarIcon className="w-8 h-8" style={{ color: 'var(--cyber-blue)' }} />
+                </div>
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--cyber-text)' }}>Real-time Analytics</h3>
+              </div>
+              <p style={{ color: 'var(--cyber-text-muted)' }}>
+                Interactive charts showing traffic patterns, protocol distribution, and anomaly detection across 500+ entries
+              </p>
+              <div className="mt-4 text-sm" style={{ color: 'var(--cyber-blue)' }}>
+                ✓ 20+ Indian Cities Coverage
+              </div>
+            </div>
+
+            <div className="p-6 rounded-xl border cyber-glow hover:scale-105 transition-transform duration-300" 
+                 style={{ 
+                   background: 'var(--cyber-surface)', 
+                   borderColor: 'var(--cyber-border)' 
+                 }}>
+              <div className="flex items-center mb-4">
+                <div className="p-3 rounded-lg mr-4" style={{ backgroundColor: 'var(--cyber-green)', opacity: 0.1 }}>
+                  <GlobeAltIcon className="w-8 h-8" style={{ color: 'var(--cyber-green)' }} />
+                </div>
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--cyber-text)' }}>Geographic Mapping</h3>
+              </div>
+              <p style={{ color: 'var(--cyber-text-muted)' }}>
+                Visual threat distribution across Indian regions with risk level indicators and connection analysis
+              </p>
+              <div className="mt-4 text-sm" style={{ color: 'var(--cyber-green)' }}>
+                ✓ Threat Heat Mapping
+              </div>
+            </div>
+
+            <div className="p-6 rounded-xl border cyber-glow hover:scale-105 transition-transform duration-300" 
+                 style={{ 
+                   background: 'var(--cyber-surface)', 
+                   borderColor: 'var(--cyber-border)' 
+                 }}>
+              <div className="flex items-center mb-4">
+                <div className="p-3 rounded-lg mr-4" style={{ backgroundColor: 'var(--cyber-orange)', opacity: 0.1 }}>
+                  <ExclamationTriangleIcon className="w-8 h-8" style={{ color: 'var(--cyber-orange)' }} />
+                </div>
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--cyber-text)' }}>Anomaly Detection</h3>
+              </div>
+              <p style={{ color: 'var(--cyber-text-muted)' }}>
+                Advance threat identification including attacks, port scans, and suspicious data patterns
+              </p>
+              <div className="mt-4 text-sm" style={{ color: 'var(--cyber-orange)' }}>
+                ✓ 15% Threat Detection Rate
+              </div>
+            </div>
           </div>
         </section>
 

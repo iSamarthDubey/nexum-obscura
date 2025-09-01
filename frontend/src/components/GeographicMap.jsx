@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_URL } from '../utils/api';
+import { getChartData } from '../utils/sampleData';
 
 const GeographicMapEnhanced = () => {
   const [geoData, setGeoData] = useState([]);
@@ -37,6 +38,19 @@ const GeographicMapEnhanced = () => {
     } catch (err) {
       console.error('Error fetching geographic data:', err);
       setError(err.message);
+      
+      // Use comprehensive sample data
+      const sampleGeoData = getChartData('geographic');
+      const sampleThreats = getChartData('suspicious');
+      
+      setGeoData(sampleGeoData);
+      setThreats(sampleThreats);
+      setStats({
+        totalRegions: sampleGeoData.length,
+        totalConnections: sampleGeoData.reduce((sum, region) => sum + region.count, 0),
+        suspiciousActivity: sampleGeoData.reduce((sum, region) => sum + (region.suspicious || 0), 0),
+        highRiskRegions: sampleGeoData.filter(region => (region.suspicious || 0) > 5).length
+      });
     } finally {
       setLoading(false);
     }
