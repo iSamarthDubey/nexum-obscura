@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_URL } from '../utils/api';
+import AnomalyChart from '../components/AnomalyChart';
 import { 
   MagnifyingGlassIcon, 
   ChartBarIcon, 
@@ -224,24 +225,40 @@ const Analysis = () => {
               Detected Anomalies
             </h3>
             
-            <div className="grid-2 gap-6">
-              {analysisData.anomalies.map((anomaly, index) => (
-                <div key={index} className="p-4 border border-cyber-border rounded-lg hover:border-cyber-blue/50 transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-cyber-text">{anomaly.type} Anomaly</h4>
-                    <span className="text-cyber-red font-cyber text-lg">{anomaly.count}</span>
+            <div className="grid grid-cols-2 gap-6">
+              {analysisData.anomalies && analysisData.anomalies.length > 0 ? (
+                analysisData.anomalies.map((anomaly, index) => (
+                  <div key={index} className="p-4 border border-cyber-border rounded-lg hover:border-cyber-blue/50 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-cyber-text">{anomaly.type} Anomaly</h4>
+                      <span className="text-cyber-red font-cyber text-lg">{anomaly.count}</span>
+                    </div>
+                    <p className="text-sm text-cyber-text-muted">{anomaly.description}</p>
                   </div>
-                  <p className="text-sm text-cyber-text-muted">{anomaly.description}</p>
+                ))
+              ) : (
+                <div className="col-span-2 p-8 text-center border border-cyber-border rounded-lg">
+                  <ExclamationTriangleIcon className="w-12 h-12 mx-auto mb-4 text-cyber-text-muted" />
+                  <p className="text-cyber-text-muted">No anomalies detected. Upload IPDR data to start analysis.</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
           <div className="card-cyber p-6">
             <h3 className="text-lg font-cyber text-cyber-blue mb-4">Anomaly Timeline</h3>
-            <div className="h-64 flex items-center justify-center border border-cyber-border rounded-lg">
-              <p className="text-cyber-text-muted">Anomaly timeline chart will be displayed here</p>
-            </div>
+            <AnomalyChart 
+              data={analysisData.anomalyTimeline} 
+              type="timeline"
+            />
+          </div>
+          
+          <div className="card-cyber p-6">
+            <h3 className="text-lg font-cyber text-cyber-blue mb-4">Anomaly Types</h3>
+            <AnomalyChart 
+              data={analysisData.anomalyTypes} 
+              type="types"
+            />
           </div>
         </div>
       )}

@@ -22,9 +22,27 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
     console.log('🔄 NetworkGraph received data:', data);
     
     // Check if we have valid data
-    if (!data || !data.hasData || !data.nodes || !data.edges) {
-      console.log('⚠️ No network data available');
+    if (!data) {
+      console.log('⚠️ No data provided to NetworkGraph');
       setError('No network data available. Upload IPDR files to generate network visualization.');
+      return;
+    }
+    
+    if (!data.hasData) {
+      console.log('⚠️ API returned hasData: false');
+      setError('No network data available. Upload IPDR files to generate network visualization.');
+      return;
+    }
+    
+    if (!data.nodes || !Array.isArray(data.nodes)) {
+      console.log('⚠️ Invalid nodes data:', data.nodes);
+      setError('Invalid network data format. Please try uploading data again.');
+      return;
+    }
+    
+    if (!data.edges || !Array.isArray(data.edges)) {
+      console.log('⚠️ Invalid edges data:', data.edges);
+      setError('Invalid network data format. Please try uploading data again.');
       return;
     }
     
@@ -50,21 +68,21 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
       container: cyRef.current,
       elements: [
         // Add nodes
-        ...data.nodes.map(node => ({
+        ...(data.nodes || []).map(node => ({
           data: {
-            id: node.id,
-            label: node.label,
-            avgRisk: node.avgRisk,
-            connectionCount: node.connectionCount,
-            isInternational: node.isInternational
+            id: node.id || `node-${Math.random()}`,
+            label: node.label || node.id || 'Unknown',
+            avgRisk: node.avgRisk || 0,
+            connectionCount: node.connectionCount || 0,
+            isInternational: node.isInternational || false
           },
           style: {
-            'width': node.size,
-            'height': node.size,
-            'background-color': node.color,
+            'width': node.size || 30,
+            'height': node.size || 30,
+            'background-color': node.color || '#3b82f6',
             'border-width': 2,
-            'border-color': node.avgRisk > 70 ? '#dc2626' : '#6b7280',
-            'label': node.label.length > 15 ? node.label.substring(0, 12) + '...' : node.label,
+            'border-color': (node.avgRisk || 0) > 70 ? '#dc2626' : '#6b7280',
+            'label': (node.label || node.id || 'Unknown').length > 15 ? (node.label || node.id || 'Unknown').substring(0, 12) + '...' : (node.label || node.id || 'Unknown'),
             'font-size': '10px',
             'text-valign': 'center',
             'text-halign': 'center',
@@ -74,20 +92,20 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
           }
         })),
         // Add edges
-        ...data.edges.map(edge => ({
+        ...(data.edges || []).map(edge => ({
           data: {
-            id: `${edge.source}-${edge.target}`,
+            id: `${edge.source}-${edge.target}` || `edge-${Math.random()}`,
             source: edge.source,
             target: edge.target,
-            weight: edge.weight,
-            avgRisk: edge.avgRisk,
-            totalDuration: edge.totalDuration,
-            riskLevel: edge.riskLevel
+            weight: edge.weight || 1,
+            avgRisk: edge.avgRisk || 0,
+            totalDuration: edge.totalDuration || 0,
+            riskLevel: edge.riskLevel || 'low'
           },
           style: {
-            'width': edge.width,
-            'line-color': edge.color,
-            'target-arrow-color': edge.color,
+            'width': edge.width || 2,
+            'line-color': edge.color || '#6b7280',
+            'target-arrow-color': edge.color || '#6b7280',
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'opacity': 0.8
