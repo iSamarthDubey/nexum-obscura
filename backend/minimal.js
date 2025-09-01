@@ -111,10 +111,7 @@ async function loadSharedData() {
     console.error('❌ Could not find shared directory');
     console.log('📁 Current working directory:', process.cwd());
     console.log('📁 __dirname:', __dirname);
-    console.log('🔄 Creating fallback data...');
-    
-    // Create fallback sample data
-    createFallbackData();
+    console.log('⚠️ No default data will be loaded - please upload IPDR files manually');
     return;
   }
   
@@ -127,7 +124,7 @@ async function loadSharedData() {
   try {
     // Load base logs
     if (fs.existsSync(baseLogsPath)) {
-      await loadCSVFile(baseLogsPath, 'ipdr-logs_base.csv');
+      await loadCSVFile(baseLogsPath, '/nexum-obscura/backend/shared/ipdr-logs_base.csv');
       console.log('✅ Loaded base IPDR logs');
     } else {
       console.log('⚠️ Base logs file not found');
@@ -135,7 +132,7 @@ async function loadSharedData() {
     
     // Load enriched logs
     if (fs.existsSync(enrichedLogsPath)) {
-      await loadCSVFile(enrichedLogsPath, 'ipdr-logs_enriched.csv');
+      await loadCSVFile(enrichedLogsPath, '/nexum-obscura/backend/shared/ipdr-logs_enriched.csv');
       console.log('✅ Loaded enriched IPDR logs');
     } else {
       console.log('⚠️ Enriched logs file not found');
@@ -145,36 +142,6 @@ async function loadSharedData() {
   } catch (error) {
     console.error('⚠️ Error loading shared data:', error.message);
   }
-}
-
-// Fallback data creation function
-function createFallbackData() {
-  console.log('🔧 Creating fallback IPDR data...');
-  
-  const sampleData = [];
-  const cities = ['Delhi', 'Mumbai', 'Chennai', 'Bangalore', 'Kolkata', 'Hyderabad'];
-  const protocols = ['HTTP', 'HTTPS', 'FTP', 'SSH', 'TCP', 'UDP', 'ICMP'];
-  const actions = ['ALLOW', 'BLOCK', 'DROP', 'DENY', 'ALERT'];
-  
-  for (let i = 0; i < 1000; i++) {
-    const sourceIp = `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
-    const destIp = `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
-    
-    sampleData.push({
-      source_ip: sourceIp,
-      dest_ip: destIp,
-      protocol: protocols[Math.floor(Math.random() * protocols.length)],
-      action: actions[Math.floor(Math.random() * actions.length)],
-      bytes: Math.floor(Math.random() * 1000000),
-      risk_score: Math.floor(Math.random() * 100),
-      timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-      city: cities[Math.floor(Math.random() * cities.length)],
-      source_file: 'fallback-data.csv'
-    });
-  }
-  
-  processedLogEntries.push(...sampleData);
-  console.log(`✅ Created ${sampleData.length} fallback IPDR entries`);
 }
 
 // Helper function to load CSV file
@@ -706,6 +673,169 @@ function updateProcessedStats() {
     riskScore: suspiciousCount > 0 ? Math.floor((suspiciousCount / processedLogEntries.length) * 100) : 0
   };
 }
+
+// Clear all logs endpoint
+app.delete('/api/logs/clear', (req, res) => {
+  try {
+    const previousCount = processedLogEntries.length;
+    
+    // Clear the log entries array
+    processedLogEntries.length = 0;
+    
+    // Clear uploaded files array as well
+    uploadedFiles.length = 0;
+    
+    // Update stats after clearing
+    updateProcessedStats();
+    
+    // Add to activity log
+    recentActivityLog.unshift({
+      time: new Date().toLocaleTimeString(),
+      event: 'All logs cleared',
+      level: 'warning',
+      source: 'System',
+      details: `Removed ${previousCount} log entries`
+    });
+    
+    console.log(`🗑️ Cleared ${previousCount} log entries`);
+    
+    res.json({
+      success: true,
+      message: `Successfully cleared ${previousCount} log entries`,
+      previousCount,
+      currentCount: processedLogEntries.length
+    });
+  } catch (error) {
+    console.error('❌ Error clearing logs:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Delete logs by criteria endpoint
+app.delete('/api/logs/selective', (req, res) => {
+  try {
+    const { dateFrom, dateTo, riskLevel, protocol, action, sourceFile } = req.query;
+    const initialCount = processedLogEntries.length;
+    
+    // Filter out logs that match the deletion criteria
+    processedLogEntries = processedLogEntries.filter(log => {
+      let shouldDelete = false;
+      
+      // Check date range
+      if (dateFrom || dateTo) {
+        const logDate = new Date(log.timestamp);
+        if (dateFrom && dateTo) {
+          shouldDelete = logDate >= new Date(dateFrom) && logDate <= new Date(dateTo);
+        } else if (dateFrom) {
+          shouldDelete = logDate >= new Date(dateFrom);
+        } else if (dateTo) {
+          shouldDelete = logDate <= new Date(dateTo);
+        }
+      }
+      
+      // Check risk level
+      if (riskLevel && log.riskLevel === riskLevel) shouldDelete = true;
+      
+      // Check protocol
+      if (protocol && log.protocol === protocol) shouldDelete = true;
+      
+      // Check action
+      if (action && log.action === action) shouldDelete = true;
+      
+      // Check source file
+      if (sourceFile && log.sourceFile === sourceFile) shouldDelete = true;
+      
+      return !shouldDelete; // Keep logs that don't match deletion criteria
+    });
+    
+    const deletedCount = initialCount - processedLogEntries.length;
+    
+    // Update stats after deletion
+    updateProcessedStats();
+    
+    // Add to activity log
+    recentActivityLog.unshift({
+      time: new Date().toLocaleTimeString(),
+      event: 'Selective log deletion',
+      level: 'info',
+      source: 'System',
+      details: `Deleted ${deletedCount} log entries based on criteria`
+    });
+    
+    console.log(`🗑️ Deleted ${deletedCount} log entries based on criteria`);
+    
+    res.json({
+      success: true,
+      message: `Successfully deleted ${deletedCount} log entries`,
+      deletedCount,
+      remainingCount: processedLogEntries.length,
+      criteria: { dateFrom, dateTo, riskLevel, protocol, action, sourceFile }
+    });
+  } catch (error) {
+    console.error('❌ Error deleting logs:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Delete logs older than specified days
+app.delete('/api/logs/cleanup/:days', (req, res) => {
+  try {
+    const days = parseInt(req.params.days);
+    if (isNaN(days) || days < 1) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid number of days specified'
+      });
+    }
+    
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    const initialCount = processedLogEntries.length;
+    
+    // Remove logs older than cutoff date
+    processedLogEntries = processedLogEntries.filter(log => {
+      const logDate = new Date(log.timestamp);
+      return logDate >= cutoffDate;
+    });
+    
+    const deletedCount = initialCount - processedLogEntries.length;
+    
+    // Update stats after cleanup
+    updateProcessedStats();
+    
+    // Add to activity log
+    recentActivityLog.unshift({
+      time: new Date().toLocaleTimeString(),
+      event: `Log cleanup (${days} days)`,
+      level: 'info',
+      source: 'System',
+      details: `Removed ${deletedCount} old log entries`
+    });
+    
+    console.log(`🧹 Cleaned up ${deletedCount} log entries older than ${days} days`);
+    
+    res.json({
+      success: true,
+      message: `Successfully removed logs older than ${days} days`,
+      deletedCount,
+      remainingCount: processedLogEntries.length,
+      cutoffDate: cutoffDate.toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Error during log cleanup:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
 
 // Analysis endpoint for pattern detection and anomalies
 app.get('/api/analysis', (req, res) => {
