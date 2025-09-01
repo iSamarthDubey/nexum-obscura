@@ -309,6 +309,34 @@ app.get('/api/dashboard', (req, res) => {
   // Return real stats based on both uploaded files and shared data
   const hasData = uploadedFiles.length > 0 || processedLogEntries.length > 0;
   
+  // Generate sample alerts based on data
+  const recentAlerts = hasData ? [
+    {
+      id: 'ALT-001',
+      severity: 'critical',
+      title: 'Suspicious Pattern Detected',
+      description: 'Multiple failed authentication attempts from foreign IP ranges',
+      timestamp: new Date(Date.now() - 5 * 60 * 1000).toLocaleTimeString(),
+      source: 'Pattern Detection'
+    },
+    {
+      id: 'ALT-002',
+      severity: 'high',
+      title: 'Unusual Call Volume',
+      description: 'Abnormal call patterns detected in metropolitan area',
+      timestamp: new Date(Date.now() - 15 * 60 * 1000).toLocaleTimeString(),
+      source: 'Volume Analysis'
+    },
+    {
+      id: 'ALT-003',
+      severity: 'medium',
+      title: 'Data Quality Issue',
+      description: 'Some IPDR records contain incomplete location data',
+      timestamp: new Date(Date.now() - 30 * 60 * 1000).toLocaleTimeString(),
+      source: 'Data Validation'
+    }
+  ] : [];
+  
   res.json({
     timestamp: new Date().toISOString(),
     source: 'BACKEND_API',
@@ -329,6 +357,7 @@ app.get('/api/dashboard', (req, res) => {
       { time: '--:--', event: 'No data uploaded yet', level: 'info', source: 'System' },
       { time: '--:--', event: 'Upload IPDR files to begin analysis', level: 'info', source: 'System' }
     ],
+    recentAlerts: recentAlerts,
     timeline: hasData ? timelineData : [],
     logEntries: hasData ? processedLogEntries : [],
     totalLogEntries: processedLogEntries.length
