@@ -607,6 +607,111 @@ const LandingPage = () => {
           </div>
         </section>
 
+        {/* About Us Section */}
+        <section className="py-20 px-6 lg:px-8" style={{ background: 'var(--cyber-surface)' }}>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-cyber mb-6" style={{ color: 'var(--cyber-blue)' }}>
+                About Us
+              </h2>
+              <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--cyber-text-muted)' }}>
+                Meet the minds behind the innovation
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Team Info */}
+              <div className="order-2 lg:order-1">
+                <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                  <div className="flex items-center mb-6">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: 'var(--cyber-blue)' }}>
+                      <span className="text-2xl">🛡️</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold" style={{ color: 'var(--cyber-text)' }}>Team Name: Obscura Collective</h3>
+                      <p className="text-lg font-medium" style={{ color: 'var(--cyber-blue)' }}>"Obscurity to Insight"</p>
+                    </div>
+                  </div>
+                  
+                  <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
+                    We are a group of curious builders passionate about solving rare and impactful cyber-forensic problems. 
+                    Our mission is to transform hidden, complex data into clear and actionable intelligence for investigators.
+                  </p>
+
+                  <div className="flex items-center space-x-4">
+                    <div className="w-3 h-3 rounded-full" style={{ background: 'var(--cyber-green)' }}></div>
+                    <span style={{ color: 'var(--cyber-text)' }}>Active in CyberShield 2025</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Info */}
+              <div className="order-1 lg:order-2">
+                <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                  <div className="flex items-center mb-6">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: 'var(--cyber-green)' }}>
+                      <span className="text-2xl">🌐</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold" style={{ color: 'var(--cyber-text)' }}>Project Name: Nexum Obscura</h3>
+                      <p className="text-lg font-medium" style={{ color: 'var(--cyber-green)' }}>"Nexum" = connection, "Obscura" = hidden</p>
+                    </div>
+                  </div>
+                  
+                  <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
+                    Our solution connects the dots in IPDR logs, uncovering hidden relationships between A-party and B-party entities. 
+                    It empowers investigators with a real-time dashboard, suspicion scoring, and anomaly insights — turning obscure 
+                    patterns into actionable leads.
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 rounded-lg" style={{ background: 'var(--cyber-bg)' }}>
+                      <div className="text-2xl font-bold" style={{ color: 'var(--cyber-blue)' }}>500+</div>
+                      <div className="text-sm" style={{ color: 'var(--cyber-text-muted)' }}>Sample Records</div>
+                    </div>
+                    <div className="text-center p-3 rounded-lg" style={{ background: 'var(--cyber-bg)' }}>
+                      <div className="text-2xl font-bold" style={{ color: 'var(--cyber-green)' }}>20+</div>
+                      <div className="text-sm" style={{ color: 'var(--cyber-text-muted)' }}>Indian Cities</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mission Statement */}
+            <div className="mt-16 text-center">
+              <div className="max-w-4xl mx-auto bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <h3 className="text-3xl font-bold mb-6" style={{ color: 'var(--cyber-text)' }}>Our Mission</h3>
+                <p className="text-xl leading-relaxed" style={{ color: 'var(--cyber-text-muted)' }}>
+                  To bridge the gap between complex cybersecurity data and actionable intelligence, 
+                  empowering law enforcement and cybersecurity professionals with cutting-edge tools 
+                  for digital forensics and threat analysis.
+                </p>
+                <div className="mt-8 flex justify-center space-x-8">
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-blue)', opacity: 0.1 }}>
+                      <MagnifyingGlassIcon className="w-8 h-8" style={{ color: 'var(--cyber-blue)' }} />
+                    </div>
+                    <span className="font-medium" style={{ color: 'var(--cyber-text)' }}>Investigate</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-green)', opacity: 0.1 }}>
+                      <LightBulbIcon className="w-8 h-8" style={{ color: 'var(--cyber-green)' }} />
+                    </div>
+                    <span className="font-medium" style={{ color: 'var(--cyber-text)' }}>Analyze</span>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-orange)', opacity: 0.1 }}>
+                      <ShieldCheckIcon className="w-8 h-8" style={{ color: 'var(--cyber-orange)' }} />
+                    </div>
+                    <span className="font-medium" style={{ color: 'var(--cyber-text)' }}>Protect</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Footer */}
         <footer className="py-12 px-6 lg:px-8 border-t" style={{ borderColor: 'var(--cyber-border)', background: 'var(--cyber-surface)' }}>
           <div className="max-w-7xl mx-auto">

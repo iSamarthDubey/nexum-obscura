@@ -63,7 +63,7 @@ function Navigation() {
           margin: '0.25rem 0 0 0',
           fontFamily: 'JetBrains Mono'
         }}>
-          IPDR Investigation Platform
+          "Obscurity to Insight" ~ Advanced IPDR Investigation Platform.
         </p>
       </div>
       
@@ -108,13 +108,13 @@ function Navigation() {
           fontWeight: '600',
           marginBottom: '0.25rem'
         }}>
-          🛡️ CyberShield 2025
+          🛡️ National CyberShield Hackathon 2025
         </div>
         <div style={{ 
           fontSize: '0.625rem', 
           color: 'var(--cyber-text-muted)'
         }}>
-          Law Enforcement Digital Forensics Platform
+          Mapping A-Party to B-Party in IPDR Logs
         </div>
       </div>
     </nav>
