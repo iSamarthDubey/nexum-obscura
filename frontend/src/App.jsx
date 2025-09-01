@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
@@ -14,7 +15,7 @@ function Navigation() {
 
   const navItems = [
     { 
-      path: '/', 
+      path: '/dashboard', 
       label: 'Dashboard', 
       icon: '📊',
       description: 'Investigation Overview'
@@ -116,22 +117,67 @@ function Navigation() {
 function App() {
   return (
     <Router>
-      <div className="App">
-        <div className="main-layout">
-          <Navigation />
-          <main className="content-area">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/upload" element={<Upload />} />
-              <Route path="/analysis" element={<Analysis />} />
-              <Route path="/visualization" element={<Visualization />} />
-              <Route path="/reports" element={<Reports />} />
-            </Routes>
-          </main>
-          {/* Real-time Security Alerts Panel */}
-          <AlertsPanel />
-        </div>
-      </div>
+      <Routes>
+        {/* Landing Page Route */}
+        <Route path="/" element={<LandingPage />} />
+        
+        {/* Dashboard Routes with Navigation */}
+        <Route path="/dashboard" element={
+          <div className="App">
+            <div className="main-layout">
+              <Navigation />
+              <main className="content-area">
+                <Dashboard />
+              </main>
+              <AlertsPanel />
+            </div>
+          </div>
+        } />
+        <Route path="/upload" element={
+          <div className="App">
+            <div className="main-layout">
+              <Navigation />
+              <main className="content-area">
+                <Upload />
+              </main>
+              <AlertsPanel />
+            </div>
+          </div>
+        } />
+        <Route path="/analysis" element={
+          <div className="App">
+            <div className="main-layout">
+              <Navigation />
+              <main className="content-area">
+                <Analysis />
+              </main>
+              <AlertsPanel />
+            </div>
+          </div>
+        } />
+        <Route path="/visualization" element={
+          <div className="App">
+            <div className="main-layout">
+              <Navigation />
+              <main className="content-area">
+                <Visualization />
+              </main>
+              <AlertsPanel />
+            </div>
+          </div>
+        } />
+        <Route path="/reports" element={
+          <div className="App">
+            <div className="main-layout">
+              <Navigation />
+              <main className="content-area">
+                <Reports />
+              </main>
+              <AlertsPanel />
+            </div>
+          </div>
+        } />
+      </Routes>
     </Router>
   );
 }

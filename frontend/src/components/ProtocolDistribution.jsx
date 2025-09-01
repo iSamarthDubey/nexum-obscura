@@ -36,6 +36,10 @@ const ProtocolDistribution = () => {
     } catch (err) {
       console.error('Error fetching protocol data:', err);
       setError(err.message);
+      // Ensure arrays are reset on error
+      setProtocolData([]);
+      setCallTypeData([]);
+      setStats(null);
     } finally {
       setLoading(false);
     }
@@ -160,7 +164,7 @@ const ProtocolDistribution = () => {
         </div>
       )}
 
-      {protocolData.length > 0 ? (
+      {protocolData && protocolData.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
           {/* Protocol Distribution Chart */}
           <div className="flex flex-col">
@@ -179,7 +183,7 @@ const ProtocolDistribution = () => {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {protocolData.map((entry, index) => (
+                      {protocolData && protocolData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -215,7 +219,7 @@ const ProtocolDistribution = () => {
                     fill="#8884d8"
                     dataKey="count"
                   >
-                    {callTypeData.map((entry, index) => (
+                    {callTypeData && callTypeData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -256,7 +260,7 @@ const ProtocolDistribution = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {protocolData.map((protocol, index) => (
+                {protocolData && protocolData.map((protocol, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

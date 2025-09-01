@@ -1,170 +1,79 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../utils/api';
 
-const GeographicMap = () => {
+const GeographicMapEnhanced = () => {
   const [geoData, setGeoData] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [viewMode, setViewMode] = useState('threats'); // threats, sources, targets
+  const [threats, setThreats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [error, setError] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState(null);
 
   useEffect(() => {
-    loadGeographicData();
-    const interval = setInterval(loadGeographicData, 30000); // Update every 30 seconds
+    fetchGeographicData();
+    
+    // Set up auto-refresh
+    const interval = setInterval(fetchGeographicData, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const loadGeographicData = async () => {
+  const fetchGeographicData = async () => {
     try {
-      // Simulate geographic threat data
-      const mockGeoData = [
-        {
-          country: 'United States',
-          code: 'US',
-          coordinates: { lat: 39.8283, lng: -98.5795 },
-          threats: 156,
-          sources: 89,
-          targets: 67,
-          riskLevel: 'High',
-          topThreats: ['Malware', 'Phishing', 'DDoS'],
-          recentActivity: '2 min ago'
-        },
-        {
-          country: 'China',
-          code: 'CN',
-          coordinates: { lat: 35.8617, lng: 104.1954 },
-          threats: 243,
-          sources: 198,
-          targets: 45,
-          riskLevel: 'Critical',
-          topThreats: ['APT', 'Data Breach', 'Ransomware'],
-          recentActivity: '5 min ago'
-        },
-        {
-          country: 'Russia',
-          code: 'RU',
-          coordinates: { lat: 61.5240, lng: 105.3188 },
-          threats: 187,
-          sources: 134,
-          targets: 53,
-          riskLevel: 'Critical',
-          topThreats: ['State-sponsored', 'Ransomware', 'Banking Trojan'],
-          recentActivity: '1 min ago'
-        },
-        {
-          country: 'Germany',
-          code: 'DE',
-          coordinates: { lat: 51.1657, lng: 10.4515 },
-          threats: 78,
-          sources: 23,
-          targets: 55,
-          riskLevel: 'Medium',
-          topThreats: ['Phishing', 'Malware', 'Identity Theft'],
-          recentActivity: '8 min ago'
-        },
-        {
-          country: 'Brazil',
-          code: 'BR',
-          coordinates: { lat: -14.2350, lng: -51.9253 },
-          threats: 92,
-          sources: 34,
-          targets: 58,
-          riskLevel: 'Medium',
-          topThreats: ['Banking Malware', 'Phishing', 'Fraud'],
-          recentActivity: '3 min ago'
-        },
-        {
-          country: 'India',
-          code: 'IN',
-          coordinates: { lat: 20.5937, lng: 78.9629 },
-          threats: 134,
-          sources: 67,
-          targets: 67,
-          riskLevel: 'High',
-          topThreats: ['Mobile Malware', 'Data Breach', 'Phishing'],
-          recentActivity: '4 min ago'
-        },
-        {
-          country: 'United Kingdom',
-          code: 'GB',
-          coordinates: { lat: 55.3781, lng: -3.4360 },
-          threats: 67,
-          sources: 19,
-          targets: 48,
-          riskLevel: 'Medium',
-          topThreats: ['Phishing', 'Ransomware', 'Fraud'],
-          recentActivity: '6 min ago'
-        },
-        {
-          country: 'South Korea',
-          code: 'KR',
-          coordinates: { lat: 35.9078, lng: 127.7669 },
-          threats: 89,
-          sources: 34,
-          targets: 55,
-          riskLevel: 'High',
-          topThreats: ['APT', 'Malware', 'DDoS'],
-          recentActivity: '7 min ago'
-        }
-      ];
-
-      setGeoData(mockGeoData);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading geographic data:', error);
+      const response = await fetch(`${API_URL}/geographic-data`);
+      if (!response.ok) throw new Error('Failed to fetch geographic data');
+      
+      const result = await response.json();
+      
+      if (result.hasData) {
+        setGeoData(result.regions);
+        setThreats(result.threats);
+        setStats(result.statistics);
+        setError(null);
+      } else {
+        setGeoData([]);
+        setThreats([]);
+        setStats(null);
+      }
+    } catch (err) {
+      console.error('Error fetching geographic data:', err);
+      setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
 
-  const getRiskColor = (riskLevel) => {
-    switch (riskLevel.toLowerCase()) {
-      case 'critical': return 'bg-red-500';
-      case 'high': return 'bg-orange-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-gray-500';
+  const getThreatColor = (threatLevel) => {
+    switch (threatLevel) {
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#d97706';
+      case 'low': return '#16a34a';
+      default: return '#6b7280';
     }
   };
-
-  const getRiskTextColor = (riskLevel) => {
-    switch (riskLevel.toLowerCase()) {
-      case 'critical': return 'text-red-600 bg-red-50';
-      case 'high': return 'text-orange-600 bg-orange-50';
-      case 'medium': return 'text-yellow-600 bg-yellow-50';
-      case 'low': return 'text-green-600 bg-green-50';
-      default: return 'text-gray-600 bg-gray-50';
-    }
-  };
-
-  const getViewModeData = (country) => {
-    switch (viewMode) {
-      case 'sources': return country.sources;
-      case 'targets': return country.targets;
-      default: return country.threats;
-    }
-  };
-
-  const getViewModeLabel = () => {
-    switch (viewMode) {
-      case 'sources': return 'Attack Sources';
-      case 'targets': return 'Attack Targets';
-      default: return 'Total Threats';
-    }
-  };
-
-  const sortedCountries = [...geoData].sort((a, b) => getViewModeData(b) - getViewModeData(a));
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-64 bg-gray-200 rounded mb-4"></div>
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex justify-between">
-                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-              </div>
-            ))}
+      <div className="h-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <div className="flex items-center">
+            <div className="text-red-400">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Error Loading Geographic Data</h3>
+              <p className="mt-1 text-sm text-red-700">{error}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -172,137 +81,228 @@ const GeographicMap = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
-      <div className="p-6 border-b border-gray-200">
+    <div className="h-full p-6 overflow-auto">
+      {/* Header with Statistics */}
+      <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            🌍 Geographic Threat Map
-          </h3>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs text-gray-500">Live Data</span>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Geographic Threat Distribution</h3>
+          <button
+            onClick={fetchGeographicData}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Refresh
+          </button>
         </div>
-
-        {/* View Mode Selector */}
-        <div className="flex space-x-2">
-          {['threats', 'sources', 'targets'].map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                viewMode === mode
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {mode.charAt(0).toUpperCase() + mode.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="p-6">
-        {/* World Map Placeholder */}
-        <div className="relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 mb-6 h-64 overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center text-gray-600">
-              <div className="text-4xl mb-2">🗺️</div>
-              <p className="text-sm">Interactive World Map</p>
-              <p className="text-xs text-gray-500 mt-1">Showing {getViewModeLabel()}</p>
+        
+        {stats && (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div className="bg-blue-50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-blue-600">{stats.totalRegions}</div>
+              <div className="text-xs text-blue-600">Total Regions</div>
+            </div>
+            <div className="bg-red-50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-red-600">{stats.highRiskRegions}</div>
+              <div className="text-xs text-red-600">High Risk Areas</div>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-gray-600">{stats.totalCalls?.toLocaleString()}</div>
+              <div className="text-xs text-gray-600">Total Activities</div>
+            </div>
+            <div className="bg-yellow-50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-yellow-600">{stats.totalThreats}</div>
+              <div className="text-xs text-yellow-600">Active Threats</div>
+            </div>
+            <div className="bg-orange-50 rounded-lg p-3 text-center">
+              <div className="text-2xl font-bold text-orange-600">{stats.criticalThreats}</div>
+              <div className="text-xs text-orange-600">Critical Alerts</div>
             </div>
           </div>
-          
-          {/* Simulate threat markers */}
-          <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-red-500 rounded-full animate-pulse" title="High Activity"></div>
-          <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-orange-500 rounded-full animate-pulse" title="Medium Activity"></div>
-          <div className="absolute bottom-1/3 left-1/2 w-4 h-4 bg-red-600 rounded-full animate-pulse" title="Critical Activity"></div>
-          <div className="absolute top-1/2 right-1/3 w-2 h-2 bg-yellow-500 rounded-full animate-pulse" title="Low Activity"></div>
+        )}
+      </div>
+
+      {/* Interactive Map-like Visualization */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+        {/* Map Container */}
+        <div className="lg:col-span-2">
+          <div className="bg-gradient-to-br from-blue-50 via-green-50 to-yellow-50 rounded-lg p-6 h-full min-h-[400px] relative border-2 border-gray-200">
+            <h4 className="text-md font-medium text-gray-900 mb-4">India Network Activity Map</h4>
+            
+            {/* Map Background */}
+            <div className="relative w-full h-full bg-gradient-to-br from-blue-100 to-green-100 rounded-lg overflow-hidden border border-gray-300">
+              {/* Simulated map regions */}
+              <svg viewBox="0 0 400 300" className="w-full h-full">
+                {/* Background map shape (simplified India outline) */}
+                <path
+                  d="M80 50 L120 40 L160 50 L200 60 L240 70 L280 80 L320 90 L340 120 L350 160 L340 200 L320 230 L280 250 L240 260 L200 250 L160 240 L120 220 L100 180 L80 140 Z"
+                  fill="#e0f2fe"
+                  stroke="#0891b2"
+                  strokeWidth="2"
+                  className="drop-shadow-sm"
+                />
+                
+                {geoData.map((region, index) => {
+                  const x = (region.coordinates.lng - 68) * 4; // Adjust for map scale
+                  const y = (35 - region.coordinates.lat) * 8; // Adjust for map scale
+                  const size = Math.max(8, Math.min(20, (region.callVolume / 50) * 10));
+                  
+                  return (
+                    <g key={index}>
+                      {/* City marker */}
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r={size}
+                        fill={getThreatColor(region.threatLevel)}
+                        stroke="#fff"
+                        strokeWidth="2"
+                        className="cursor-pointer drop-shadow-md hover:stroke-4 transition-all"
+                        onClick={() => setSelectedRegion(region)}
+                      />
+                      
+                      {/* Threat level indicator */}
+                      {(region.threatLevel === 'high' || region.threatLevel === 'critical') && (
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r={size + 8}
+                          fill="none"
+                          stroke={getThreatColor(region.threatLevel)}
+                          strokeWidth="2"
+                          strokeDasharray="4,4"
+                          className="animate-pulse"
+                        />
+                      )}
+                      
+                      {/* City label */}
+                      <text
+                        x={x}
+                        y={y + size + 15}
+                        textAnchor="middle"
+                        className="text-xs font-medium fill-gray-700"
+                      >
+                        {region.city}
+                      </text>
+                    </g>
+                  );
+                })}
+                
+                {/* Threat connections */}
+                {threats.slice(0, 3).map((threat, index) => {
+                  const x = (threat.location.lng - 68) * 4;
+                  const y = (35 - threat.location.lat) * 8;
+                  return (
+                    <g key={`threat-${index}`}>
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="25"
+                        fill="none"
+                        stroke="#dc2626"
+                        strokeWidth="2"
+                        strokeDasharray="6,6"
+                        className="animate-ping opacity-75"
+                      />
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+            
+            {/* Map Legend */}
+            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+              <div className="text-xs font-medium text-gray-700 mb-2">Threat Levels</div>
+              <div className="space-y-1">
+                <div className="flex items-center text-xs">
+                  <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                  <span>Low Risk</span>
+                </div>
+                <div className="flex items-center text-xs">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+                  <span>Medium Risk</span>
+                </div>
+                <div className="flex items-center text-xs">
+                  <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                  <span>High Risk</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Country Rankings */}
+        {/* Region Details Panel */}
         <div className="space-y-4">
-          <h4 className="text-sm font-medium text-gray-700">
-            Top Countries by {getViewModeLabel()}
-          </h4>
-          
-          <div className="space-y-2">
-            {sortedCountries.slice(0, 8).map((country, index) => (
-              <div
-                key={country.code}
-                className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer ${
-                  selectedCountry?.code === country.code
-                    ? 'border-blue-300 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-                onClick={() => setSelectedCountry(selectedCountry?.code === country.code ? null : country)}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center justify-center w-6 h-6 bg-gray-100 rounded text-xs font-medium">
-                    #{index + 1}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg">{country.code === 'US' ? '🇺🇸' : country.code === 'CN' ? '🇨🇳' : country.code === 'RU' ? '🇷🇺' : country.code === 'DE' ? '🇩🇪' : country.code === 'BR' ? '🇧🇷' : country.code === 'IN' ? '🇮🇳' : country.code === 'GB' ? '🇬🇧' : '🇰🇷'}</span>
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{country.country}</div>
-                      <div className="text-xs text-gray-500">Last activity: {country.recentActivity}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRiskTextColor(country.riskLevel)}`}>
-                    {country.riskLevel}
+          {selectedRegion && (
+            <div className="bg-white rounded-lg border border-gray-200 p-4">
+              <h4 className="font-medium text-gray-900 mb-3">{selectedRegion.city}</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Threat Level:</span>
+                  <span className={`font-medium ${
+                    selectedRegion.threatLevel === 'high' ? 'text-red-600' :
+                    selectedRegion.threatLevel === 'medium' ? 'text-yellow-600' :
+                    'text-green-600'
+                  }`}>
+                    {selectedRegion.threatLevel.charAt(0).toUpperCase() + selectedRegion.threatLevel.slice(1)}
                   </span>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">
-                      {getViewModeData(country).toLocaleString()}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {viewMode === 'threats' ? 'incidents' : viewMode}
-                    </div>
-                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Selected Country Details */}
-          {selectedCountry && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h5 className="text-sm font-medium text-gray-900 mb-3">
-                📊 {selectedCountry.country} - Detailed Statistics
-              </h5>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-lg font-bold text-red-600">{selectedCountry.threats}</div>
-                  <div className="text-xs text-gray-600">Total Threats</div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Risk Score:</span>
+                  <span className="font-medium">{selectedRegion.riskScore}/100</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-orange-600">{selectedCountry.sources}</div>
-                  <div className="text-xs text-gray-600">Attack Sources</div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Activities:</span>
+                  <span className="font-medium">{selectedRegion.callVolume}</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold text-blue-600">{selectedCountry.targets}</div>
-                  <div className="text-xs text-gray-600">Attack Targets</div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Blocked:</span>
+                  <span className="font-medium text-red-600">{selectedRegion.blockedCalls}</span>
                 </div>
-              </div>
-              <div className="mt-3">
-                <div className="text-xs text-gray-600 mb-1">Top Threat Types:</div>
-                <div className="flex flex-wrap gap-1">
-                  {selectedCountry.topThreats.map((threat, index) => (
-                    <span key={index} className="px-2 py-1 text-xs bg-white text-gray-700 rounded border">
-                      {threat}
-                    </span>
-                  ))}
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Data Volume:</span>
+                  <span className="font-medium">{(selectedRegion.totalBytes / 1024 / 1024).toFixed(2)} MB</span>
                 </div>
               </div>
             </div>
           )}
+
+          {/* Threat Alerts */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 className="font-medium text-gray-900 mb-3">Active Threat Alerts</h4>
+            <div className="space-y-3">
+              {threats.slice(0, 3).map((threat) => (
+                <div key={threat.id} className="border-l-4 border-red-500 pl-3">
+                  <div className="text-sm font-medium text-gray-900">{threat.city}</div>
+                  <div className="text-xs text-gray-500">{threat.description}</div>
+                  <div className="text-xs text-red-600 mt-1">
+                    {new Date(threat.timestamp).toLocaleString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Regional Statistics */}
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h4 className="font-medium text-gray-900 mb-3">Regional Overview</h4>
+            <div className="space-y-2">
+              {geoData.slice(0, 5).map((region, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center">
+                    <div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: getThreatColor(region.threatLevel) }}
+                    ></div>
+                    <span className="text-gray-700">{region.city}</span>
+                  </div>
+                  <div className="text-gray-500">{region.callVolume}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default GeographicMap;
+export default GeographicMapEnhanced;
