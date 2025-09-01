@@ -10,7 +10,7 @@ import {
 import NetworkGraph from '../components/NetworkGraph';
 import TrafficFlowChart from '../components/TrafficFlowChart';
 import ProtocolDistribution from '../components/ProtocolDistribution';
-import GeographicMapEnhanced from '../components/GeographicMapEnhanced';
+import GeographicMapReal from '../components/GeographicMapReal';
 
 const Visualization = () => {
   const [activeView, setActiveView] = useState('network');
@@ -180,7 +180,7 @@ const Visualization = () => {
                   )}
                 </div>
               </div>
-              <div className="h-96 border border-gray-200 rounded-lg">
+              <div className="h-[600px] w-full border border-gray-200 rounded-lg bg-white">
                 <NetworkGraph data={networkData} loading={loading} filters={filters} />
               </div>
               
@@ -209,21 +209,27 @@ const Visualization = () => {
           {activeView === 'geographic' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Geographic Distribution</h3>
-              <GeographicMapEnhanced />
+              <div className="h-[600px] w-full border border-gray-200 rounded-lg bg-white">
+                <GeographicMapReal />
+              </div>
             </div>
           )}
 
           {activeView === 'traffic' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Traffic Flow Analysis</h3>
-              <TrafficFlowChart timeRange="24h" />
+              <div className="h-[600px] w-full border border-gray-200 rounded-lg bg-white">
+                <TrafficFlowChart timeRange="24h" />
+              </div>
             </div>
           )}
 
           {activeView === 'protocols' && (
             <div className="p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Protocol Distribution</h3>
-              <ProtocolDistribution />
+              <div className="h-[600px] w-full border border-gray-200 rounded-lg bg-white">
+                <ProtocolDistribution />
+              </div>
             </div>
           )}
         </div>

@@ -99,7 +99,7 @@ const ProtocolDistribution = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="h-full p-6 overflow-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
         <div>
@@ -161,11 +161,11 @@ const ProtocolDistribution = () => {
       )}
 
       {protocolData.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
           {/* Protocol Distribution Chart */}
-          <div>
+          <div className="flex flex-col">
             <h4 className="text-md font-medium text-gray-900 mb-4">Protocol Distribution</h4>
-            <div className="h-80">
+            <div className="flex-1 min-h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 {viewType === 'pie' ? (
                   <PieChart>
@@ -200,9 +200,9 @@ const ProtocolDistribution = () => {
           </div>
 
           {/* Call Type Distribution */}
-          <div>
-            <h4 className="text-md font-medium text-gray-900 mb-4">Call Type Distribution</h4>
-            <div className="h-80">
+          <div className="flex flex-col">
+            <h4 className="text-md font-medium text-gray-900 mb-4">Action Type Distribution</h4>
+            <div className="flex-1 min-h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -225,17 +225,16 @@ const ProtocolDistribution = () => {
               </ResponsiveContainer>
             </div>
           </div>
-        </div>
       ) : (
-        <div className="flex items-center justify-center h-80">
+        <div className="flex items-center justify-center flex-1">
           <div className="text-center">
             <div className="text-gray-400 mb-2">
               <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
             <h3 className="text-sm font-medium text-gray-900">No Protocol Data</h3>
-            <p className="text-sm text-gray-500 mt-1">Upload IPDR files to analyze protocol distribution</p>
+            <p className="text-sm text-gray-500">Upload IPDR files to see protocol analysis</p>
           </div>
         </div>
       )}

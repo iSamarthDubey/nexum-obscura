@@ -90,7 +90,11 @@ async function loadSharedData() {
     path.join(__dirname, '..', 'shared'),  // Relative to backend folder
     path.join(__dirname, '..', '..', 'shared'),  // One level up from nexum-obscura
     path.join(process.cwd(), 'shared'),  // From current working directory
-    path.join(process.cwd(), 'nexum-obscura', 'shared')  // From project root
+    path.join(process.cwd(), 'nexum-obscura', 'shared'),  // From project root
+    '/opt/render/project/src/backend/shared',  // Render deployment path
+    '/opt/render/project/src/shared',  // Render deployment path alternative
+    '/app/backend/shared',  // Alternative deployment path
+    '/app/shared'  // Alternative deployment path
   ];
   
   let sharedDir = null;
@@ -107,6 +111,10 @@ async function loadSharedData() {
     console.error('❌ Could not find shared directory');
     console.log('📁 Current working directory:', process.cwd());
     console.log('📁 __dirname:', __dirname);
+    console.log('🔄 Creating fallback data...');
+    
+    // Create fallback sample data
+    createFallbackData();
     return;
   }
   
@@ -137,6 +145,36 @@ async function loadSharedData() {
   } catch (error) {
     console.error('⚠️ Error loading shared data:', error.message);
   }
+}
+
+// Fallback data creation function
+function createFallbackData() {
+  console.log('🔧 Creating fallback IPDR data...');
+  
+  const sampleData = [];
+  const cities = ['Delhi', 'Mumbai', 'Chennai', 'Bangalore', 'Kolkata', 'Hyderabad'];
+  const protocols = ['HTTP', 'HTTPS', 'FTP', 'SSH', 'TCP', 'UDP', 'ICMP'];
+  const actions = ['ALLOW', 'BLOCK', 'DROP', 'DENY', 'ALERT'];
+  
+  for (let i = 0; i < 1000; i++) {
+    const sourceIp = `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
+    const destIp = `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`;
+    
+    sampleData.push({
+      source_ip: sourceIp,
+      dest_ip: destIp,
+      protocol: protocols[Math.floor(Math.random() * protocols.length)],
+      action: actions[Math.floor(Math.random() * actions.length)],
+      bytes: Math.floor(Math.random() * 1000000),
+      risk_score: Math.floor(Math.random() * 100),
+      timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+      city: cities[Math.floor(Math.random() * cities.length)],
+      source_file: 'fallback-data.csv'
+    });
+  }
+  
+  processedLogEntries.push(...sampleData);
+  console.log(`✅ Created ${sampleData.length} fallback IPDR entries`);
 }
 
 // Helper function to load CSV file

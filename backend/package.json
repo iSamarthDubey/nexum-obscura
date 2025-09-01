@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node minimal.js",
     "dev": "nodemon minimal.js",
-    "build": "npm install && mkdir -p shared && cp ../shared/*.csv shared/ || true",
+    "build": "npm install && mkdir -p shared && cp ../shared/*.csv shared/ 2>/dev/null || cp ./shared/*.csv . 2>/dev/null || echo 'Using built-in fallback data system'",
     "test": "jest"
   },
   "dependencies": {
