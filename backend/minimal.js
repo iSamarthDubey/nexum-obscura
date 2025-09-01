@@ -80,67 +80,86 @@ async function initializeDatabase() {
   }
 }
 
-// Function to load shared CSV files on startup
+// Function to load IPDR files from uploads directory on startup
 async function loadSharedData() {
-  console.log('📂 Loading shared IPDR data...');
+  console.log('📂 Loading IPDR data from uploads directory...');
   
-  // Try multiple possible paths for the shared directory
-  const possibleSharedPaths = [
-    path.join(__dirname, 'shared'),  // Local shared folder in backend directory (for deployment)
-    path.join(__dirname, '..', 'shared'),  // Relative to backend folder
-    path.join(__dirname, '..', '..', 'shared'),  // One level up from nexum-obscura
-    path.join(process.cwd(), 'shared'),  // From current working directory
-    path.join(process.cwd(), 'nexum-obscura', 'shared'),  // From project root
-    '/opt/render/project/src/backend/shared',  // Render deployment path
-    '/opt/render/project/src/shared',  // Render deployment path alternative
-    '/app/backend/shared',  // Alternative deployment path
-    '/app/shared'  // Alternative deployment path
+  // Try multiple possible paths for the uploads directory
+  const possibleUploadPaths = [
+    path.join(__dirname, 'uploads'),  // Local uploads folder in backend directory
+    path.join(__dirname, '..', 'uploads'),  // Relative to backend folder
+    path.join(process.cwd(), 'uploads'),  // From current working directory
+    path.join(process.cwd(), 'backend', 'uploads'),  // From project root
+    path.join(process.cwd(), 'nexum-obscura', 'backend', 'uploads'),  // Full project path
+    '/opt/render/project/src/backend/uploads',  // Render deployment path
+    '/opt/render/project/uploads',  // Render deployment path alternative
+    '/app/backend/uploads',  // Alternative deployment path
+    '/app/uploads'  // Alternative deployment path
   ];
   
-  let sharedDir = null;
-  for (const testPath of possibleSharedPaths) {
-    console.log(`🔍 Testing path: ${testPath}`);
+  let uploadsDir = null;
+  for (const testPath of possibleUploadPaths) {
+    console.log(`🔍 Testing upload path: ${testPath}`);
     if (fs.existsSync(testPath)) {
-      console.log(`✅ Found shared directory at: ${testPath}`);
-      sharedDir = testPath;
+      console.log(`✅ Found uploads directory at: ${testPath}`);
+      uploadsDir = testPath;
       break;
     }
   }
   
-  if (!sharedDir) {
-    console.error('❌ Could not find shared directory');
+  if (!uploadsDir) {
+    console.error('❌ Could not find uploads directory');
     console.log('📁 Current working directory:', process.cwd());
     console.log('📁 __dirname:', __dirname);
-    console.log('⚠️ No default data will be loaded - please upload IPDR files manually');
-    return;
+    console.log('🔧 Creating uploads directory...');
+    
+    // Create uploads directory if it doesn't exist
+    const defaultUploadsPath = path.join(__dirname, 'uploads');
+    try {
+      if (!fs.existsSync(defaultUploadsPath)) {
+        fs.mkdirSync(defaultUploadsPath, { recursive: true });
+        console.log(`✅ Created uploads directory at: ${defaultUploadsPath}`);
+      }
+      uploadsDir = defaultUploadsPath;
+    } catch (error) {
+      console.error('❌ Failed to create uploads directory:', error.message);
+      console.log('⚠️ No default data will be loaded - please upload IPDR files manually');
+      return;
+    }
   }
   
-  const baseLogsPath = path.join(sharedDir, 'ipdr-logs_base.csv');
-  const enrichedLogsPath = path.join(sharedDir, 'ipdr-logs_enriched.csv');
-  
-  console.log(`📂 Base logs path: ${baseLogsPath}`);
-  console.log(`📂 Enriched logs path: ${enrichedLogsPath}`);
+  console.log(`📂 Scanning uploads directory: ${uploadsDir}`);
   
   try {
-    // Load base logs
-    if (fs.existsSync(baseLogsPath)) {
-      await loadCSVFile(baseLogsPath, '/nexum-obscura/backend/shared/ipdr-logs_base.csv');
-      console.log('✅ Loaded base IPDR logs');
-    } else {
-      console.log('⚠️ Base logs file not found');
+    // Read all files in uploads directory
+    const files = fs.readdirSync(uploadsDir);
+    const csvFiles = files.filter(file => file.toLowerCase().endsWith('.csv'));
+    
+    console.log(`📋 Found ${csvFiles.length} CSV files in uploads directory`);
+    
+    if (csvFiles.length === 0) {
+      console.log('⚠️ No CSV files found in uploads directory');
+      return;
     }
     
-    // Load enriched logs
-    if (fs.existsSync(enrichedLogsPath)) {
-      await loadCSVFile(enrichedLogsPath, '/nexum-obscura/backend/shared/ipdr-logs_enriched.csv');
-      console.log('✅ Loaded enriched IPDR logs');
-    } else {
-      console.log('⚠️ Enriched logs file not found');
+    // Load each CSV file
+    for (const csvFile of csvFiles) {
+      const filePath = path.join(uploadsDir, csvFile);
+      console.log(`📄 Loading file: ${csvFile}`);
+      
+      try {
+        await loadCSVFile(filePath, csvFile);
+        console.log(`✅ Loaded ${csvFile}`);
+      } catch (error) {
+        console.error(`❌ Error loading ${csvFile}:`, error.message);
+      }
     }
     
     console.log(`📊 Total log entries loaded: ${processedLogEntries.length}`);
+    
   } catch (error) {
-    console.error('⚠️ Error loading shared data:', error.message);
+    console.error('❌ Error scanning uploads directory:', error.message);
+    console.log('⚠️ No default data loaded due to error');
   }
 }
 
