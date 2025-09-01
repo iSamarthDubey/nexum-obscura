@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { API_URL } from '../utils/api';
 import { getChartData } from '../utils/sampleData';
+import { shouldUseSampleData, fetchWithFallback } from '../utils/deployment';
 
 const ProtocolDistribution = () => {
   const [protocolData, setProtocolData] = useState([]);
@@ -20,25 +21,7 @@ const ProtocolDistribution = () => {
     setError(null);
     
     try {
-      const response = await fetch(`${API_URL}/protocol-analysis`);
-      if (!response.ok) throw new Error('Failed to fetch protocol data');
-      
-      const result = await response.json();
-      
-      if (result.hasData) {
-        setProtocolData(result.protocols);
-        setCallTypeData(result.callTypes);
-        setStats(result.statistics);
-      } else {
-        setProtocolData([]);
-        setCallTypeData([]);
-        setStats(null);
-      }
-    } catch (err) {
-      console.error('Error fetching protocol data:', err);
-      setError(err.message);
-      
-      // Use sample data as fallback
+      // Use sample data for demo/production deployment
       const sampleProtocols = getChartData('protocols');
       setProtocolData(sampleProtocols);
       setCallTypeData([
@@ -48,11 +31,32 @@ const ProtocolDistribution = () => {
       ]);
       setStats({
         totalRecords: 80,
-        uniqueProtocols: 2,
-        mostUsedProtocol: 'TCP',
-        averageSessionDuration: '3.2 minutes'
+        totalProtocols: sampleProtocols.length,
+        mostUsedProtocol: sampleProtocols[0]?.name || 'HTTP',
+        lastUpdated: new Date().toLocaleString()
       });
-    } finally {
+      setLoading(false);
+      
+      // Only try API in development mode when explicitly enabled
+      if (!shouldUseSampleData()) {
+        try {
+          const response = await fetchWithFallback(`${API_URL}/protocol-analysis`);
+          if (response.ok) {
+            const result = await response.json();
+            if (result.hasData) {
+              setProtocolData(result.protocols);
+              setCallTypeData(result.callTypes);
+              setStats(result.statistics);
+            }
+          }
+        } catch (apiError) {
+          console.log('API not available, using sample data:', apiError.message);
+          // Continue with sample data - no error shown to user
+        }
+      }
+    } catch (err) {
+      console.error('Error loading protocol data:', err);
+      setError('Unable to load protocol data');
       setLoading(false);
     }
   };
