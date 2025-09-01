@@ -15,10 +15,11 @@
   width: 280px;
   background: var(--cyber-surface);
   border-right: 1px solid var(--cyber-border);
-  padding: 1.5rem 0;
+  padding: 0;
   position: fixed;
   height: 100vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .content-area {
@@ -29,12 +30,6 @@
 }
 
 /* Navigation styles */
-.nav-logo {
-  padding: 0 1.5rem 2rem;
-  border-bottom: 1px solid var(--cyber-border);
-  margin-bottom: 2rem;
-}
-
 .nav-logo h1 {
   font-family: 'Orbitron', monospace;
   font-size: 1.5rem;

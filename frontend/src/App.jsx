@@ -55,7 +55,12 @@ function Navigation() {
 
   return (
     <nav className="sidebar">
-      <div className="nav-logo">
+      {/* Fixed Top Brand */}
+      <div className="nav-logo" style={{ 
+        padding: '1.5rem 1.5rem 1rem 1.5rem',
+        borderBottom: '1px solid var(--cyber-border)',
+        flexShrink: 0
+      }}>
         <h1>NEXUM OBSCURA</h1>
         <p style={{ 
           color: 'var(--cyber-text-muted)', 
@@ -67,40 +72,46 @@ function Navigation() {
         </p>
       </div>
       
-      <ul className="nav-menu">
-        {navItems.map((item) => (
-          <li key={item.path} className="nav-item">
-            <NavLink 
-              to={item.path} 
-              className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
-            >
-              <span className="nav-icon" style={{ fontSize: '1.25rem' }}>
-                {item.icon}
-              </span>
-              <div>
-                <div style={{ fontWeight: '500' }}>{item.label}</div>
-                <div style={{ 
-                  fontSize: '0.75rem', 
-                  color: 'var(--cyber-text-muted)',
-                  marginTop: '0.125rem'
-                }}>
-                  {item.description}
-                </div>
-              </div>
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-      
+      {/* Scrollable Middle Menu */}
       <div style={{ 
-        position: 'absolute', 
-        bottom: '1rem', 
-        left: '1.5rem', 
-        right: '1.5rem',
+        flex: 1, 
+        overflowY: 'auto',
+        padding: '1rem 0'
+      }}>
+        <ul className="nav-menu">
+          {navItems.map((item) => (
+            <li key={item.path} className="nav-item">
+              <NavLink 
+                to={item.path} 
+                className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
+              >
+                <span className="nav-icon" style={{ fontSize: '1.25rem' }}>
+                  {item.icon}
+                </span>
+                <div>
+                  <div style={{ fontWeight: '500' }}>{item.label}</div>
+                  <div style={{ 
+                    fontSize: '0.75rem', 
+                    color: 'var(--cyber-text-muted)',
+                    marginTop: '0.125rem'
+                  }}>
+                    {item.description}
+                  </div>
+                </div>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+      
+      {/* Fixed Bottom Box */}
+      <div style={{ 
+        margin: '1rem 1.5rem',
         padding: '1rem',
         background: 'rgba(0, 194, 255, 0.1)',
         borderRadius: '0.5rem',
-        border: '1px solid rgba(0, 194, 255, 0.3)'
+        border: '1px solid rgba(0, 194, 255, 0.3)',
+        flexShrink: 0
       }}>
         <div style={{ 
           fontSize: '0.75rem', 
