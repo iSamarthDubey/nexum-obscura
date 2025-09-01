@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_URL } from '../utils/api';
 import { getChartData } from '../utils/sampleData';
 import AnomalyChart from '../components/AnomalyChart';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { 
   MagnifyingGlassIcon, 
   ChartBarIcon, 
@@ -324,8 +325,84 @@ const Analysis = () => {
 
           <div className="card-cyber p-6">
             <h3 className="text-lg font-cyber text-cyber-blue mb-4">Pattern Visualization</h3>
-            <div className="h-64 flex items-center justify-center border border-cyber-border rounded-lg">
-              <p className="text-cyber-text-muted">Pattern analysis charts will be displayed here</p>
+            <div className="grid grid-cols-2 gap-6">
+              {/* Attack Pattern Distribution */}
+              <div>
+                <h4 className="text-md font-medium text-cyber-text mb-3">Attack Pattern Distribution</h4>
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Brute Force', value: 35, color: '#ef4444' },
+                        { name: 'Port Scanning', value: 25, color: '#f97316' },
+                        { name: 'Data Exfiltration', value: 20, color: '#eab308' },
+                        { name: 'Malware C2', value: 12, color: '#8b5cf6' },
+                        { name: 'SQL Injection', value: 8, color: '#06b6d4' }
+                      ]}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {[
+                        { name: 'Brute Force', value: 35, color: '#ef4444' },
+                        { name: 'Port Scanning', value: 25, color: '#f97316' },
+                        { name: 'Data Exfiltration', value: 20, color: '#eab308' },
+                        { name: 'Malware C2', value: 12, color: '#8b5cf6' },
+                        { name: 'SQL Injection', value: 8, color: '#06b6d4' }
+                      ].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#1f2937',
+                        border: '1px solid #374151',
+                        borderRadius: '8px',
+                        color: '#f3f4f6'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Pattern Detection Timeline */}
+              <div>
+                <h4 className="text-md font-medium text-cyber-text mb-3">Pattern Detection Timeline</h4>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={[
+                    { time: '06:00', patterns: 12, color: '#06b6d4' },
+                    { time: '09:00', patterns: 19, color: '#06b6d4' },
+                    { time: '12:00', patterns: 25, color: '#06b6d4' },
+                    { time: '15:00', patterns: 31, color: '#06b6d4' },
+                    { time: '18:00', patterns: 18, color: '#06b6d4' },
+                    { time: '21:00', patterns: 14, color: '#06b6d4' }
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis 
+                      dataKey="time" 
+                      stroke="#9ca3af"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="#9ca3af"
+                      fontSize={12}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#1f2937',
+                        border: '1px solid #374151',
+                        borderRadius: '8px',
+                        color: '#f3f4f6'
+                      }}
+                    />
+                    <Bar dataKey="patterns" fill="#06b6d4" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>
