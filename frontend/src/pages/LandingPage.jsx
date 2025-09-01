@@ -409,8 +409,8 @@ const LandingPage = () => {
                    borderColor: 'var(--cyber-border)' 
                  }}>
               <div className="flex items-center mb-4">
-                <div className="p-3 rounded-lg mr-4" style={{ backgroundColor: 'var(--cyber-blue)', opacity: 0.1 }}>
-                  <ChartBarIcon className="w-8 h-8" style={{ color: 'var(--cyber-blue)' }} />
+                <div className="p-3 rounded-lg mr-4 bg-blue-100">
+                  <ChartBarIcon className="w-8 h-8 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold" style={{ color: 'var(--cyber-text)' }}>Real-time Analytics</h3>
               </div>
@@ -428,8 +428,8 @@ const LandingPage = () => {
                    borderColor: 'var(--cyber-border)' 
                  }}>
               <div className="flex items-center mb-4">
-                <div className="p-3 rounded-lg mr-4" style={{ backgroundColor: 'var(--cyber-green)', opacity: 0.1 }}>
-                  <GlobeAltIcon className="w-8 h-8" style={{ color: 'var(--cyber-green)' }} />
+                <div className="p-3 rounded-lg mr-4 bg-green-100">
+                  <GlobeAltIcon className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold" style={{ color: 'var(--cyber-text)' }}>Geographic Mapping</h3>
               </div>
@@ -447,8 +447,8 @@ const LandingPage = () => {
                    borderColor: 'var(--cyber-border)' 
                  }}>
               <div className="flex items-center mb-4">
-                <div className="p-3 rounded-lg mr-4" style={{ backgroundColor: 'var(--cyber-orange)', opacity: 0.1 }}>
-                  <ExclamationTriangleIcon className="w-8 h-8" style={{ color: 'var(--cyber-orange)' }} />
+                <div className="p-3 rounded-lg mr-4 bg-orange-100">
+                  <ExclamationTriangleIcon className="w-8 h-8 text-orange-600" />
                 </div>
                 <h3 className="text-xl font-semibold" style={{ color: 'var(--cyber-text)' }}>Anomaly Detection</h3>
               </div>
@@ -807,15 +807,6 @@ const LandingPage = () => {
                     Sample Data Import
                   </li>
                 </ul>
-                <a
-                  href="https://github.com/iSamarthDubey/nexum-obscura/blob/main/README.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <span>Read Guide</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </a>
               </div>
 
               {/* API Documentation */}
@@ -843,15 +834,6 @@ const LandingPage = () => {
                     Report Generation
                   </li>
                 </ul>
-                <a
-                  href="https://github.com/iSamarthDubey/nexum-obscura/tree/main/backend"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <span>View API Docs</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </a>
               </div>
 
               {/* Architecture Guide */}
@@ -879,15 +861,6 @@ const LandingPage = () => {
                     Security Model
                   </li>
                 </ul>
-                <a
-                  href="https://github.com/iSamarthDubey/nexum-obscura/blob/main/architecture.txt"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <span>Learn More</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </a>
               </div>
 
               {/* Deployment Guide */}
@@ -915,15 +888,6 @@ const LandingPage = () => {
                     Security Configuration
                   </li>
                 </ul>
-                <a
-                  href="https://github.com/iSamarthDubey/nexum-obscura/tree/main/backend/render.yaml"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <span>Deploy Now</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </a>
               </div>
 
               {/* Troubleshooting */}
@@ -951,15 +915,6 @@ const LandingPage = () => {
                     Debug Tools
                   </li>
                 </ul>
-                <a
-                  href="https://github.com/iSamarthDubey/nexum-obscura/issues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <span>Get Help</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </a>
               </div>
 
               {/* Community */}
@@ -987,15 +942,6 @@ const LandingPage = () => {
                     Feature Requests
                   </li>
                 </ul>
-                <a
-                  href="https://github.com/iSamarthDubey/nexum-obscura"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <span>Contribute</span>
-                  <ArrowRightIcon className="w-4 h-4" />
-                </a>
               </div>
             </div>
 

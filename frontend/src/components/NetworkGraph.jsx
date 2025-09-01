@@ -32,25 +32,33 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
       return;
     }
     
-    if (!data.hasData) {
+    // Handle both API format (with hasData) and direct sample data format
+    let networkData;
+    if (displayData.hasData === false) {
       console.log('⚠️ API returned hasData: false');
       setError('No network data available. Upload IPDR files to generate network visualization.');
       return;
+    } else if (displayData.hasData === true) {
+      // API format
+      networkData = displayData;
+    } else {
+      // Direct sample data format
+      networkData = displayData;
     }
     
-    if (!displayData.nodes || !Array.isArray(displayData.nodes)) {
-      console.log('⚠️ Invalid nodes data:', displayData.nodes);
+    if (!networkData.nodes || !Array.isArray(networkData.nodes)) {
+      console.log('⚠️ Invalid nodes data:', networkData.nodes);
       setError('Invalid network data format. Please try uploading data again.');
       return;
     }
     
-    if (!displayData.edges || !Array.isArray(displayData.edges)) {
-      console.log('⚠️ Invalid edges data:', displayData.edges);
+    if (!networkData.edges || !Array.isArray(networkData.edges)) {
+      console.log('⚠️ Invalid edges data:', networkData.edges);
       setError('Invalid network data format. Please try uploading data again.');
       return;
     }
     
-    if (displayData.nodes.length === 0) {
+    if (networkData.nodes.length === 0) {
       console.log('⚠️ No nodes in network data');
       setError('No network connections found. Try adjusting filters or uploading more data.');
       return;
@@ -65,14 +73,14 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
         cyRef.current._cytoscapeInstance = null;
       }
 
-      console.log(`✅ Creating network graph with ${displayData.nodes.length} nodes and ${displayData.edges.length} edges`);
+      console.log(`✅ Creating network graph with ${networkData.nodes.length} nodes and ${networkData.edges.length} edges`);
 
       // Initialize Cytoscape
       const cy = cytoscape({
       container: cyRef.current,
       elements: [
         // Add nodes
-        ...(displayData.nodes || []).map(node => ({
+        ...(networkData.nodes || []).map(node => ({
           data: {
             id: node.id || `node-${Math.random()}`,
             label: node.label || node.id || 'Unknown',
@@ -101,7 +109,7 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
           }
         })),
         // Add edges
-        ...(displayData.edges || []).map(edge => ({
+        ...(networkData.edges || []).map(edge => ({
           data: {
             id: `${edge.source}-${edge.target}` || `edge-${Math.random()}`,
             source: edge.source,
