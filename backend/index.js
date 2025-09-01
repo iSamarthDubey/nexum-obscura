@@ -69,9 +69,13 @@ app.get('/api/dashboard', (req, res) => {
 });
 
 app.listen(PORT, () => {
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? `https://nexum-obscura.onrender.com` 
+    : `http://localhost:${PORT}`;
+    
   console.log(`✓ Server is running on port ${PORT}`);
-  console.log(`✓ API Health: http://localhost:${PORT}/api/health`);
-  console.log(`✓ Dashboard: http://localhost:${PORT}/api/dashboard`);
+  console.log(`✓ API Health: ${baseUrl}/api/health`);
+  console.log(`✓ Dashboard: ${baseUrl}/api/dashboard`);
 });
 
 module.exports = app;

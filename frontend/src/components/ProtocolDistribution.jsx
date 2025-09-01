@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { API_URL } from '../utils/api';
 
 const ProtocolDistribution = () => {
   const [protocolData, setProtocolData] = useState([]);
@@ -18,7 +19,7 @@ const ProtocolDistribution = () => {
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:5000/api/protocol-analysis');
+      const response = await fetch(`${API_URL}/protocol-analysis`);
       if (!response.ok) throw new Error('Failed to fetch protocol data');
       
       const result = await response.json();

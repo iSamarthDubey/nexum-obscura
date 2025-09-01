@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../utils/api';
 
 const GeographicMap = () => {
   const [geoData, setGeoData] = useState([]);
@@ -18,7 +19,7 @@ const GeographicMap = () => {
 
   const fetchGeographicData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/geographic-data');
+      const response = await fetch(`${API_URL}/geographic-data`);
       if (!response.ok) throw new Error('Failed to fetch geographic data');
       
       const result = await response.json();

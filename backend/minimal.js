@@ -33,10 +33,7 @@ let timelineData = [];
 const corsOptions = {
   origin: [
     'http://localhost:3000',
-    'http://localhost:3001',
     'https://obscura-collective.vercel.app',
-    'https://nexum-obscura-frontend.vercel.app',
-    'https://nexum-obscura.vercel.app',
     /\.vercel\.app$/,
     /localhost:\d+$/
   ],
@@ -1187,45 +1184,85 @@ app.get('/api/traffic-flow', (req, res) => {
       hasData: false,
       timeRange,
       data: [],
-      statistics: { totalCalls: 0, peakHour: null, averageCallsPerHour: 0 }
+      statistics: { totalConnections: 0, peakHour: null, averageConnectionsPerHour: 0 }
     });
   }
 
-  // Generate time-based traffic flow data
+  // Analyze real IPDR data by time slots
   const now = new Date();
   const hoursBack = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : 1;
-  const intervalMs = granularity === 'hour' ? 3600000 : 60000; // 1 hour or 1 minute
+  const timeSlots = new Map();
   
-  const timeSlots = [];
+  // Initialize time slots
   for (let i = hoursBack - 1; i >= 0; i--) {
-    const slotTime = new Date(now.getTime() - (i * intervalMs));
-    timeSlots.push({
+    const slotTime = new Date(now.getTime() - (i * 3600000)); // 1 hour intervals
+    const hourKey = slotTime.toISOString().slice(0, 13); // YYYY-MM-DDTHH
+    timeSlots.set(hourKey, {
       timestamp: slotTime.toISOString(),
-      callVolume: Math.floor(Math.random() * 50) + 10, // Simulate varying call volume
-      incomingCalls: Math.floor(Math.random() * 25) + 5,
-      outgoingCalls: Math.floor(Math.random() * 25) + 5,
-      suspiciousActivity: Math.floor(Math.random() * 5),
-      averageDuration: Math.floor(Math.random() * 300) + 60, // 1-6 minutes
-      uniqueNumbers: Math.floor(Math.random() * 20) + 5
+      totalConnections: 0,
+      allowedConnections: 0,
+      blockedConnections: 0,
+      suspiciousActivity: 0,
+      totalBytes: 0,
+      uniqueSourceIPs: new Set(),
+      uniqueDestIPs: new Set()
     });
   }
+  
+  // Process IPDR entries
+  processedLogEntries.forEach(entry => {
+    if (entry.timestamp) {
+      const entryTime = new Date(entry.timestamp);
+      const hourKey = entryTime.toISOString().slice(0, 13);
+      
+      if (timeSlots.has(hourKey)) {
+        const slot = timeSlots.get(hourKey);
+        slot.totalConnections++;
+        
+        if (entry.action === 'ALLOW') {
+          slot.allowedConnections++;
+        } else {
+          slot.blockedConnections++;
+        }
+        
+        if (entry.suspicionScore > 70 || entry.threat_flag === 'Suspicious') {
+          slot.suspiciousActivity++;
+        }
+        
+        slot.totalBytes += parseInt(entry.bytes) || 0;
+        slot.uniqueSourceIPs.add(entry.source_ip);
+        slot.uniqueDestIPs.add(entry.dest_ip);
+      }
+    }
+  });
+
+  // Convert to array and calculate final values
+  const timeSlotArray = Array.from(timeSlots.values()).map(slot => ({
+    timestamp: slot.timestamp,
+    callVolume: slot.totalConnections,
+    incomingCalls: slot.allowedConnections,
+    outgoingCalls: slot.blockedConnections,
+    suspiciousActivity: slot.suspiciousActivity,
+    averageDuration: slot.totalBytes > 0 ? Math.round(slot.totalBytes / slot.totalConnections / 1024) : 0, // KB per connection
+    uniqueNumbers: slot.uniqueSourceIPs.size + slot.uniqueDestIPs.size
+  }));
 
   // Calculate peak statistics
-  const peakSlot = timeSlots.reduce((max, slot) => 
-    slot.callVolume > max.callVolume ? slot : max
+  const peakSlot = timeSlotArray.reduce((max, slot) => 
+    slot.callVolume > max.callVolume ? slot : max, timeSlotArray[0] || { callVolume: 0 }
   );
   
   res.json({
     hasData: true,
     timeRange,
     granularity,
-    data: timeSlots,
+    data: timeSlotArray,
     statistics: {
-      totalCalls: timeSlots.reduce((sum, slot) => sum + slot.callVolume, 0),
+      totalCalls: timeSlotArray.reduce((sum, slot) => sum + slot.callVolume, 0),
       peakHour: peakSlot.timestamp,
       peakVolume: peakSlot.callVolume,
-      averageCallsPerHour: Math.round(timeSlots.reduce((sum, slot) => sum + slot.callVolume, 0) / timeSlots.length),
-      totalSuspicious: timeSlots.reduce((sum, slot) => sum + slot.suspiciousActivity, 0)
+      averageCallsPerHour: timeSlotArray.length > 0 ? Math.round(timeSlotArray.reduce((sum, slot) => sum + slot.callVolume, 0) / timeSlotArray.length) : 0,
+      totalSuspicious: timeSlotArray.reduce((sum, slot) => sum + slot.suspiciousActivity, 0)
     }
   });
 });
@@ -1240,57 +1277,52 @@ app.get('/api/protocol-analysis', (req, res) => {
     });
   }
 
-  // Generate protocol distribution based on call patterns
-  const protocolData = [
-    {
-      name: 'GSM',
-      count: Math.floor(processedLogEntries.length * 0.4),
-      percentage: 40,
-      description: 'Global System for Mobile Communications',
-      riskLevel: 'low',
-      color: '#10b981'
-    },
-    {
-      name: 'UMTS',
-      count: Math.floor(processedLogEntries.length * 0.35),
-      percentage: 35,
-      description: 'Universal Mobile Telecommunications System',
-      riskLevel: 'low',
-      color: '#3b82f6'
-    },
-    {
-      name: 'LTE',
-      count: Math.floor(processedLogEntries.length * 0.2),
-      percentage: 20,
-      description: 'Long Term Evolution',
-      riskLevel: 'medium',
-      color: '#f59e0b'
-    },
-    {
-      name: 'VoIP',
-      count: Math.floor(processedLogEntries.length * 0.05),
-      percentage: 5,
-      description: 'Voice over Internet Protocol',
-      riskLevel: 'high',
-      color: '#ef4444'
-    }
-  ];
+  // Analyze real protocol distribution from IPDR data
+  const protocolCounts = {};
+  const actionCounts = {};
+  
+  processedLogEntries.forEach(entry => {
+    // Count protocols
+    const protocol = entry.protocol || 'Unknown';
+    protocolCounts[protocol] = (protocolCounts[protocol] || 0) + 1;
+    
+    // Count actions
+    const action = entry.action || 'Unknown';
+    actionCounts[action] = (actionCounts[action] || 0) + 1;
+  });
 
-  // Add call type distribution
-  const callTypes = [
-    { type: 'Voice', count: Math.floor(processedLogEntries.length * 0.7), percentage: 70 },
-    { type: 'SMS', count: Math.floor(processedLogEntries.length * 0.2), percentage: 20 },
-    { type: 'Data', count: Math.floor(processedLogEntries.length * 0.1), percentage: 10 }
-  ];
+  // Convert to array format for charts
+  const protocolData = Object.entries(protocolCounts).map(([name, count]) => {
+    const percentage = Math.round((count / processedLogEntries.length) * 100);
+    return {
+      name,
+      count,
+      percentage,
+      description: getProtocolDescription(name),
+      riskLevel: getProtocolRiskLevel(name),
+      color: getProtocolColor(name)
+    };
+  }).sort((a, b) => b.count - a.count);
 
-  const dominantProtocol = protocolData.reduce((max, protocol) => 
+  // Add action type distribution
+  const actionTypes = Object.entries(actionCounts).map(([name, count]) => {
+    const percentage = Math.round((count / processedLogEntries.length) * 100);
+    return {
+      name,
+      count,
+      percentage,
+      color: getActionColor(name)
+    };
+  }).sort((a, b) => b.count - a.count);
+
+  const dominantProtocol = protocolData.length > 0 ? protocolData.reduce((max, protocol) => 
     protocol.count > max.count ? protocol : max
-  );
+  ) : { name: 'Unknown', count: 0, percentage: 0 };
 
   res.json({
     hasData: true,
     protocols: protocolData,
-    callTypes,
+    actionTypes,
     statistics: {
       totalProtocols: protocolData.length,
       dominantProtocol: dominantProtocol.name,
@@ -1305,6 +1337,50 @@ app.get('/api/protocol-analysis', (req, res) => {
   });
 });
 
+// Helper functions for protocol analysis
+function getProtocolDescription(protocol) {
+  const descriptions = {
+    'TCP': 'Transmission Control Protocol - Reliable connection-oriented protocol',
+    'UDP': 'User Datagram Protocol - Fast connectionless protocol', 
+    'ICMP': 'Internet Control Message Protocol - Network diagnostic protocol',
+    'HTTP': 'HyperText Transfer Protocol - Web communication',
+    'HTTPS': 'HTTP Secure - Encrypted web communication'
+  };
+  return descriptions[protocol] || `${protocol} Protocol`;
+}
+
+function getProtocolRiskLevel(protocol) {
+  const riskLevels = {
+    'TCP': 'low',
+    'UDP': 'medium',
+    'ICMP': 'high',
+    'HTTP': 'medium',
+    'HTTPS': 'low'
+  };
+  return riskLevels[protocol] || 'medium';
+}
+
+function getProtocolColor(protocol) {
+  const colors = {
+    'TCP': '#10b981',
+    'UDP': '#3b82f6', 
+    'ICMP': '#f59e0b',
+    'HTTP': '#8b5cf6',
+    'HTTPS': '#06b6d4'
+  };
+  return colors[protocol] || '#6b7280';
+}
+
+function getActionColor(action) {
+  const colors = {
+    'ALLOW': '#10b981',
+    'BLOCK': '#ef4444',
+    'DROP': '#dc2626',
+    'DENY': '#b91c1c'
+  };
+  return colors[action] || '#6b7280';
+}
+
 // Geographic distribution endpoint
 app.get('/api/geographic-data', (req, res) => {
   if (processedLogEntries.length === 0) {
@@ -1316,81 +1392,71 @@ app.get('/api/geographic-data', (req, res) => {
     });
   }
 
-  // Enhanced geographic data with real coordinates and threat analysis
-  const geographicData = [
-    {
-      country: 'United States',
-      countryCode: 'US',
-      coordinates: { lat: 39.8283, lng: -98.5795 },
-      threatLevel: 'medium',
-      riskScore: 65,
-      callVolume: Math.floor(processedLogEntries.length * 0.4),
-      suspiciousCalls: Math.floor(processedLogEntries.length * 0.15),
-      regions: [
-        { city: 'New York', lat: 40.7128, lng: -74.0060, calls: 150, risk: 70 },
-        { city: 'Los Angeles', lat: 34.0522, lng: -118.2437, calls: 120, risk: 55 },
-        { city: 'Chicago', lat: 41.8781, lng: -87.6298, calls: 80, risk: 60 }
-      ]
-    },
-    {
-      country: 'China',
-      countryCode: 'CN',
-      coordinates: { lat: 35.8617, lng: 104.1954 },
-      threatLevel: 'high',
-      riskScore: 85,
-      callVolume: Math.floor(processedLogEntries.length * 0.2),
-      suspiciousCalls: Math.floor(processedLogEntries.length * 0.18),
-      regions: [
-        { city: 'Beijing', lat: 39.9042, lng: 116.4074, calls: 90, risk: 85 },
-        { city: 'Shanghai', lat: 31.2304, lng: 121.4737, calls: 75, risk: 80 }
-      ]
-    },
-    {
-      country: 'Russia',
-      countryCode: 'RU',
-      coordinates: { lat: 61.5240, lng: 105.3188 },
-      threatLevel: 'high',
-      riskScore: 78,
-      callVolume: Math.floor(processedLogEntries.length * 0.15),
-      suspiciousCalls: Math.floor(processedLogEntries.length * 0.12),
-      regions: [
-        { city: 'Moscow', lat: 55.7558, lng: 37.6176, calls: 60, risk: 75 },
-        { city: 'St. Petersburg', lat: 59.9311, lng: 30.3609, calls: 40, risk: 70 }
-      ]
-    },
-    {
-      country: 'India',
-      countryCode: 'IN',
-      coordinates: { lat: 20.5937, lng: 78.9629 },
-      threatLevel: 'low',
-      riskScore: 35,
-      callVolume: Math.floor(processedLogEntries.length * 0.25),
-      suspiciousCalls: Math.floor(processedLogEntries.length * 0.08),
-      regions: [
-        { city: 'Mumbai', lat: 19.0760, lng: 72.8777, calls: 100, risk: 40 },
-        { city: 'Delhi', lat: 28.7041, lng: 77.1025, calls: 85, risk: 35 }
-      ]
+  // Analyze geographic data from IPDR entries (using city field if available)
+  const cityData = {};
+  const ipLocationMap = {};
+  
+  processedLogEntries.forEach(entry => {
+    // Use city field from enriched data if available
+    const city = entry.city || getLocationFromIP(entry.source_ip) || 'Unknown';
+    
+    if (!cityData[city]) {
+      cityData[city] = {
+        city,
+        totalConnections: 0,
+        suspiciousConnections: 0,
+        blockedConnections: 0,
+        totalBytes: 0,
+        uniqueIPs: new Set(),
+        coordinates: getCityCoordinates(city)
+      };
     }
-  ];
+    
+    const data = cityData[city];
+    data.totalConnections++;
+    data.totalBytes += parseInt(entry.bytes) || 0;
+    data.uniqueIPs.add(entry.source_ip);
+    
+    if (entry.suspicionScore > 70 || entry.threat_flag === 'Suspicious') {
+      data.suspiciousConnections++;
+    }
+    
+    if (entry.action !== 'ALLOW') {
+      data.blockedConnections++;
+    }
+  });
 
-  const threats = [
-    {
-      id: 'threat-1',
-      type: 'Suspicious Call Pattern',
-      location: { lat: 40.7128, lng: -74.0060 },
-      severity: 'high',
-      description: 'Abnormal call frequency detected in NYC area',
-      timestamp: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
-    },
-    {
-      id: 'threat-2',
-      type: 'International Anomaly',
-      location: { lat: 39.9042, lng: 116.4074 },
-      severity: 'critical',
-      description: 'Unexpected routing pattern from Beijing',
-      timestamp: new Date(Date.now() - 1800000).toISOString() // 30 minutes ago
-    }
-  ];
+  // Convert to geographic regions format
+  const geographicData = Object.values(cityData).map(data => ({
+    country: data.city, // Use city name as the primary identifier
+    countryCode: getCountryCode(data.city),
+    city: data.city,
+    region: 'India', // Keep India as the region
+    coordinates: data.coordinates,
+    threatLevel: data.suspiciousConnections > data.totalConnections * 0.3 ? 'high' : 
+                 data.suspiciousConnections > data.totalConnections * 0.1 ? 'medium' : 'low',
+    riskScore: Math.min(100, Math.round((data.suspiciousConnections / data.totalConnections) * 100) + 
+               Math.round((data.blockedConnections / data.totalConnections) * 50)),
+    callVolume: data.totalConnections,
+    suspiciousCalls: data.suspiciousConnections,
+    blockedCalls: data.blockedConnections,
+    totalBytes: data.totalBytes,
+    uniqueIPs: data.uniqueIPs.size
+  })).sort((a, b) => b.callVolume - a.callVolume);
+
+  // Create threat alerts based on suspicious activity
+  const threats = geographicData
+    .filter(region => region.threatLevel === 'high')
+    .slice(0, 5) // Top 5 threats
+    .map((region, index) => ({
+      id: `threat-${index + 1}`,
+      type: 'Suspicious Activity Pattern',
+      location: region.coordinates,
+      city: region.city,
+      severity: region.riskScore > 80 ? 'critical' : 'high',
+      description: `${region.suspiciousCalls} suspicious connections detected in ${region.city}`,
+      timestamp: new Date(Date.now() - Math.random() * 7200000).toISOString() // Random time within last 2 hours
+    }));
 
   res.json({
     hasData: true,
@@ -1398,7 +1464,7 @@ app.get('/api/geographic-data', (req, res) => {
     threats,
     statistics: {
       totalRegions: geographicData.length,
-      highRiskRegions: geographicData.filter(r => r.riskScore > 70).length,
+      highRiskRegions: geographicData.filter(r => r.threatLevel === 'high').length,
       totalCalls: geographicData.reduce((sum, r) => sum + r.callVolume, 0),
       totalThreats: threats.length,
       criticalThreats: threats.filter(t => t.severity === 'critical').length
@@ -1406,13 +1472,53 @@ app.get('/api/geographic-data', (req, res) => {
   });
 });
 
+// Helper functions for geographic analysis
+function getLocationFromIP(ip) {
+  // Simple IP to location mapping (in real implementation, use GeoIP service)
+  if (ip.startsWith('106.200')) return 'Mumbai';
+  if (ip.startsWith('117.195')) return 'Delhi';
+  if (ip.startsWith('202.142')) return 'Bangalore';
+  if (ip.startsWith('223.176')) return 'Chennai';
+  if (ip.startsWith('49.37')) return 'Kolkata';
+  return 'Unknown';
+}
+
+function getCityCoordinates(city) {
+  const coordinates = {
+    'Mumbai': { lat: 19.0760, lng: 72.8777 },
+    'Delhi': { lat: 28.7041, lng: 77.1025 },
+    'Bangalore': { lat: 12.9716, lng: 77.5946 },
+    'Chennai': { lat: 13.0827, lng: 80.2707 },
+    'Kolkata': { lat: 22.5726, lng: 88.3639 },
+    'Bhopal': { lat: 23.2599, lng: 77.4126 },
+    'Indore': { lat: 22.7196, lng: 75.8577 },
+    'Gwalior': { lat: 26.2183, lng: 78.1828 },
+    'Jabalpur': { lat: 23.1815, lng: 79.9864 },
+    'Ujjain': { lat: 23.1765, lng: 75.7885 }
+  };
+  return coordinates[city] || { lat: 20.5937, lng: 78.9629 }; // Default to India center
+}
+
+function getCountryFromCity(city) {
+  // All cities in our data are in India for this demo
+  return 'India';
+}
+
+function getCountryCode(city) {
+  return 'IN';
+}
+
 app.listen(PORT, () => {
-  console.log(`✅ Nexum Obscura Backend running on http://localhost:${PORT}`);
-  console.log(`✅ Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`✅ Dashboard API: http://localhost:${PORT}/api/dashboard`);
-  console.log(`✅ Upload API: http://localhost:${PORT}/api/upload`);
-  console.log(`✅ Network API: http://localhost:${PORT}/api/network`);
-  console.log(`✅ Traffic Flow API: http://localhost:${PORT}/api/traffic-flow`);
-  console.log(`✅ Protocol Analysis API: http://localhost:${PORT}/api/protocol-analysis`);
-  console.log(`✅ Geographic Data API: http://localhost:${PORT}/api/geographic-data`);
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? `https://nexum-obscura.onrender.com` 
+    : `http://localhost:${PORT}`;
+    
+  console.log(`✅ Nexum Obscura Backend running on ${baseUrl}`);
+  console.log(`✅ Health Check: ${baseUrl}/api/health`);
+  console.log(`✅ Dashboard API: ${baseUrl}/api/dashboard`);
+  console.log(`✅ Upload API: ${baseUrl}/api/upload`);
+  console.log(`✅ Network API: ${baseUrl}/api/network`);
+  console.log(`✅ Traffic Flow API: ${baseUrl}/api/traffic-flow`);
+  console.log(`✅ Protocol Analysis API: ${baseUrl}/api/protocol-analysis`);
+  console.log(`✅ Geographic Data API: ${baseUrl}/api/geographic-data`);
 });

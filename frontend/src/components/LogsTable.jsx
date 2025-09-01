@@ -21,20 +21,53 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   // Use passed props if available, otherwise load from API
   useEffect(() => {
     if (logEntries && logEntries.length > 0) {
-      setLogs(logEntries);
+      // Implement pagination for passed props
+      const entriesPerPage = 20;
+      const totalPages = Math.ceil(logEntries.length / entriesPerPage);
+      const startIndex = (currentPage - 1) * entriesPerPage;
+      const endIndex = startIndex + entriesPerPage;
+      const paginatedEntries = logEntries.slice(startIndex, endIndex);
+      
+      setLogs(paginatedEntries);
       setPagination({
-        currentPage: 1,
-        totalPages: 1,
-        totalEntries: totalEntries,
-        entriesPerPage: logEntries.length,
-        hasNextPage: false,
-        hasPreviousPage: false
+        currentPage: currentPage,
+        totalPages: totalPages,
+        totalEntries: logEntries.length,
+        entriesPerPage: entriesPerPage,
+        hasNextPage: currentPage < totalPages,
+        hasPreviousPage: currentPage > 1
       });
     } else {
       loadLogs();
       loadUploadedFiles();
     }
-  }, [logEntries, totalEntries]);
+  }, [logEntries, totalEntries, currentPage]);
+
+  // Handle pagination for passed props
+  const handlePageChange = (newPage) => {
+    if (logEntries && logEntries.length > 0) {
+      const entriesPerPage = 20;
+      const startIndex = (newPage - 1) * entriesPerPage;
+      const endIndex = startIndex + entriesPerPage;
+      const paginatedEntries = logEntries.slice(startIndex, endIndex);
+      
+      setLogs(paginatedEntries);
+      setCurrentPage(newPage);
+      
+      const totalPages = Math.ceil(logEntries.length / entriesPerPage);
+      setPagination({
+        currentPage: newPage,
+        totalPages: totalPages,
+        totalEntries: logEntries.length,
+        entriesPerPage: entriesPerPage,
+        hasNextPage: newPage < totalPages,
+        hasPreviousPage: newPage > 1
+      });
+    } else {
+      setCurrentPage(newPage);
+      loadLogs(newPage, searchTerm, selectedFile);
+    }
+  };
 
   // Load uploaded files for filtering
   const loadUploadedFiles = async () => {
@@ -423,10 +456,7 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => {
-                    setCurrentPage(pagination.currentPage - 1);
-                    loadLogs(pagination.currentPage - 1, searchTerm, selectedFile);
-                  }}
+                  onClick={() => handlePageChange(pagination.currentPage - 1)}
                   disabled={!pagination.hasPreviousPage}
                   className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
                 >
@@ -436,10 +466,7 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
                   {pagination.currentPage} / {pagination.totalPages}
                 </span>
                 <button
-                  onClick={() => {
-                    setCurrentPage(pagination.currentPage + 1);
-                    loadLogs(pagination.currentPage + 1, searchTerm, selectedFile);
-                  }}
+                  onClick={() => handlePageChange(pagination.currentPage + 1)}
                   disabled={!pagination.hasNextPage}
                   className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50 hover:bg-gray-600 transition-colors"
                 >

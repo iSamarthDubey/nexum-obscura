@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { API_URL } from '../utils/api';
 
 const TrafficFlowChart = ({ timeRange = '24h', onTimeRangeChange }) => {
   const [data, setData] = useState([]);
@@ -17,7 +18,7 @@ const TrafficFlowChart = ({ timeRange = '24h', onTimeRangeChange }) => {
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/traffic-flow?timeRange=${timeRange}&granularity=hour`);
+      const response = await fetch(`${API_URL}/traffic-flow?timeRange=${timeRange}&granularity=hour`);
       if (!response.ok) throw new Error('Failed to fetch traffic flow data');
       
       const result = await response.json();
