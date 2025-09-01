@@ -230,8 +230,65 @@ const LandingPage = () => {
           </div>
         </nav>
 
+        {/* Navigation Bar */}
+        <nav className="sticky top-0 z-40 border-b" style={{ 
+          background: 'rgba(13, 16, 23, 0.95)', 
+          backdropFilter: 'blur(10px)',
+          borderColor: 'var(--cyber-border)' 
+        }}>
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center justify-center space-x-8 py-4">
+              <a
+                href="#hero"
+                className="nav-link-item px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:bg-blue-900 hover:bg-opacity-50"
+                style={{ color: '#e2e8f0' }}
+              >
+                🏠 Home
+              </a>
+              <a
+                href="#demo-preview"
+                className="nav-link-item px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:bg-green-900 hover:bg-opacity-50"
+                style={{ color: '#e2e8f0' }}
+              >
+                🎭 Demo
+              </a>
+              <a
+                href="#features"
+                className="nav-link-item px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:bg-purple-900 hover:bg-opacity-50"
+                style={{ color: '#e2e8f0' }}
+              >
+                ⚡ Features
+              </a>
+              <a
+                href="#about"
+                className="nav-link-item px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:bg-orange-900 hover:bg-opacity-50"
+                style={{ color: '#e2e8f0' }}
+              >
+                👥 About Us
+              </a>
+              <a
+                href="#documentation"
+                className="nav-link-item px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:bg-gray-700 hover:bg-opacity-50"
+                style={{ color: '#e2e8f0' }}
+              >
+                📚 Documentation
+              </a>
+              <Link
+                to="/demo-dashboard"
+                className="px-4 py-2 rounded-lg font-semibold transition-all duration-300 hover:scale-105 cyber-glow"
+                style={{ 
+                  backgroundColor: 'var(--cyber-green)', 
+                  color: 'var(--cyber-bg)' 
+                }}
+              >
+                🚀 Try Demo
+              </Link>
+            </div>
+          </div>
+        </nav>
+
         {/* Hero Section */}
-        <section className="max-w-7xl mx-auto px-6 py-20">
+        <section id="hero" className="max-w-7xl mx-auto px-6 py-20">
           <div className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-10'}`}>
             <div className="inline-flex items-center space-x-2 rounded-full px-4 py-2 mb-6 border cyber-glow" 
                  style={{ 
@@ -322,7 +379,7 @@ const LandingPage = () => {
         </section>
 
         {/* Dashboard Sample Preview */}
-        <section className="max-w-7xl mx-auto px-6 py-20">
+        <section id="demo-preview" className="max-w-7xl mx-auto px-6 py-20">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-cyber mb-6" style={{ color: 'var(--cyber-blue)' }}>
               Live Demo Dashboard
@@ -608,7 +665,7 @@ const LandingPage = () => {
         </section>
 
         {/* About Us Section */}
-        <section className="py-20 px-6 lg:px-8" style={{ background: 'var(--cyber-surface)' }}>
+        <section id="about" className="py-20 px-6 lg:px-8" style={{ background: 'var(--cyber-surface)' }}>
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-cyber mb-6" style={{ color: 'var(--cyber-blue)' }}>
@@ -624,23 +681,23 @@ const LandingPage = () => {
               <div className="order-2 lg:order-1">
                 <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: 'var(--cyber-blue)' }}>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#0066cc' }}>
                       <span className="text-2xl">🛡️</span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold" style={{ color: 'var(--cyber-text)' }}>Team Name: Obscura Collective</h3>
-                      <p className="text-lg font-medium" style={{ color: 'var(--cyber-blue)' }}>"Obscurity to Insight"</p>
+                      <h3 className="text-2xl font-bold text-gray-900">Team Name: Obscura Collective</h3>
+                      <p className="text-lg font-medium text-blue-600">"Obscurity to Insight"</p>
                     </div>
                   </div>
                   
-                  <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
+                  <p className="text-lg leading-relaxed mb-6 text-gray-700">
                     We are a group of curious builders passionate about solving rare and impactful cyber-forensic problems. 
                     Our mission is to transform hidden, complex data into clear and actionable intelligence for investigators.
                   </p>
 
                   <div className="flex items-center space-x-4">
-                    <div className="w-3 h-3 rounded-full" style={{ background: 'var(--cyber-green)' }}></div>
-                    <span style={{ color: 'var(--cyber-text)' }}>Active in CyberShield 2025</span>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="text-gray-900">Active in CyberShield 2025</span>
                   </div>
                 </div>
               </div>
@@ -649,29 +706,29 @@ const LandingPage = () => {
               <div className="order-1 lg:order-2">
                 <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: 'var(--cyber-green)' }}>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#22c55e' }}>
                       <span className="text-2xl">🌐</span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold" style={{ color: 'var(--cyber-text)' }}>Project Name: Nexum Obscura</h3>
-                      <p className="text-lg font-medium" style={{ color: 'var(--cyber-green)' }}>"Nexum" = connection, "Obscura" = hidden</p>
+                      <h3 className="text-2xl font-bold text-gray-900">Project Name: Nexum Obscura</h3>
+                      <p className="text-lg font-medium text-green-600">"Nexum" = connection, "Obscura" = hidden</p>
                     </div>
                   </div>
                   
-                  <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
+                  <p className="text-lg leading-relaxed mb-6 text-gray-700">
                     Our solution connects the dots in IPDR logs, uncovering hidden relationships between A-party and B-party entities. 
                     It empowers investigators with a real-time dashboard, suspicion scoring, and anomaly insights — turning obscure 
                     patterns into actionable leads.
                   </p>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 rounded-lg" style={{ background: 'var(--cyber-bg)' }}>
-                      <div className="text-2xl font-bold" style={{ color: 'var(--cyber-blue)' }}>500+</div>
-                      <div className="text-sm" style={{ color: 'var(--cyber-text-muted)' }}>Sample Records</div>
+                    <div className="text-center p-3 rounded-lg bg-gray-50">
+                      <div className="text-2xl font-bold text-blue-600">500+</div>
+                      <div className="text-sm text-gray-600">Sample Records</div>
                     </div>
-                    <div className="text-center p-3 rounded-lg" style={{ background: 'var(--cyber-bg)' }}>
-                      <div className="text-2xl font-bold" style={{ color: 'var(--cyber-green)' }}>20+</div>
-                      <div className="text-sm" style={{ color: 'var(--cyber-text-muted)' }}>Indian Cities</div>
+                    <div className="text-center p-3 rounded-lg bg-gray-50">
+                      <div className="text-2xl font-bold text-green-600">20+</div>
+                      <div className="text-sm text-gray-600">Indian Cities</div>
                     </div>
                   </div>
                 </div>
@@ -681,31 +738,304 @@ const LandingPage = () => {
             {/* Mission Statement */}
             <div className="mt-16 text-center">
               <div className="max-w-4xl mx-auto bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
-                <h3 className="text-3xl font-bold mb-6" style={{ color: 'var(--cyber-text)' }}>Our Mission</h3>
-                <p className="text-xl leading-relaxed" style={{ color: 'var(--cyber-text-muted)' }}>
+                <h3 className="text-3xl font-bold mb-6 text-gray-900">Our Mission</h3>
+                <p className="text-xl leading-relaxed text-gray-700">
                   To bridge the gap between complex cybersecurity data and actionable intelligence, 
                   empowering law enforcement and cybersecurity professionals with cutting-edge tools 
                   for digital forensics and threat analysis.
                 </p>
                 <div className="mt-8 flex justify-center space-x-8">
                   <div className="text-center">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-blue)', opacity: 0.1 }}>
-                      <MagnifyingGlassIcon className="w-8 h-8" style={{ color: 'var(--cyber-blue)' }} />
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3 bg-blue-100">
+                      <MagnifyingGlassIcon className="w-8 h-8 text-blue-600" />
                     </div>
-                    <span className="font-medium" style={{ color: 'var(--cyber-text)' }}>Investigate</span>
+                    <span className="font-medium text-gray-900">Investigate</span>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-green)', opacity: 0.1 }}>
-                      <LightBulbIcon className="w-8 h-8" style={{ color: 'var(--cyber-green)' }} />
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3 bg-green-100">
+                      <LightBulbIcon className="w-8 h-8 text-green-600" />
                     </div>
-                    <span className="font-medium" style={{ color: 'var(--cyber-text)' }}>Analyze</span>
+                    <span className="font-medium text-gray-900">Analyze</span>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-orange)', opacity: 0.1 }}>
-                      <ShieldCheckIcon className="w-8 h-8" style={{ color: 'var(--cyber-orange)' }} />
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3 bg-orange-100">
+                      <ShieldCheckIcon className="w-8 h-8 text-orange-600" />
                     </div>
-                    <span className="font-medium" style={{ color: 'var(--cyber-text)' }}>Protect</span>
+                    <span className="font-medium text-gray-900">Protect</span>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Documentation Section */}
+        <section id="documentation" className="py-20 px-6 lg:px-8" style={{ background: 'var(--cyber-bg)' }}>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-cyber mb-6" style={{ color: 'var(--cyber-blue)' }}>
+                Documentation & Resources
+              </h2>
+              <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--cyber-text-muted)' }}>
+                Everything you need to understand and implement Nexum Obscura
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Getting Started */}
+              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#22c55e' }}>
+                    <PlayIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Getting Started</h3>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  Quick setup guide to get Nexum Obscura running on your system with sample data.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Installation Instructions
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Environment Setup
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Sample Data Import
+                  </li>
+                </ul>
+                <a
+                  href="https://github.com/iSamarthDubey/nexum-obscura/blob/main/README.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <span>Read Guide</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* API Documentation */}
+              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#3b82f6' }}>
+                    <DocumentTextIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">API Reference</h3>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  Comprehensive API documentation for IPDR processing and analysis endpoints.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Upload Endpoints
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Analysis APIs
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Report Generation
+                  </li>
+                </ul>
+                <a
+                  href="https://github.com/iSamarthDubey/nexum-obscura/tree/main/backend"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <span>View API Docs</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* Architecture Guide */}
+              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#8b5cf6' }}>
+                    <CpuChipIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Architecture</h3>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  Deep dive into the system architecture and design decisions behind Nexum Obscura.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    System Design
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Data Flow
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Security Model
+                  </li>
+                </ul>
+                <a
+                  href="https://github.com/iSamarthDubey/nexum-obscura/blob/main/architecture.txt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <span>Learn More</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* Deployment Guide */}
+              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#f59e0b' }}>
+                    <CloudArrowUpIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Deployment</h3>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  Production deployment guides for various environments and cloud platforms.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Docker Setup
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Cloud Deployment
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Security Configuration
+                  </li>
+                </ul>
+                <a
+                  href="https://github.com/iSamarthDubey/nexum-obscura/tree/main/backend/render.yaml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <span>Deploy Now</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* Troubleshooting */}
+              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#ef4444' }}>
+                    <ExclamationTriangleIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Troubleshooting</h3>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  Common issues and their solutions to help you debug and optimize performance.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Common Errors
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Performance Tips
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Debug Tools
+                  </li>
+                </ul>
+                <a
+                  href="https://github.com/iSamarthDubey/nexum-obscura/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <span>Get Help</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </a>
+              </div>
+
+              {/* Community */}
+              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#06b6d4' }}>
+                    <UsersIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Community</h3>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  Join our community of cybersecurity professionals and contribute to the project.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Contributing Guide
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Issue Tracking
+                  </li>
+                  <li className="flex items-center text-sm text-gray-600">
+                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
+                    Feature Requests
+                  </li>
+                </ul>
+                <a
+                  href="https://github.com/iSamarthDubey/nexum-obscura"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <span>Contribute</span>
+                  <ArrowRightIcon className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="mt-16 text-center">
+              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <h3 className="text-2xl font-bold mb-6 text-gray-900">Quick Links</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <a
+                    href="https://github.com/iSamarthDubey/nexum-obscura"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-4 rounded-lg border border-gray-200 hover:border-blue-500 transition-colors text-center"
+                  >
+                    <div className="text-2xl mb-2">📁</div>
+                    <div className="text-sm font-medium text-gray-900">GitHub Repo</div>
+                  </a>
+                  <Link
+                    to="/demo-dashboard"
+                    className="p-4 rounded-lg border border-gray-200 hover:border-green-500 transition-colors text-center"
+                  >
+                    <div className="text-2xl mb-2">🎭</div>
+                    <div className="text-sm font-medium text-gray-900">Live Demo</div>
+                  </Link>
+                  <a
+                    href="https://obscura-collective.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-4 rounded-lg border border-gray-200 hover:border-purple-500 transition-colors text-center"
+                  >
+                    <div className="text-2xl mb-2">🌐</div>
+                    <div className="text-sm font-medium text-gray-900">Team Site</div>
+                  </a>
+                  <a
+                    href="#about"
+                    className="p-4 rounded-lg border border-gray-200 hover:border-orange-500 transition-colors text-center"
+                  >
+                    <div className="text-2xl mb-2">👥</div>
+                    <div className="text-sm font-medium text-gray-900">About Team</div>
+                  </a>
                 </div>
               </div>
             </div>
