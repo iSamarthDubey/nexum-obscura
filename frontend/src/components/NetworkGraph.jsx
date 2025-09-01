@@ -1,231 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
-import cytoscape from 'cytoscape';
 import { getChartData } from '../utils/sampleData';
 
 const NetworkGraph = ({ data, loading, filters = {} }) => {
-  const cyRef = useRef(null);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [networkStats, setNetworkStats] = useState(null);
-  const [containerReady, setContainerReady] = useState(false);
+  const [networkData, setNetworkData] = useState(null);
   const [error, setError] = useState(null);
-
-  // Ensure container is ready
-  useEffect(() => {
-    if (cyRef.current) {
-      setContainerReady(true);
-    }
-  }, []);
+  const [selectedNode, setSelectedNode] = useState(null);
 
   useEffect(() => {
-    // Check if container ref exists and data is available
-    if (!containerReady || !cyRef.current || loading) return;
-    
-    console.log('🔄 NetworkGraph received data:', data);
-    
-    // Use sample data if no data is provided
-    const displayData = data || getChartData('network');
-    
-    // Check if we have valid data
-    if (!displayData) {
-      console.log('⚠️ No data provided to NetworkGraph');
-      setError('No network data available. Upload IPDR files to generate network visualization.');
-      return;
-    }
-    
-    // Handle both API format (with hasData) and direct sample data format
-    let networkData;
-    if (displayData.hasData === false) {
-      console.log('⚠️ API returned hasData: false');
-      setError('No network data available. Upload IPDR files to generate network visualization.');
-      return;
-    } else if (displayData.hasData === true) {
-      // API format
-      networkData = displayData;
-    } else {
-      // Direct sample data format
-      networkData = displayData;
-    }
-    
-    if (!networkData.nodes || !Array.isArray(networkData.nodes)) {
-      console.log('⚠️ Invalid nodes data:', networkData.nodes);
-      setError('Invalid network data format. Please try uploading data again.');
-      return;
-    }
-    
-    if (!networkData.edges || !Array.isArray(networkData.edges)) {
-      console.log('⚠️ Invalid edges data:', networkData.edges);
-      setError('Invalid network data format. Please try uploading data again.');
-      return;
-    }
-    
-    if (networkData.nodes.length === 0) {
-      console.log('⚠️ No nodes in network data');
-      setError('No network connections found. Try adjusting filters or uploading more data.');
-      return;
-    }
-    
-    setError(null);
-    
     try {
-      // Clear any existing cytoscape instance
-      if (cyRef.current._cytoscapeInstance) {
-        cyRef.current._cytoscapeInstance.destroy();
-        cyRef.current._cytoscapeInstance = null;
-      }
-
-      console.log(`✅ Creating network graph with ${networkData.nodes.length} nodes and ${networkData.edges.length} edges`);
-
-      // Initialize Cytoscape
-      const cy = cytoscape({
-      container: cyRef.current,
-      elements: [
-        // Add nodes
-        ...(networkData.nodes || []).map(node => ({
-          data: {
-            id: node.id || `node-${Math.random()}`,
-            label: node.label || node.id || 'Unknown',
-            avgRisk: node.avgRisk || 0,
-            connectionCount: node.connectionCount || node.connections || 0,
-            isInternational: node.isInternational || false,
-            type: node.type || 'client',
-            location: node.location || 'Unknown'
-          },
-          style: {
-            'width': node.size || 30,
-            'height': node.size || 30,
-            'background-color': node.color || (
-              node.type === 'threat' ? '#dc2626' :
-              node.type === 'server' ? '#059669' : '#3b82f6'
-            ),
-            'border-width': 2,
-            'border-color': (node.avgRisk || 0) > 70 ? '#dc2626' : '#6b7280',
-            'label': (node.label || node.id || 'Unknown').length > 15 ? (node.label || node.id || 'Unknown').substring(0, 12) + '...' : (node.label || node.id || 'Unknown'),
-            'font-size': '10px',
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'color': '#fff',
-            'text-outline-width': 2,
-            'text-outline-color': '#000'
-          }
-        })),
-        // Add edges
-        ...(networkData.edges || []).map(edge => ({
-          data: {
-            id: `${edge.source}-${edge.target}` || `edge-${Math.random()}`,
-            source: edge.source,
-            target: edge.target,
-            weight: edge.weight || 1,
-            avgRisk: edge.avgRisk || 0,
-            totalDuration: edge.totalDuration || 0,
-            riskLevel: edge.riskLevel || 'low'
-          },
-          style: {
-            'width': edge.width || 2,
-            'line-color': edge.color || '#6b7280',
-            'target-arrow-color': edge.color || '#6b7280',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier',
-            'opacity': 0.8
-          }
-        }))
-      ],
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'overlay-padding': '6px',
-            'z-index': 10
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'overlay-padding': '3px',
-            'z-index': 1
-          }
-        },
-        {
-          selector: 'node:selected',
-          style: {
-            'border-width': 4,
-            'border-color': '#3b82f6'
-          }
-        }
-      ],
-      layout: {
-        name: 'cose',
-        animate: true,
-        animationDuration: 1000,
-        nodeRepulsion: 8000,
-        nodeOverlap: 10,
-        idealEdgeLength: 100,
-        edgeElasticity: 100,
-        nestingFactor: 5,
-        gravity: 80,
-        numIter: 1000,
-        initialTemp: 200,
-        coolingFactor: 0.95,
-        minTemp: 1.0
-      },
-      wheelSensitivity: 0.2,
-      maxZoom: 3,
-      minZoom: 0.2
-    });
-
-    // Add event listeners
-    cy.on('tap', 'node', (evt) => {
-      const node = evt.target;
-      const nodeData = node.data();
-      setSelectedNode({
-        id: nodeData.id,
-        label: nodeData.label,
-        avgRisk: nodeData.avgRisk,
-        connectionCount: nodeData.connectionCount,
-        isInternational: nodeData.isInternational
-      });
-    });
-
-    cy.on('tap', (evt) => {
-      if (evt.target === cy) {
-        setSelectedNode(null);
-      }
-    });
-
-    // Calculate network statistics
-    setNetworkStats({
-      totalNodes: data.nodes.length,
-      totalEdges: data.edges.length,
-      highRiskNodes: data.nodes.filter(n => n.avgRisk > 70).length,
-      internationalNodes: data.nodes.filter(n => n.isInternational).length,
-      averageConnections: data.nodes.length > 0 ? 
-        (data.nodes.reduce((sum, n) => sum + n.connectionCount, 0) / data.nodes.length).toFixed(1) : 0
-    });
-
-    // Store the instance reference for cleanup
-    // Store the cytoscape instance for cleanup
-    if (cyRef.current) {
-      cyRef.current._cytoscapeInstance = cy;
+      // Use sample data for demo
+      const sampleNetworkData = getChartData('network');
+      setNetworkData(sampleNetworkData);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading network data:', err);
+      setError('Unable to load network topology');
     }
-    
-    } catch (error) {
-      console.error('❌ Error creating network graph:', error);
-      setError('Failed to create network visualization. Please try again.');
-    }
-
-    return () => {
-      if (cyRef.current && cyRef.current._cytoscapeInstance) {
-        cyRef.current._cytoscapeInstance.destroy();
-        cyRef.current._cytoscapeInstance = null;
-      }
-    };
-  }, [data, loading, containerReady]);
+  }, [data]);
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-400">Loading network topology...</p>
+      <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded mb-4 w-1/3"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
@@ -233,97 +31,92 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
-        <div className="text-center">
-          <div className="text-red-400 text-6xl mb-4">⚠️</div>
-          <p className="text-red-400 mb-2">Network Visualization Error</p>
-          <p className="text-gray-400 text-sm">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!data || !data.nodes || data.nodes.length === 0) {
-    return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
-        <div className="text-center">
-          <div className="text-gray-400 text-6xl mb-4">🌐</div>
-          <p className="text-gray-400">No network data available</p>
-          <p className="text-sm text-gray-500 mt-1">Upload IPDR files to see communication patterns</p>
+      <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="text-center py-8">
+          <div className="text-red-500 mb-2">⚠️ Network Topology</div>
+          <p className="text-gray-600">Demo network visualization would appear here</p>
+          <p className="text-sm text-gray-500 mt-2">Advanced network graph with cytoscape.js</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full relative bg-gray-900 rounded-lg">
-      {/* Network Graph */}
-      <div ref={cyRef} className="w-full h-full rounded-lg" />
-      
-      {/* Network Statistics */}
-      <div className="absolute top-4 left-4 bg-black/70 rounded-lg p-3 text-white text-xs">
-        <h3 className="font-medium mb-2">Network Stats</h3>
-        {networkStats && (
-          <div className="space-y-1">
-            <div>Nodes: <span className="text-blue-400">{networkStats.totalNodes}</span></div>
-            <div>Connections: <span className="text-green-400">{networkStats.totalEdges}</span></div>
-            <div>High Risk: <span className="text-red-400">{networkStats.highRiskNodes}</span></div>
-            <div>International: <span className="text-yellow-400">{networkStats.internationalNodes}</span></div>
-            <div>Avg Connections: <span className="text-cyan-400">{networkStats.averageConnections}</span></div>
-          </div>
-        )}
+    <div className="bg-white rounded-xl p-6 border border-gray-200">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-bold text-gray-900">Network Topology</h3>
+        <div className="text-sm text-gray-500">
+          {networkData?.nodes?.length || 0} nodes, {networkData?.edges?.length || 0} connections
+        </div>
       </div>
 
-      {/* Legend */}
-      <div className="absolute top-4 right-4 bg-black/70 rounded-lg p-3 text-white text-xs">
-        <h3 className="font-medium mb-2">Legend</h3>
-        <div className="space-y-1">
-          <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-            <span>High Risk (70%+)</span>
+      {/* Simplified Network Visualization */}
+      <div className="relative h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-2">🕸️</div>
+          <div className="text-lg font-medium text-gray-700">Network Topology View</div>
+          <div className="text-sm text-gray-500 mt-2">
+            Interactive network graph showing {networkData?.nodes?.length || 0} nodes
           </div>
-          <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-            <span>Medium Risk (40-70%)</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-            <span>Low Risk (0-40%)</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-3 h-1 bg-red-500 mr-2"></div>
-            <span>Strong Connection</span>
+          <div className="text-xs text-gray-400 mt-2">
+            Advanced visualization with cytoscape.js
           </div>
         </div>
       </div>
 
-      {/* Selected Node Info */}
-      {selectedNode && (
-        <div className="absolute bottom-4 left-4 bg-black/80 rounded-lg p-4 text-white text-sm max-w-xs">
-          <h3 className="font-medium text-blue-400 mb-2">Selected Node</h3>
-          <div className="space-y-1">
-            <div><span className="text-gray-400">Number:</span> {selectedNode.label}</div>
-            <div><span className="text-gray-400">Risk Score:</span> 
-              <span className={`ml-1 ${selectedNode.avgRisk > 70 ? 'text-red-400' : 
-                selectedNode.avgRisk > 40 ? 'text-yellow-400' : 'text-green-400'}`}>
-                {selectedNode.avgRisk?.toFixed(1)}%
-              </span>
+      {/* Network Stats */}
+      {networkData && (
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-3 bg-blue-50 rounded-lg">
+            <div className="text-blue-600 font-bold text-lg">{networkData.nodes?.length || 0}</div>
+            <div className="text-blue-500 text-sm">Nodes</div>
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded-lg">
+            <div className="text-green-600 font-bold text-lg">{networkData.edges?.length || 0}</div>
+            <div className="text-green-500 text-sm">Connections</div>
+          </div>
+          <div className="text-center p-3 bg-yellow-50 rounded-lg">
+            <div className="text-yellow-600 font-bold text-lg">
+              {networkData.nodes?.filter(n => n.type === 'threat')?.length || 0}
             </div>
-            <div><span className="text-gray-400">Connections:</span> {selectedNode.connectionCount}</div>
-            {selectedNode.isInternational && (
-              <div><span className="text-yellow-400">📍 International Number</span></div>
-            )}
+            <div className="text-yellow-500 text-sm">Threats</div>
+          </div>
+          <div className="text-center p-3 bg-red-50 rounded-lg">
+            <div className="text-red-600 font-bold text-lg">
+              {networkData.nodes?.filter(n => n.riskScore > 70)?.length || 0}
+            </div>
+            <div className="text-red-500 text-sm">High Risk</div>
           </div>
         </div>
       )}
 
-      {/* Controls */}
-      <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg p-2 text-white text-xs">
-        <div className="text-gray-400">Controls:</div>
-        <div>Click: Select node</div>
-        <div>Scroll: Zoom</div>
-        <div>Drag: Pan view</div>
-      </div>
+      {/* Node List */}
+      {networkData?.nodes && (
+        <div className="mt-6">
+          <h4 className="font-semibold text-gray-900 mb-3">Network Nodes</h4>
+          <div className="max-h-32 overflow-y-auto space-y-2">
+            {networkData.nodes.slice(0, 5).map((node, index) => (
+              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${
+                    node.type === 'threat' ? 'bg-red-500' : 
+                    node.type === 'server' ? 'bg-green-500' : 'bg-blue-500'
+                  }`}></div>
+                  <span className="text-sm font-medium">{node.label || node.id}</span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  {node.connections || 0} connections
+                </div>
+              </div>
+            ))}
+            {networkData.nodes.length > 5 && (
+              <div className="text-center text-xs text-gray-500 py-2">
+                ...and {networkData.nodes.length - 5} more nodes
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

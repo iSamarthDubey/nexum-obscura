@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { API_URL } from '../utils/api';
 import { getChartData } from '../utils/sampleData';
-import { shouldUseSampleData, fetchWithFallback } from '../utils/deployment';
 
 const ProtocolDistribution = () => {
   const [protocolData, setProtocolData] = useState([]);
@@ -21,7 +19,7 @@ const ProtocolDistribution = () => {
     setError(null);
     
     try {
-      // Use sample data for demo/production deployment
+      // Always use sample data for demo dashboard
       const sampleProtocols = getChartData('protocols');
       setProtocolData(sampleProtocols);
       setCallTypeData([
@@ -32,31 +30,19 @@ const ProtocolDistribution = () => {
       setStats({
         totalRecords: 80,
         totalProtocols: sampleProtocols.length,
-        mostUsedProtocol: sampleProtocols[0]?.name || 'HTTP',
+        dominantProtocol: sampleProtocols[0]?.name || 'HTTP',
+        dominantPercentage: sampleProtocols[0]?.percentage || 0,
+        riskDistribution: {
+          low: sampleProtocols.filter(p => p.riskLevel === 'low').reduce((sum, p) => sum + p.count, 0),
+          medium: sampleProtocols.filter(p => p.riskLevel === 'medium').reduce((sum, p) => sum + p.count, 0),
+          high: sampleProtocols.filter(p => p.riskLevel === 'high').reduce((sum, p) => sum + p.count, 0)
+        },
         lastUpdated: new Date().toLocaleString()
       });
-      setLoading(false);
-      
-      // Only try API in development mode when explicitly enabled
-      if (!shouldUseSampleData()) {
-        try {
-          const response = await fetchWithFallback(`${API_URL}/protocol-analysis`);
-          if (response.ok) {
-            const result = await response.json();
-            if (result.hasData) {
-              setProtocolData(result.protocols);
-              setCallTypeData(result.callTypes);
-              setStats(result.statistics);
-            }
-          }
-        } catch (apiError) {
-          console.log('API not available, using sample data:', apiError.message);
-          // Continue with sample data - no error shown to user
-        }
-      }
     } catch (err) {
       console.error('Error loading protocol data:', err);
       setError('Unable to load protocol data');
+    } finally {
       setLoading(false);
     }
   };
@@ -171,11 +157,11 @@ const ProtocolDistribution = () => {
           </div>
           <div className="bg-green-50 rounded-lg p-4">
             <div className="text-xs font-medium text-green-600 uppercase tracking-wide">Low Risk</div>
-            <div className="text-2xl font-bold text-green-900 mt-1">{stats.riskDistribution.low.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-green-900 mt-1">{stats.riskDistribution?.low?.toLocaleString() || 0}</div>
           </div>
           <div className="bg-red-50 rounded-lg p-4">
             <div className="text-xs font-medium text-red-600 uppercase tracking-wide">High Risk</div>
-            <div className="text-2xl font-bold text-red-900 mt-1">{stats.riskDistribution.high.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-red-900 mt-1">{stats.riskDistribution?.high?.toLocaleString() || 0}</div>
           </div>
         </div>
       )}
