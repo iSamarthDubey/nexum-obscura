@@ -223,8 +223,9 @@ const ProtocolDistribution = () => {
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
           </div>
+        </div>
+        </div>
       ) : (
         <div className="flex items-center justify-center flex-1">
           <div className="text-center">
