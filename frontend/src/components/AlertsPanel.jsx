@@ -10,7 +10,8 @@ import {
 const AlertsPanel = () => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasNewAlerts, setHasNewAlerts] = useState(false);
 
   useEffect(() => {
     loadAlerts();
@@ -25,7 +26,14 @@ const AlertsPanel = () => {
       const response = await fetch(`${API_URL}/alerts`);
       if (response.ok) {
         const data = await response.json();
-        setAlerts(data.alerts || []);
+        const newAlerts = data.alerts || [];
+        
+        // Check if there are new alerts
+        if (newAlerts.length > alerts.length) {
+          setHasNewAlerts(true);
+        }
+        
+        setAlerts(newAlerts);
       }
     } catch (error) {
       console.error('Failed to load alerts:', error);
@@ -60,19 +68,36 @@ const AlertsPanel = () => {
     }
   };
 
+  // Toggle panel visibility
+  const togglePanel = () => {
+    setIsVisible(!isVisible);
+    if (!isVisible) {
+      setHasNewAlerts(false); // Clear new alerts indicator when opened
+    }
+  };
+
+  // Dismiss individual alert
   const dismissAlert = (alertId) => {
     setAlerts(alerts.filter(alert => alert.id !== alertId));
   };
 
-  if (collapsed) {
+  // Always show the toggle button
+  if (!isVisible) {
     return (
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-4 right-4 z-40">
         <button
-          onClick={() => setCollapsed(false)}
-          className="bg-cyber-card border border-cyber-border rounded-lg p-3 shadow-lg hover:border-cyber-blue/50 transition-colors"
+          onClick={togglePanel}
+          className={`bg-cyber-card border border-cyber-border rounded-lg p-3 shadow-lg hover:border-cyber-blue/50 transition-all duration-200 ${
+            hasNewAlerts ? 'animate-pulse border-red-500' : ''
+          }`}
         >
           <div className="flex items-center space-x-2">
-            <ShieldExclamationIcon className="w-5 h-5 text-cyber-blue" />
+            <div className="relative">
+              <ShieldExclamationIcon className="w-5 h-5 text-cyber-blue" />
+              {hasNewAlerts && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-bounce"></div>
+              )}
+            </div>
             <span className="text-sm text-cyber-text">
               {alerts.length} Alert{alerts.length !== 1 ? 's' : ''}
             </span>
@@ -83,7 +108,7 @@ const AlertsPanel = () => {
   }
 
   return (
-    <div className="fixed top-4 right-4 w-96 max-h-96 overflow-y-auto z-50">
+    <div className="fixed top-4 right-4 w-96 max-h-96 z-50">
       <div className="bg-cyber-card border border-cyber-border rounded-lg shadow-xl">
         {/* Header */}
         <div className="p-4 border-b border-cyber-border">
@@ -96,7 +121,7 @@ const AlertsPanel = () => {
               )}
             </div>
             <button
-              onClick={() => setCollapsed(true)}
+              onClick={togglePanel}
               className="text-cyber-text-muted hover:text-cyber-text transition-colors"
             >
               <XMarkIcon className="w-5 h-5" />

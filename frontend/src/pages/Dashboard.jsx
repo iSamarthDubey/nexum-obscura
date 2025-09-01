@@ -303,6 +303,75 @@ const Dashboard = () => {
         totalEntries={dashboardData?.totalLogEntries || 0}
       />
 
+      {/* Security Alerts Section */}
+      <div className="grid-2">
+        <div className="card-cyber p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-cyber text-cyber-blue">Recent Security Alerts</h3>
+            <Link 
+              to="/analysis" 
+              className="text-xs text-cyber-blue hover:text-cyber-text transition-colors"
+            >
+              View All →
+            </Link>
+          </div>
+          
+          {dashboardData?.recentAlerts?.length > 0 ? (
+            <div className="space-y-3">
+              {dashboardData.recentAlerts.slice(0, 3).map((alert, index) => (
+                <div key={index} className="p-3 border border-cyber-border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      alert.severity === 'critical' ? 'bg-red-900/30 text-red-300' :
+                      alert.severity === 'high' ? 'bg-orange-900/30 text-orange-300' :
+                      alert.severity === 'medium' ? 'bg-yellow-900/30 text-yellow-300' :
+                      'bg-blue-900/30 text-blue-300'
+                    }`}>
+                      {alert.severity?.toUpperCase()}
+                    </span>
+                    <span className="text-xs text-cyber-text-muted">{alert.timestamp}</span>
+                  </div>
+                  <p className="text-sm text-cyber-text mb-1">{alert.title}</p>
+                  <p className="text-xs text-cyber-text-muted">{alert.description}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-cyber-text-muted">
+              <div className="text-4xl mb-2">🛡️</div>
+              <p className="text-sm">No security alerts</p>
+              <p className="text-xs mt-1">System is running smoothly</p>
+            </div>
+          )}
+        </div>
+
+        <div className="card-cyber p-6">
+          <h3 className="text-lg font-cyber text-cyber-blue mb-4">System Health</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-cyber-text">Database Status</span>
+              <span className="text-xs px-2 py-1 bg-green-900/30 text-green-300 rounded">Online</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-cyber-text">API Response</span>
+              <span className="text-xs text-cyber-text-muted">
+                {apiConnected ? '✅ Connected' : '❌ Disconnected'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-cyber-text">Last Update</span>
+              <span className="text-xs text-cyber-text-muted">
+                {lastUpdate.toLocaleTimeString()}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-cyber-text">Data Processing</span>
+              <span className="text-xs px-2 py-1 bg-blue-900/30 text-blue-300 rounded">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Quick Action Panel */}
       <div className="card-cyber p-6">
         <h3 className="text-lg font-cyber text-cyber-blue mb-4">Quick Actions</h3>
