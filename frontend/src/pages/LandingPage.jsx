@@ -679,56 +679,56 @@ const LandingPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Team Info */}
               <div className="order-2 lg:order-1">
-                <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#0066cc' }}>
                       <span className="text-2xl">🛡️</span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900">Team Name: Obscura Collective</h3>
-                      <p className="text-lg font-medium text-blue-600">"Obscurity to Insight"</p>
+                      <h3 className="text-2xl font-bold" style={{ color: 'var(--cyber-blue)' }}>Team Name: Obscura Collective</h3>
+                      <p className="text-lg font-medium" style={{ color: 'var(--cyber-green)' }}>&quot;Obscurity to Insight&quot;</p>
                     </div>
                   </div>
                   
-                  <p className="text-lg leading-relaxed mb-6 text-gray-700">
+                  <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                     We are a group of curious builders passionate about solving rare and impactful cyber-forensic problems. 
                     Our mission is to transform hidden, complex data into clear and actionable intelligence for investigators.
                   </p>
 
                   <div className="flex items-center space-x-4">
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-gray-900">Active in CyberShield 2025</span>
+                    <span style={{ color: 'var(--cyber-blue)' }}>Active in CyberShield 2025</span>
                   </div>
                 </div>
               </div>
 
               {/* Project Info */}
               <div className="order-1 lg:order-2">
-                <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+                <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
                   <div className="flex items-center mb-6">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#22c55e' }}>
                       <span className="text-2xl">🌐</span>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900">Project Name: Nexum Obscura</h3>
-                      <p className="text-lg font-medium text-green-600">"Nexum" = connection, "Obscura" = hidden</p>
+                      <h3 className="text-2xl font-bold" style={{ color: 'var(--cyber-blue)' }}>Project Name: Nexum Obscura</h3>
+                      <p className="text-lg font-medium" style={{ color: 'var(--cyber-green)' }}>&quot;Nexum&quot; = connection, &quot;Obscura&quot; = hidden</p>
                     </div>
                   </div>
                   
-                  <p className="text-lg leading-relaxed mb-6 text-gray-700">
+                  <p className="text-lg leading-relaxed mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                     Our solution connects the dots in IPDR logs, uncovering hidden relationships between A-party and B-party entities. 
                     It empowers investigators with a real-time dashboard, suspicion scoring, and anomaly insights — turning obscure 
                     patterns into actionable leads.
                   </p>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 rounded-lg bg-gray-50">
-                      <div className="text-2xl font-bold text-blue-600">500+</div>
-                      <div className="text-sm text-gray-600">Sample Records</div>
+                    <div className="text-center p-3 rounded-lg" style={{ background: 'var(--cyber-surface)' }}>
+                      <div className="text-2xl font-bold" style={{ color: 'var(--cyber-blue)' }}>500+</div>
+                      <div className="text-sm" style={{ color: 'var(--cyber-text-muted)' }}>Sample Records</div>
                     </div>
-                    <div className="text-center p-3 rounded-lg bg-gray-50">
-                      <div className="text-2xl font-bold text-green-600">20+</div>
-                      <div className="text-sm text-gray-600">Indian Cities</div>
+                    <div className="text-center p-3 rounded-lg" style={{ background: 'var(--cyber-surface)' }}>
+                      <div className="text-2xl font-bold" style={{ color: 'var(--cyber-green)' }}>20+</div>
+                      <div className="text-sm" style={{ color: 'var(--cyber-text-muted)' }}>Indian Cities</div>
                     </div>
                   </div>
                 </div>
@@ -737,31 +737,31 @@ const LandingPage = () => {
 
             {/* Mission Statement */}
             <div className="mt-16 text-center">
-              <div className="max-w-4xl mx-auto bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
-                <h3 className="text-3xl font-bold mb-6 text-gray-900">Our Mission</h3>
-                <p className="text-xl leading-relaxed text-gray-700">
+              <div className="max-w-4xl mx-auto rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
+                <h3 className="text-3xl font-bold mb-6" style={{ color: 'var(--cyber-blue)' }}>Our Mission</h3>
+                <p className="text-xl leading-relaxed" style={{ color: 'var(--cyber-text-muted)' }}>
                   To bridge the gap between complex cybersecurity data and actionable intelligence, 
                   empowering law enforcement and cybersecurity professionals with cutting-edge tools 
                   for digital forensics and threat analysis.
                 </p>
                 <div className="mt-8 flex justify-center space-x-8">
                   <div className="text-center">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3 bg-blue-100">
-                      <MagnifyingGlassIcon className="w-8 h-8 text-blue-600" />
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-surface)' }}>
+                      <MagnifyingGlassIcon className="w-8 h-8" style={{ color: 'var(--cyber-blue)' }} />
                     </div>
-                    <span className="font-medium text-gray-900">Investigate</span>
+                    <span className="font-medium" style={{ color: 'var(--cyber-blue)' }}>Investigate</span>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3 bg-green-100">
-                      <LightBulbIcon className="w-8 h-8 text-green-600" />
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-surface)' }}>
+                      <LightBulbIcon className="w-8 h-8" style={{ color: 'var(--cyber-green)' }} />
                     </div>
-                    <span className="font-medium text-gray-900">Analyze</span>
+                    <span className="font-medium" style={{ color: 'var(--cyber-green)' }}>Analyze</span>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3 bg-orange-100">
-                      <ShieldCheckIcon className="w-8 h-8 text-orange-600" />
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style={{ background: 'var(--cyber-surface)' }}>
+                      <ShieldCheckIcon className="w-8 h-8" style={{ color: 'var(--cyber-orange)' }} />
                     </div>
-                    <span className="font-medium text-gray-900">Protect</span>
+                    <span className="font-medium" style={{ color: 'var(--cyber-orange)' }}>Protect</span>
                   </div>
                 </div>
               </div>
@@ -783,18 +783,18 @@ const LandingPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Getting Started */}
-              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+              <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#22c55e' }}>
                     <PlayIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Getting Started</h3>
+                  <h3 className="text-xl font-bold" style={{ color: 'var(--cyber-blue)' }}>Getting Started</h3>
                 </div>
-                <p className="text-gray-700 mb-6">
+                <p className="mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                   Quick setup guide to get Nexum Obscura running on your system with sample data.
                 </p>
                 <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm text-gray-600">
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}>
                     <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
                     Installation Instructions
                   </li>
@@ -810,18 +810,18 @@ const LandingPage = () => {
               </div>
 
               {/* API Documentation */}
-              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+              <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#3b82f6' }}>
                     <DocumentTextIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">API Reference</h3>
+                  <h3 className="text-xl font-bold" style={{ color: 'var(--cyber-blue)' }}>API Reference</h3>
                 </div>
-                <p className="text-gray-700 mb-6">
+                <p className="mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                   Comprehensive API documentation for IPDR processing and analysis endpoints.
                 </p>
                 <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm text-gray-600">
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}>
                     <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
                     Upload Endpoints
                   </li>
@@ -837,18 +837,18 @@ const LandingPage = () => {
               </div>
 
               {/* Architecture Guide */}
-              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+              <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#8b5cf6' }}>
                     <CpuChipIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Architecture</h3>
+                  <h3 className="text-xl font-bold" style={{ color: 'var(--cyber-blue)' }}>Architecture</h3>
                 </div>
-                <p className="text-gray-700 mb-6">
+                <p className="mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                   Deep dive into the system architecture and design decisions behind Nexum Obscura.
                 </p>
                 <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm text-gray-600">
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}>
                     <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
                     System Design
                   </li>
@@ -864,18 +864,18 @@ const LandingPage = () => {
               </div>
 
               {/* Deployment Guide */}
-              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+              <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#f59e0b' }}>
                     <CloudArrowUpIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Deployment</h3>
+                  <h3 className="text-xl font-bold" style={{ color: 'var(--cyber-blue)' }}>Deployment</h3>
                 </div>
-                <p className="text-gray-700 mb-6">
+                <p className="mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                   Production deployment guides for various environments and cloud platforms.
                 </p>
                 <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm text-gray-600">
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}>
                     <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
                     Docker Setup
                   </li>
@@ -891,96 +891,81 @@ const LandingPage = () => {
               </div>
 
               {/* Troubleshooting */}
-              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+              <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #1e293b 80%, #0f172a 100%)' }}>
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#ef4444' }}>
                     <ExclamationTriangleIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Troubleshooting</h3>
+                  <h3 className="text-xl font-bold" style={{ color: 'var(--cyber-orange)' }}>Troubleshooting</h3>
                 </div>
-                <p className="text-gray-700 mb-6">
+                <p className="mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                   Common issues and their solutions to help you debug and optimize performance.
                 </p>
                 <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm text-gray-600">
-                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
-                    Common Errors
-                  </li>
-                  <li className="flex items-center text-sm text-gray-600">
-                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
-                    Performance Tips
-                  </li>
-                  <li className="flex items-center text-sm text-gray-600">
-                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
-                    Debug Tools
-                  </li>
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}><CheckCircleIcon className="w-4 h-4 mr-2 text-orange-400" />MongoDB Connection Errors</li>
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}><CheckCircleIcon className="w-4 h-4 mr-2 text-orange-400" />File Upload Issues</li>
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}><CheckCircleIcon className="w-4 h-4 mr-2 text-orange-400" />Dashboard Not Loading</li>
                 </ul>
               </div>
 
               {/* Community */}
-              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
+              <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
                 <div className="flex items-center mb-6">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4" style={{ background: '#06b6d4' }}>
                     <UsersIcon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Community</h3>
+                  <h3 className="text-xl font-bold" style={{ color: 'var(--cyber-blue)' }}>Community</h3>
                 </div>
-                <p className="text-gray-700 mb-6">
+                <p className="mb-6" style={{ color: 'var(--cyber-text-muted)' }}>
                   Join our community of cybersecurity professionals and contribute to the project.
                 </p>
                 <ul className="space-y-2 mb-6">
-                  <li className="flex items-center text-sm text-gray-600">
-                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
-                    Contributing Guide
-                  </li>
-                  <li className="flex items-center text-sm text-gray-600">
-                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
-                    Issue Tracking
-                  </li>
-                  <li className="flex items-center text-sm text-gray-600">
-                    <CheckCircleIcon className="w-4 h-4 mr-2 text-green-500" />
-                    Feature Requests
-                  </li>
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}><CheckCircleIcon className="w-4 h-4 mr-2 text-blue-400" /><a href="https://github.com/iSamarthDubey/nexum-obscura/issues" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--cyber-blue)' }}>GitHub Issues</a></li>
+                  <li className="flex items-center text-sm" style={{ color: 'var(--cyber-text-muted)' }}><CheckCircleIcon className="w-4 h-4 mr-2 text-blue-400" /><a href="mailto:support@nexum-obscura.com" style={{ color: 'var(--cyber-blue)' }}>Email Support</a></li>
                 </ul>
               </div>
             </div>
 
             {/* Quick Links */}
             <div className="mt-16 text-center">
-              <div className="bg-white rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)' }}>
-                <h3 className="text-2xl font-bold mb-6 text-gray-900">Quick Links</h3>
+              <div className="rounded-2xl p-8 shadow-xl border cyber-glow" style={{ borderColor: 'var(--cyber-border)', background: 'linear-gradient(135deg, #0f172a 80%, #1e293b 100%)' }}>
+                <h3 className="text-2xl font-bold mb-6" style={{ color: 'var(--cyber-blue)' }}>Quick Links</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <a
                     href="https://github.com/iSamarthDubey/nexum-obscura"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-4 rounded-lg border border-gray-200 hover:border-blue-500 transition-colors text-center"
+                    className="p-4 rounded-lg border cyber-glow hover:border-blue-500 transition-colors text-center"
+                    style={{ borderColor: 'var(--cyber-border)', background: 'var(--cyber-surface)' }}
                   >
-                    <div className="text-2xl mb-2">📁</div>
-                    <div className="text-sm font-medium text-gray-900">GitHub Repo</div>
+                    <div className="text-2xl mb-2" style={{ color: 'var(--cyber-blue)' }}>📁</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--cyber-text)' }}>GitHub Repo</div>
                   </a>
                   <Link
                     to="/demo-dashboard"
-                    className="p-4 rounded-lg border border-gray-200 hover:border-green-500 transition-colors text-center"
+                    className="p-4 rounded-lg border cyber-glow hover:border-green-500 transition-colors text-center"
+                    style={{ borderColor: 'var(--cyber-border)', background: 'var(--cyber-surface)' }}
                   >
-                    <div className="text-2xl mb-2">🎭</div>
-                    <div className="text-sm font-medium text-gray-900">Live Demo</div>
+                    <div className="text-2xl mb-2" style={{ color: 'var(--cyber-green)' }}>🎭</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--cyber-text)' }}>View Demo / Sample</div>
                   </Link>
                   <a
                     href="https://obscura-collective.vercel.app/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-4 rounded-lg border border-gray-200 hover:border-purple-500 transition-colors text-center"
+                    className="p-4 rounded-lg border cyber-glow hover:border-purple-500 transition-colors text-center"
+                    style={{ borderColor: 'var(--cyber-border)', background: 'var(--cyber-surface)' }}
                   >
-                    <div className="text-2xl mb-2">🌐</div>
-                    <div className="text-sm font-medium text-gray-900">Team Site</div>
+                    <div className="text-2xl mb-2" style={{ color: 'var(--cyber-purple)' }}>🌐</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--cyber-text)' }}>View Live / Deployed</div>
                   </a>
                   <a
                     href="#about"
-                    className="p-4 rounded-lg border border-gray-200 hover:border-orange-500 transition-colors text-center"
+                    className="p-4 rounded-lg border cyber-glow hover:border-orange-500 transition-colors text-center"
+                    style={{ borderColor: 'var(--cyber-border)', background: 'var(--cyber-surface)' }}
                   >
-                    <div className="text-2xl mb-2">👥</div>
-                    <div className="text-sm font-medium text-gray-900">About Team</div>
+                    <div className="text-2xl mb-2" style={{ color: 'var(--cyber-orange)' }}>👥</div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--cyber-text)' }}>About Team</div>
                   </a>
                 </div>
               </div>
