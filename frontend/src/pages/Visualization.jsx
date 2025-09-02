@@ -64,7 +64,7 @@ const Visualization = () => {
     { id: 'network', name: 'Network Topology', icon: ShareIcon },
     { id: 'geographic', name: 'Geographic View', icon: GlobeAltIcon },
     { id: 'traffic', name: 'Traffic Flow', icon: ChartBarIcon },
-    { id: 'protocols', name: 'Protocol Analysis', icon: AdjustmentsHorizontalIcon },
+    { id: 'protocols', name: 'Protocol Analysis', icon: AdjustmentsHorizontalIcon }
   ];
 
   return (
@@ -72,8 +72,10 @@ const Visualization = () => {
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Network Visualization</h1>
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <h1 className="text-xl font-semibold text-gray-900">Nexum Obscura</h1>
+            </div>
             <nav className="flex space-x-8">
               <Link to="/" className="text-gray-500 hover:text-gray-700">Dashboard</Link>
               <Link to="/upload" className="text-gray-500 hover:text-gray-700">Upload</Link>

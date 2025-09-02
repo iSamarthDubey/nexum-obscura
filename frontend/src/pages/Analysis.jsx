@@ -40,36 +40,19 @@ const Analysis = () => {
     } catch (error) {
       console.error('❌ Error loading analysis data:', error);
       
-      // Use comprehensive sample data for demo showcase
-      console.log('🎭 Loading comprehensive sample data (500+ entries)...');
-      const sampleAnomalies = getChartData('anomalies');
-      const sampleSuspicious = getChartData('suspicious');
-      const sampleLogs = getChartData('logs');
-      const sampleStats = getChartData('stats');
-      
-      setAnalysisData({
-        hasData: true,
-        source: 'Demo Dataset - 500+ IPDR Entries',
-        message: 'Comprehensive sample data showcasing advanced threat detection',
-        suspiciousConnections: sampleSuspicious,
-        patterns: [
-          'Distributed brute force attacks across 15+ geographic regions',
-          'Coordinated port scanning from compromised IoT devices',
-          'Data exfiltration patterns using encrypted tunnels',
-          'Botnet command & control communications detected',
-          'SQL injection attempts targeting web applications',
-          'DDoS attack signatures from multiple source vectors',
-          'Malware communication to known C2 servers',
-          'Unauthorized access attempts during non-business hours'
-        ],
-        anomalies: sampleAnomalies,
-        logs: sampleLogs,
-        totalAnalyzed: sampleStats.totalConnections,
-        threatsDetected: sampleStats.activeThreats,
-        riskScore: sampleStats.averageRiskScore || 67,
-        geography: getChartData('geographic'),
-        protocols: getChartData('protocols')
-      });
+        // No sample data fallback; show error or empty state if API fails
+        setAnalysisData({
+          hasData: false,
+          suspiciousConnections: [],
+          patterns: [],
+          anomalies: [],
+          logs: [],
+          totalAnalyzed: 0,
+          threatsDetected: 0,
+          riskScore: 0,
+          geography: [],
+          protocols: []
+        });
     } finally {
       setLoading(false);
     }
@@ -295,114 +278,37 @@ const Analysis = () => {
               <ChartBarIcon className="w-5 h-5 mr-2" />
               Communication Patterns
             </h3>
-            
             <div className="space-y-4">
-              {analysisData.patterns.map((pattern, index) => (
-                <div key={index} className="p-4 border border-cyber-border rounded-lg hover:border-cyber-blue/50 transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h4 className="font-medium text-cyber-text">{pattern.pattern}</h4>
-                      <p className="text-sm text-cyber-text-muted">{pattern.description}</p>
+              {analysisData.patterns && analysisData.patterns.length > 0 ? (
+                analysisData.patterns.map((pattern, index) => (
+                  <div key={index} className="p-4 border border-cyber-border rounded-lg hover:border-cyber-blue/50 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <h4 className="font-medium text-cyber-text">{pattern.pattern}</h4>
+                        <p className="text-sm text-cyber-text-muted">{pattern.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-cyber-blue font-cyber text-lg">{pattern.instances}</p>
+                        <p className="text-xs text-cyber-text-muted">instances</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-cyber-blue font-cyber text-lg">{pattern.instances}</p>
-                      <p className="text-xs text-cyber-text-muted">instances</p>
+                    <div className="flex items-center justify-between">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        pattern.severity === 'Critical' ? 'bg-red-900/30 text-red-300' :
+                        pattern.severity === 'High' ? 'bg-yellow-900/30 text-yellow-300' :
+                        'bg-blue-900/30 text-blue-300'
+                      }`}>
+                        {pattern.severity} Severity
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      pattern.severity === 'Critical' ? 'bg-red-900/30 text-red-300' :
-                      pattern.severity === 'High' ? 'bg-yellow-900/30 text-yellow-300' :
-                      'bg-blue-900/30 text-blue-300'
-                    }`}>
-                      {pattern.severity} Severity
-                    </span>
-                  </div>
+                ))
+              ) : (
+                <div className="col-span-2 p-8 text-center border border-cyber-border rounded-lg">
+                  <ChartBarIcon className="w-12 h-12 mx-auto mb-4 text-cyber-text-muted" />
+                  <p className="text-cyber-text-muted">No pattern data available. Upload IPDR data to start analysis.</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="card-cyber p-6">
-            <h3 className="text-lg font-cyber text-cyber-blue mb-4">Pattern Visualization</h3>
-            <div className="grid grid-cols-2 gap-6">
-              {/* Attack Pattern Distribution */}
-              <div>
-                <h4 className="text-md font-medium text-cyber-text mb-3">Attack Pattern Distribution</h4>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Brute Force', value: 35, color: '#ef4444' },
-                        { name: 'Port Scanning', value: 25, color: '#f97316' },
-                        { name: 'Data Exfiltration', value: 20, color: '#eab308' },
-                        { name: 'Malware C2', value: 12, color: '#8b5cf6' },
-                        { name: 'SQL Injection', value: 8, color: '#06b6d4' }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {[
-                        { name: 'Brute Force', value: 35, color: '#ef4444' },
-                        { name: 'Port Scanning', value: 25, color: '#f97316' },
-                        { name: 'Data Exfiltration', value: 20, color: '#eab308' },
-                        { name: 'Malware C2', value: 12, color: '#8b5cf6' },
-                        { name: 'SQL Injection', value: 8, color: '#06b6d4' }
-                      ].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: '#1f2937',
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#f3f4f6'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Pattern Detection Timeline */}
-              <div>
-                <h4 className="text-md font-medium text-cyber-text mb-3">Pattern Detection Timeline</h4>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={[
-                    { time: '06:00', patterns: 12, color: '#06b6d4' },
-                    { time: '09:00', patterns: 19, color: '#06b6d4' },
-                    { time: '12:00', patterns: 25, color: '#06b6d4' },
-                    { time: '15:00', patterns: 31, color: '#06b6d4' },
-                    { time: '18:00', patterns: 18, color: '#06b6d4' },
-                    { time: '21:00', patterns: 14, color: '#06b6d4' }
-                  ]}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis 
-                      dataKey="time" 
-                      stroke="#9ca3af"
-                      fontSize={12}
-                    />
-                    <YAxis 
-                      stroke="#9ca3af"
-                      fontSize={12}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: '#1f2937',
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#f3f4f6'
-                      }}
-                    />
-                    <Bar dataKey="patterns" fill="#06b6d4" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              )}
             </div>
           </div>
         </div>

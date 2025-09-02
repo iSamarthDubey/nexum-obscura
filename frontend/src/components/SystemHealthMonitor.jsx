@@ -13,28 +13,9 @@ const SystemHealthMonitor = () => {
 
   const loadSystemMetrics = async () => {
     try {
-      // Simulate system health metrics
-      const mockMetrics = {
-        cpu: Math.floor(Math.random() * 30) + 15, // 15-45%
-        memory: Math.floor(Math.random() * 40) + 30, // 30-70%
-        disk: Math.floor(Math.random() * 20) + 60, // 60-80%
-        network: Math.floor(Math.random() * 50) + 200, // 200-250 Mbps
-        uptime: '7d 14h 32m',
-        activeConnections: Math.floor(Math.random() * 500) + 1000,
-        processedLogs: Math.floor(Math.random() * 1000) + 15000,
-        threatsBlocked: Math.floor(Math.random() * 10) + 25,
-        serviceStatus: {
-          logProcessor: Math.random() > 0.1 ? 'healthy' : 'warning',
-          threatDetection: Math.random() > 0.05 ? 'healthy' : 'critical',
-          networkMonitor: Math.random() > 0.08 ? 'healthy' : 'warning',
-          alertSystem: 'healthy',
-          database: Math.random() > 0.02 ? 'healthy' : 'warning'
-        }
-      };
-
-      setSystemMetrics(mockMetrics);
-      setAlertsCount(prev => prev + Math.floor(Math.random() * 3));
-      setLoading(false);
+  // TODO: Integrate with real system health metrics API
+  setSystemMetrics(null);
+  setLoading(false);
     } catch (error) {
       console.error('Error loading system metrics:', error);
       setLoading(false);

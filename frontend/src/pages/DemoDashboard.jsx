@@ -69,7 +69,7 @@ const DemoDashboard = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Demo Dashboard - 500+ Sample Dataset</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Demo Dashboard : 500+ Sample Dataset</h1>
               <p className="text-gray-600 mt-2">
                 Comprehensive analysis of {dataStats?.totalLogs || '500+'} IPDR entries from {dataStats?.timeRange || '7 days'}
               </p>
@@ -153,7 +153,7 @@ const DemoDashboard = () => {
               </div>
               <div className="bg-white rounded-lg shadow border p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Protocol Distribution</h3>
-                <ProtocolDistribution />
+                <ProtocolDistribution protocolData={getChartData('protocols')} />
               </div>
               <div className="bg-white rounded-lg shadow border p-6 lg:col-span-2">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Sample Data Insights</h3>
@@ -183,7 +183,7 @@ const DemoDashboard = () => {
           {activeTab === 'protocols' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Protocol Analysis Dashboard</h3>
-              <ProtocolDistribution />
+              <ProtocolDistribution protocolData={getChartData('protocols')} />
             </div>
           )}
           {activeTab === 'geographic' && (

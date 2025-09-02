@@ -1,44 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { getChartData } from '../utils/sampleData';
+// ...existing code...
 
-const ProtocolDistribution = () => {
-  const [protocolData, setProtocolData] = useState([]);
+const ProtocolDistribution = ({ protocolData: propProtocolData }) => {
+  const [protocolData, setProtocolData] = useState(propProtocolData || []);
   const [callTypeData, setCallTypeData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!propProtocolData);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
   const [viewType, setViewType] = useState('pie');
 
   useEffect(() => {
-    fetchProtocolData();
-  }, []);
+    if (!propProtocolData) {
+      fetchProtocolData();
+    }
+  }, [propProtocolData]);
 
   const fetchProtocolData = async () => {
     setLoading(true);
     setError(null);
-    
     try {
-      // Always use sample data for demo dashboard
-      const sampleProtocols = getChartData('protocols');
-      setProtocolData(sampleProtocols);
-      setCallTypeData([
-        { name: 'Voice Call', count: 45, percentage: 56.3, description: 'Standard voice communications' },
-        { name: 'SMS', count: 23, percentage: 28.7, description: 'Text messaging services' },
-        { name: 'Data', count: 12, percentage: 15.0, description: 'Internet data usage' }
-      ]);
-      setStats({
-        totalRecords: 80,
-        totalProtocols: sampleProtocols.length,
-        dominantProtocol: sampleProtocols[0]?.name || 'HTTP',
-        dominantPercentage: sampleProtocols[0]?.percentage || 0,
-        riskDistribution: {
-          low: sampleProtocols.filter(p => p.riskLevel === 'low').reduce((sum, p) => sum + p.count, 0),
-          medium: sampleProtocols.filter(p => p.riskLevel === 'medium').reduce((sum, p) => sum + p.count, 0),
-          high: sampleProtocols.filter(p => p.riskLevel === 'high').reduce((sum, p) => sum + p.count, 0)
-        },
-        lastUpdated: new Date().toLocaleString()
-      });
+      // TODO: Integrate with real protocol distribution API
+      setProtocolData([]);
+      setCallTypeData([]);
+      setStats(null);
     } catch (err) {
       console.error('Error loading protocol data:', err);
       setError('Unable to load protocol data');

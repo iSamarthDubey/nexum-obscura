@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getSuspiciousActivities } from '../utils/api';
 import { formatRelativeTime, getSuspicionColor } from '../utils/helpers';
-import { getChartData } from '../utils/sampleData';
+// ...existing code...
 
 const SuspiciousActivities = () => {
   const [activities, setActivities] = useState([]);
@@ -17,9 +17,8 @@ const SuspiciousActivities = () => {
       setActivities(data.data?.slice(0, 10) || []);
     } catch (error) {
       console.error('Failed to load suspicious activities:', error);
-      // Use sample data as fallback
-      const sampleData = getChartData('suspicious');
-      setActivities(sampleData);
+  // No sample data fallback; show error or empty state if API fails
+  setActivities([]);
     } finally {
       setLoading(false);
     }

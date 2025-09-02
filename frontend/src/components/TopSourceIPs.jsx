@@ -1,10 +1,10 @@
 import React from 'react';
 import { getRiskLevelColor } from '../utils/helpers';
-import { getChartData } from '../utils/sampleData';
+// ...existing code...
 
 const TopSourceIPs = ({ data }) => {
-  // Use sample data if no data is provided
-  const displayData = data && data.length > 0 ? data : getChartData('topIPs');
+  // Only use provided data
+  const displayData = data && data.length > 0 ? data : [];
   
   if (!displayData || displayData.length === 0) {
     return (

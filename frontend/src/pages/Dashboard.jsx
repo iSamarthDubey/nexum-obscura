@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_URL } from '../utils/api';
-import { getChartData } from '../utils/sampleData';
+// ...existing code...
 import { Link } from 'react-router-dom';
 import StatsCard from '../components/StatsCard';
 import ActivityChart from '../components/ActivityChart';
@@ -57,38 +57,7 @@ const Dashboard = () => {
       console.error('❌ Failed to load dashboard data from API:', error);
       setApiConnected(false);
       
-      // Use sample data instead of empty data for demonstration
-      console.log('🎭 Loading sample data for demonstration...');
-      const sampleStats = getChartData('stats');
-      const sampleActivities = getChartData('suspicious');
-      const sampleHealth = getChartData('health');
-      
-      const sampleData = {
-        overview: {
-          totalRecords: sampleStats.totalConnections,
-          activeConnections: sampleStats.totalConnections,
-          flaggedNumbers: sampleStats.activeThreats,
-          investigationCases: sampleStats.alertsToday,
-          suspiciousPatterns: sampleActivities.length,
-          networkNodes: 8,
-          dataProcessed: sampleStats.dataProcessed,
-          riskScore: 100 - sampleStats.systemHealth
-        },
-        recentActivity: [
-          { time: '08:21', event: 'Potential Data Exfiltration Detected', level: 'critical', source: '172.20.10.2' },
-          { time: '08:19', event: 'Suspicious Port Activity', level: 'warning', source: '10.10.10.50' },
-          { time: '08:17', event: 'Unusual Traffic Volume', level: 'warning', source: '172.16.254.1' },
-          { time: '08:15', event: 'Normal HTTPS Connection', level: 'info', source: '192.168.1.100' }
-        ],
-        activeInvestigations: sampleActivities,
-        networkStats: {
-          totalCells: 25,
-          activeCells: 23,
-          roamingActive: 5,
-          internationalCalls: 12
-        }
-      };
-      setDashboardData(sampleData);
+    // No sample data fallback; dashboard will show error or empty state if API fails
     } finally {
       setLoading(false);
     }
