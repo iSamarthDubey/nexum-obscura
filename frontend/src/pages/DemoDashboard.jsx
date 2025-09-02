@@ -209,7 +209,7 @@ const DemoDashboard = () => {
           {activeTab === 'anomalies' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Anomaly Detection Dashboard</h3>
-              <AnomalyChart />
+              <AnomalyChart data={getChartData('anomalies')} />
             </div>
           )}
           {activeTab === 'logs' && (

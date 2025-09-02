@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
+import OfficerLogin from './pages/OfficerLogin';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import Visualization from './pages/Visualization';
@@ -103,7 +104,39 @@ function Navigation() {
           ))}
         </ul>
       </div>
-      
+
+      {/* Logout Button */}
+
+
+
+      {/* Logout Button above bottom info box */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '1.5rem 0 0 0' }}>
+        <button
+          onClick={() => {
+            localStorage.removeItem('authToken');
+            window.location.href = '/officerlogin';
+          }}
+          style={{
+            width: '80px',
+            padding: '0.35rem',
+            background: 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)',
+            color: '#fff',
+            fontWeight: 'bold',
+            border: 'none',
+            borderRadius: '0.3rem',
+            boxShadow: '0 0 4px #ef4444',
+            cursor: 'pointer',
+            fontFamily: 'JetBrains Mono',
+            fontSize: '0.85rem',
+            letterSpacing: '0.05em',
+            textAlign: 'center',
+            transition: 'background 0.2s'
+          }}
+        >
+          Logout
+        </button>
+      </div>
+
       {/* Fixed Bottom Box */}
       <div style={{ 
         margin: '1rem 1.5rem',
@@ -132,73 +165,89 @@ function Navigation() {
   );
 }
 
+function isAuthenticated() {
+  return !!localStorage.getItem('authToken');
+}
+
+function ProtectedRoute({ children }) {
+  if (!isAuthenticated()) {
+    window.location.href = '/officerlogin';
+    return null;
+  }
+  return children;
+}
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Landing Page Route */}
+        <Route path="/officerlogin" element={<OfficerLogin />} />
         <Route path="/" element={<LandingPage />} />
-        
-        {/* Dashboard Routes with Navigation */}
+        <Route path="/demodashboard" element={<DemoDashboard />} />
         <Route path="/dashboard" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Dashboard />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Dashboard />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
-        
-        {/* Demo Dashboard Route */}
-  <Route path="/demo-dashboard" element={<DemoDashboard />} />
-        
-        {/* Upload Routes with Navigation */}
         <Route path="/upload" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Upload />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Upload />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
         <Route path="/analysis" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Analysis />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Analysis />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
         <Route path="/visualization" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Visualization />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Visualization />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
         <Route path="/reports" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Reports />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Reports />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
       </Routes>
     </Router>
