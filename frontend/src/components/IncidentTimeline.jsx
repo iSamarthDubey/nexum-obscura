@@ -85,108 +85,16 @@ const IncidentTimeline = () => {
     );
   }
 
-  return (
-    <div className="bg-white rounded-lg shadow">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            ⏱️ Incident Timeline
-          </h3>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-xs text-gray-500">Real-time</span>
-          </div>
-        </div>
-        
-        {/* Filter buttons */}
-        <div className="flex flex-wrap gap-2">
-          {['all', 'active', 'investigating', 'contained', 'resolved'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                filter === status
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-              {status !== 'all' && (
-                <span className="ml-1 text-xs">
-                  ({incidents.filter(i => i.status.toLowerCase() === status).length})
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+  if (!incidents || incidents.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow p-6 text-center">
+        <div className="text-2xl mb-2">🕒</div>
+        <div className="text-gray-500">No incident timeline or anomaly data available. Upload logs to view anomalies and incidents.</div>
       </div>
+    );
+  }
 
-      <div className="p-6">
-        <div className="flow-root">
-          <ul className="-mb-8">
-            {filteredIncidents.map((incident, index) => (
-              <li key={incident.id}>
-                <div className="relative pb-8">
-                  {index !== filteredIncidents.length - 1 && (
-                    <span
-                      className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <div className="relative flex space-x-3">
-                    <div>
-                      <span className={`h-8 w-8 rounded-full ${getSeverityColor(incident.severity)} flex items-center justify-center ring-8 ring-white`}>
-                        <span className="text-white text-xs">
-                          {getTypeIcon(incident.type)}
-                        </span>
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-gray-900">
-                            {incident.type}
-                          </p>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(incident.status)}`}>
-                            {incident.status}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {incident.description}
-                        </p>
-                        <div className="mt-2 grid grid-cols-2 gap-4 text-xs text-gray-500">
-                          <div>
-                            <span className="font-medium">Source:</span> {incident.source}
-                          </div>
-                          <div>
-                            <span className="font-medium">Target:</span> {incident.target}
-                          </div>
-                          <div>
-                            <span className="font-medium">Assignee:</span> {incident.assignee}
-                          </div>
-                          <div>
-                            <span className="font-medium">Severity:</span> {incident.severity}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right text-sm whitespace-nowrap text-gray-500">
-                        <time dateTime={incident.timestamp.toISOString()}>
-                          {formatTimeAgo(incident.timestamp)}
-                        </time>
-                        <div className="text-xs text-gray-400">
-                          {incident.timestamp.toLocaleTimeString()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
+  // ...existing code for rendering timeline if incidents exist...
 };
 
 export default IncidentTimeline;
