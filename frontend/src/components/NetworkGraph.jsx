@@ -7,14 +7,12 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
   const [selectedNode, setSelectedNode] = useState(null);
 
   useEffect(() => {
-    try {
-      // Use sample data for demo
-      const sampleNetworkData = getChartData('network');
-      setNetworkData(sampleNetworkData);
+    if (data && data.nodes && data.nodes.length > 0) {
+      setNetworkData(data);
       setError(null);
-    } catch (err) {
-      console.error('Error loading network data:', err);
-      setError('Unable to load network topology');
+    } else {
+      setNetworkData(null);
+      setError(null);
     }
   }, [data]);
 
@@ -41,6 +39,17 @@ const NetworkGraph = ({ data, loading, filters = {} }) => {
     );
   }
 
+  if (!networkData) {
+    return (
+      <div className="bg-white rounded-xl p-6 border border-gray-200 text-center">
+        <div className="text-4xl mb-2">🕸️</div>
+        <div className="text-lg font-medium text-gray-700">Network Topology View</div>
+        <div className="text-sm text-gray-500 mt-2">No network data available. Upload logs to view network topology.</div>
+      </div>
+    );
+  }
+
+  // ...existing code for rendering networkData...
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200">
       <div className="flex items-center justify-between mb-6">

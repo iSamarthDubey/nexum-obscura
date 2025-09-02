@@ -6,79 +6,13 @@ const IncidentTimeline = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadIncidentData();
-    const interval = setInterval(loadIncidentData, 45000); // Update every 45 seconds
-    return () => clearInterval(interval);
+    // TODO: Replace with real API call for incident timeline
+    setIncidents([]);
+    setLoading(false);
   }, []);
-
-  const loadIncidentData = async () => {
-    try {
-      // Simulate incident timeline data
-      const mockIncidents = [
-        {
-          id: 1,
-          timestamp: new Date(Date.now() - 300000), // 5 minutes ago
-          type: 'Intrusion Attempt',
-          severity: 'Critical',
-          source: '203.0.113.45',
-          target: '192.168.1.100',
-          description: 'Multiple failed SSH login attempts detected',
-          status: 'Active',
-          assignee: 'SOC Team Alpha'
-        },
-        {
-          id: 2,
-          timestamp: new Date(Date.now() - 900000), // 15 minutes ago
-          type: 'Malware Detection',
-          severity: 'High',
-          source: 'email-server.company.com',
-          target: '192.168.1.245',
-          description: 'Suspicious executable file quarantined',
-          status: 'Contained',
-          assignee: 'John Smith'
-        },
-        {
-          id: 3,
-          timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
-          type: 'Data Exfiltration',
-          severity: 'High',
-          source: '192.168.1.150',
-          target: '198.51.100.10',
-          description: 'Unusual outbound data transfer detected',
-          status: 'Investigating',
-          assignee: 'Sarah Johnson'
-        },
-        {
-          id: 4,
-          timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-          type: 'Phishing Attempt',
-          severity: 'Medium',
-          source: 'external',
-          target: 'employee@company.com',
-          description: 'Phishing email reported and blocked',
-          status: 'Resolved',
-          assignee: 'Mike Wilson'
-        },
-        {
-          id: 5,
-          timestamp: new Date(Date.now() - 7200000), // 2 hours ago
-          type: 'Vulnerability Scan',
-          severity: 'Low',
-          source: 'security-scanner',
-          target: '192.168.1.0/24',
-          description: 'Scheduled vulnerability assessment completed',
-          status: 'Completed',
-          assignee: 'Automated System'
-        }
-      ];
-
-      setIncidents(mockIncidents);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading incident data:', error);
-      setLoading(false);
-    }
-  };
+  // const loadIncidentData = async () => {
+  //   // This function can be used to fetch real incident data in the future
+  // };
 
   const getSeverityColor = (severity) => {
     switch (severity.toLowerCase()) {
