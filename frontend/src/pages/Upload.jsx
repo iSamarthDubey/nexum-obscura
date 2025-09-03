@@ -400,7 +400,7 @@ const Upload = () => {
 
             <div className="mt-6 flex justify-center space-x-4">
               <Link
-                to="/"
+                to="/dashboard"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
               >
                 View Dashboard
