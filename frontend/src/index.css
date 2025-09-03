@@ -58,6 +58,94 @@ body {
   background: var(--cyber-blue);
 }
 
+/* Cyber utility classes */
+.cyber-gradient {
+  background: linear-gradient(135deg, var(--cyber-blue), var(--cyber-green));
+}
+
+.cyber-text-gradient {
+  background: linear-gradient(135deg, var(--cyber-blue), var(--cyber-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cyber-glow {
+  box-shadow: 0 0 20px rgba(0, 194, 255, 0.3);
+}
+
+.cyber-border-glow {
+  border: 1px solid var(--cyber-border);
+  box-shadow: 0 0 10px rgba(0, 194, 255, 0.1);
+}
+
+.cyber-badge-glow {
+  box-shadow: 
+    0 0 15px rgba(0, 194, 255, 0.4),
+    0 0 30px rgba(0, 194, 255, 0.2),
+    inset 0 0 10px rgba(0, 194, 255, 0.1);
+  border: 1px solid var(--cyber-border);
+  animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 
+      0 0 15px rgba(0, 194, 255, 0.4),
+      0 0 30px rgba(0, 194, 255, 0.2),
+      inset 0 0 10px rgba(0, 194, 255, 0.1);
+  }
+  100% {
+    box-shadow: 
+      0 0 20px rgba(0, 194, 255, 0.6),
+      0 0 40px rgba(0, 194, 255, 0.3),
+      inset 0 0 15px rgba(0, 194, 255, 0.2);
+  }
+}
+
+/* Input focus styles */
+.cyber-input:focus {
+  outline: none;
+  border-color: var(--cyber-blue);
+  box-shadow: 0 0 0 2px rgba(0, 194, 255, 0.2);
+}
+
+/* Button styles */
+.cyber-button {
+  background: linear-gradient(135deg, var(--cyber-blue), var(--cyber-green));
+  transition: all 0.3s ease;
+}
+
+.cyber-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 194, 255, 0.3);
+}
+
+.cyber-bullet-glow {
+  text-shadow: 
+    0 0 5px var(--cyber-green),
+    0 0 10px var(--cyber-green),
+    0 0 15px var(--cyber-green),
+    0 0 20px var(--cyber-green);
+  animation: bullet-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes bullet-pulse {
+  0% {
+    text-shadow: 
+      0 0 5px var(--cyber-green),
+      0 0 10px var(--cyber-green),
+      0 0 15px var(--cyber-green);
+  }
+  100% {
+    text-shadow: 
+      0 0 8px var(--cyber-green),
+      0 0 16px var(--cyber-green),
+      0 0 24px var(--cyber-green),
+      0 0 32px var(--cyber-green);
+  }
+}
+
 /* Cyber glow effects */
 .cyber-glow {
   box-shadow: 0 0 10px rgba(0, 194, 255, 0.3);

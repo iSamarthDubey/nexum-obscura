@@ -54,33 +54,41 @@ const OfficerLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(120,119,198,0.3),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(120,119,198,0.3),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_80%,rgba(14,165,233,0.2),transparent_50%)]" />
+    <div className="min-h-screen relative overflow-hidden" style={{background: `linear-gradient(135deg, var(--cyber-bg) 0%, var(--cyber-surface) 50%, var(--cyber-bg) 100%)`}}>
+      {/* Animated background elements - matching landing page */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 opacity-5 rounded-full blur-3xl animate-pulse" style={{backgroundColor: `var(--cyber-blue)`}}></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 opacity-5 rounded-full blur-3xl animate-pulse delay-1000" style={{backgroundColor: `var(--cyber-green)`}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-3 rounded-full blur-3xl" style={{backgroundColor: `var(--cyber-blue)`}}></div>
+      </div>
+      
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, var(--cyber-blue) 1px, transparent 0)`,
+        backgroundSize: '50px 50px'
+      }}></div>
       
       {/* Navigation Bar */}
-      <nav className="relative z-10 px-6 py-4 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-sm">
+      <nav className="relative z-10 px-6 py-4 border-b backdrop-blur-sm" style={{borderBottomColor: `var(--cyber-border)`, backgroundColor: `var(--cyber-surface)` + '80'}}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="p-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg group-hover:shadow-lg transition-all duration-300">
+            <div className="cyber-gradient p-2 rounded-lg group-hover:shadow-lg transition-all duration-300" style={{boxShadow: `0 4px 15px rgba(0, 194, 255, 0.2)`}}>
               <ShieldCheckIcon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold font-cyber cyber-text-gradient">
                 NEXUM OBSCURA
               </h1>
-              <p className="text-xs text-slate-400 font-mono">Advanced IPDR Investigation Platform</p>
+              <p className="text-xs font-mono-cyber" style={{color: `var(--cyber-text-muted)`}}>Advanced IPDR Investigation Platform</p>
             </div>
           </Link>
 
           {/* Center Tagline - Desktop Only */}
           <div className="hidden lg:block flex-1 text-center mx-8">
-            <p className="text-sm text-slate-300 font-medium tracking-wide">
-              "From Obscurity to Insight" 
-              <span className="text-slate-500 mx-2">•</span>
-              <span className="text-cyan-400">Secure Officer Access Portal</span>
+            <p className="text-sm font-medium tracking-wide font-cyber" style={{color: `var(--cyber-text)`}}>
+              "From Obscurity to Insight"
+              <span className="mx-2 cyber-bullet-glow cyber-text-gradient text-lg font-bold">•</span>
+              <span style={{color: `var(--cyber-bg)`}}>Secure Officer Access Portal</span>
             </p>
           </div>
           
@@ -88,23 +96,24 @@ const OfficerLogin = () => {
           <div className="hidden lg:flex items-center space-x-1">
             <Link 
               to="/" 
-              className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
+              className="px-3 py-2 text-sm font-bold rounded-xl transition-all duration-200 flex items-center space-x-2 border border-transparent"
+              style={{color: `var(--cyber-text)`}}
             >
               <HomeIcon className="w-4 h-4" />
               <span>Home</span>
             </Link>
             
-            <div className="h-4 w-px bg-slate-600 mx-3" />
+            <div className="h-4 w-px mx-3" style={{backgroundColor: `var(--cyber-border)`}} />
             
-            <div className="text-xs text-slate-400 font-mono bg-slate-800/50 px-3 py-1 rounded-full border border-slate-600/30">
-              <span className="text-cyan-400">🛡️</span> National CyberShield Hackathon 2025
+            <div className="text-xs font-mono-cyber px-3 py-1 rounded-full border cyber-badge-glow" style={{color: `var(--cyber-text-muted)`, backgroundColor: `var(--cyber-surface)`, borderColor: `var(--cyber-border)`}}>
+              <span style={{color: `var(--cyber-green)`}}>🛡️</span> National CyberShield Hackathon 2025
             </div>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-slate-400 hover:text-white transition-colors"
+            className="lg:hidden p-2 transition-colors border rounded-lg text-[#8B949E] border-[#21262D] hover:text-[#F0F6FC] hover:bg-[#161B22]"
           >
             {mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
           </button>
@@ -112,13 +121,13 @@ const OfficerLogin = () => {
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4">
+          <div className="lg:hidden absolute top-full left-0 right-0 backdrop-blur-sm border-b px-6 py-4" style={{backgroundColor: `var(--cyber-surface)` + '95', borderBottomColor: `var(--cyber-border)`}}>
             {/* Mobile Welcome Message */}
             <div className="mb-4 text-center">
-              <p className="text-sm text-slate-300 font-medium">
+              <p className="text-sm font-medium font-cyber" style={{color: `var(--cyber-text)`}}>
                 Welcome to NEXUM OBSCURA
               </p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs mt-1 font-mono-cyber" style={{color: `var(--cyber-text-muted)`}}>
                 Secure access to advanced cybersecurity investigation tools
               </p>
             </div>
@@ -126,16 +135,17 @@ const OfficerLogin = () => {
             <div className="flex flex-col space-y-2">
               <Link 
                 to="/" 
-                className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                className="px-3 py-2 text-sm font-bold rounded-xl transition-all duration-200 flex items-center space-x-2 border border-transparent"
+                style={{color: `var(--cyber-text)`}}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <HomeIcon className="w-4 h-4" />
                 <span>Home</span>
               </Link>
               
-              <div className="mt-3 pt-3 border-t border-slate-700/50">
-                <div className="text-xs text-slate-400 font-mono text-center">
-                  <span className="text-cyan-400">🛡️</span> National CyberShield Hackathon 2025
+              <div className="mt-3 pt-3 border-t" style={{borderTopColor: `var(--cyber-border)`}}>
+                <div className="text-xs font-mono-cyber text-center px-3 py-1 rounded-full border cyber-badge-glow inline-block" style={{color: `var(--cyber-text-muted)`, backgroundColor: `var(--cyber-surface)`, borderColor: `var(--cyber-border)`}}>
+                  <span style={{color: `var(--cyber-green)`}}>🛡️</span> National CyberShield Hackathon 2025
                 </div>
               </div>
             </div>
@@ -150,26 +160,26 @@ const OfficerLogin = () => {
           {/* Left Side - Branding & Info */}
           <div className="hidden lg:block space-y-8">
             <div className="space-y-6">
-              <div className="inline-flex items-center space-x-3 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm text-blue-300 font-medium">Secure Officer Portal</span>
+              <div className="inline-flex items-center space-x-3 px-4 py-2 rounded-full border" style={{backgroundColor: `var(--cyber-blue)` + '10', borderColor: `var(--cyber-blue)` + '20'}}>
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{backgroundColor: `var(--cyber-green)`}} />
+                <span className="text-sm font-medium font-cyber" style={{color: `var(--cyber-blue)`}}>Secure Officer Portal</span>
               </div>
               
-              <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
+              <h1 className="text-4xl lg:text-5xl font-bold leading-tight font-cyber" style={{color: `var(--cyber-text)`}}>
                 Welcome to
-                <span className="block bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                <span className="block cyber-text-gradient">
                   NEXUM OBSCURA
                 </span>
               </h1>
               
-              <p className="text-lg text-slate-300 leading-relaxed max-w-md">
+              <p className="text-lg leading-relaxed max-w-md" style={{color: `var(--cyber-text)`}}>
                 Advanced cybersecurity investigation platform for IPDR log analysis, 
                 anomaly detection, and threat intelligence.
               </p>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Platform Features:</h3>
+              <h3 className="text-lg font-semibold font-cyber" style={{color: `var(--cyber-text)`}}>Platform Features:</h3>
               <div className="grid gap-3">
                 {[
                   "Real-time IPDR Log Analysis",
@@ -178,8 +188,8 @@ const OfficerLogin = () => {
                   "Automated Report Generation"
                 ].map((feature, index) => (
                   <div key={index} className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full" />
-                    <span className="text-slate-300">{feature}</span>
+                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: `var(--cyber-blue)`}} />
+                    <span style={{color: `var(--cyber-text)`}}>{feature}</span>
                   </div>
                 ))}
               </div>
@@ -188,27 +198,36 @@ const OfficerLogin = () => {
 
           {/* Right Side - Login Form */}
           <div className="w-full max-w-md mx-auto">
-            <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 shadow-2xl">
+            <div className="backdrop-blur-xl border rounded-2xl p-8 shadow-2xl" style={{backgroundColor: `var(--cyber-surface)` + '50', borderColor: `var(--cyber-border)`}}>
               <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl mb-4">
+                <div className="cyber-gradient inline-flex items-center justify-center w-16 h-16 rounded-xl mb-4">
                   <UserIcon className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Officer Login</h2>
-                <p className="text-slate-400">Access the investigation dashboard</p>
+                <h2 className="text-2xl font-bold mb-2 font-cyber" style={{color: `var(--cyber-text)`}}>Officer Login</h2>
+                <p className="font-medium" style={{color: `var(--cyber-green)`}}>Access the investigation dashboard</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium mb-2" style={{color: `var(--cyber-text)`}}>
                     Officer Username
                   </label>
                   <div className="relative">
-                    <UserIcon className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <UserIcon className="absolute left-3 top-3 w-5 h-5" style={{color: `var(--cyber-text-muted)`}} />
                     <input
                       type="text"
                       value={username}
                       onChange={e => setUsername(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 placeholder-gray-400"
+                      style={{
+                        backgroundColor: `var(--cyber-bg)` + '50',
+                        borderColor: `var(--cyber-border)`,
+                        color: `var(--cyber-text)`,
+                        ':focus': {
+                          ringColor: `var(--cyber-blue)`,
+                          borderColor: 'transparent'
+                        }
+                      }}
                       placeholder="Enter your officer ID"
                       required
                     />
@@ -216,23 +235,33 @@ const OfficerLogin = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <label className="block text-sm font-medium mb-2" style={{color: `var(--cyber-text)`}}>
                     Password
                   </label>
                   <div className="relative">
-                    <LockClosedIcon className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <LockClosedIcon className="absolute left-3 top-3 w-5 h-5" style={{color: `var(--cyber-text-muted)`}} />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-12 py-3 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full pl-10 pr-12 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 placeholder-gray-400"
+                      style={{
+                        backgroundColor: `var(--cyber-bg)` + '50',
+                        borderColor: `var(--cyber-border)`,
+                        color: `var(--cyber-text)`,
+                        ':focus': {
+                          ringColor: `var(--cyber-blue)`,
+                          borderColor: 'transparent'
+                        }
+                      }}
                       placeholder="Enter your password"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-slate-400 hover:text-white transition-colors"
+                      className="absolute right-3 top-3 transition-colors"
+                      style={{color: `var(--cyber-text-muted)`, ':hover': {color: `var(--cyber-text)`}}}
                     >
                       {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                     </button>
@@ -240,15 +269,15 @@ const OfficerLogin = () => {
                 </div>
 
                 {error && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                    <p className="text-red-400 text-sm">{error}</p>
+                  <div className="p-3 border rounded-lg" style={{backgroundColor: `var(--cyber-red)` + '10', borderColor: `var(--cyber-red)` + '20'}}>
+                    <p className="text-sm" style={{color: `var(--cyber-red)`}}>{error}</p>
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  className="cyber-gradient cyber-button w-full py-3 font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-white"
                 >
                   {loading ? "Authenticating..." : "Access Dashboard"}
                 </button>
@@ -260,30 +289,32 @@ const OfficerLogin = () => {
 
       {/* Demo Credentials Panel - Separate floating widget */}
       <div className="fixed bottom-6 right-6 z-20">
-        <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-xl p-4 shadow-2xl max-w-sm">
+        <div className="backdrop-blur-xl border rounded-xl p-4 shadow-2xl max-w-sm" style={{backgroundColor: `var(--cyber-surface)` + '90', borderColor: `var(--cyber-border)`}}>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
-              <ClipboardDocumentIcon className="w-4 h-4 text-cyan-400" />
+            <h3 className="text-sm font-semibold flex items-center space-x-2 font-cyber" style={{color: `var(--cyber-text)`}}>
+              <ClipboardDocumentIcon className="w-4 h-4" style={{color: `var(--cyber-blue)`}} />
               <span>Demo Credentials</span>
             </h3>
           </div>
           
           <div className="space-y-2 text-xs">
-            <div className="flex items-center justify-between p-2 bg-slate-700/50 rounded-lg">
-              <span className="text-slate-300">Username:</span>
+            <div className="flex items-center justify-between p-2 rounded-lg" style={{backgroundColor: `var(--cyber-bg)` + '50'}}>
+              <span style={{color: `var(--cyber-text)`}}>Username:</span>
               <button
                 onClick={() => handleCopy("username")}
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="transition-colors"
+                style={{color: `var(--cyber-blue)`, ':hover': {color: `var(--cyber-blue)` + 'CC'}}}
                 title="Click to copy"
               >
                 {copied === "username" ? "Copied!" : "Copy"}
               </button>
             </div>
-            <div className="flex items-center justify-between p-2 bg-slate-700/50 rounded-lg">
-              <span className="text-slate-300">Password:</span>
+            <div className="flex items-center justify-between p-2 rounded-lg" style={{backgroundColor: `var(--cyber-bg)` + '50'}}>
+              <span style={{color: `var(--cyber-text)`}}>Password:</span>
               <button
                 onClick={() => handleCopy("password")}
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="transition-colors"
+                style={{color: `var(--cyber-blue)`, ':hover': {color: `var(--cyber-blue)` + 'CC'}}}
                 title="Click to copy"
               >
                 {copied === "password" ? "Copied!" : "Copy"}
@@ -293,12 +324,43 @@ const OfficerLogin = () => {
           
           <button
             onClick={handleAutoFill}
-            className="w-full mt-3 py-2 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-400 text-xs font-medium rounded-lg transition-all duration-200 border border-cyan-600/30"
+            className="w-full mt-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 border"
+            style={{
+              backgroundColor: `var(--cyber-blue)` + '20',
+              color: `var(--cyber-blue)`,
+              borderColor: `var(--cyber-blue)` + '30',
+              ':hover': {
+                backgroundColor: `var(--cyber-blue)` + '30'
+              }
+            }}
           >
             Auto-fill Credentials
           </button>
         </div>
       </div>
+
+      {/* Footer with Team and Open Source Info */}
+      <footer className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[var(--cyber-bg)] via-[var(--cyber-surface)] to-[var(--cyber-bg)] border-t border-[var(--cyber-blue)] border-opacity-30 backdrop-blur-sm">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-[var(--cyber-text-muted)]">
+          <div className="mb-2 md:mb-0">
+            <span className="text-[var(--cyber-green)] font-semibold">Nexum Obscura</span> - Open Source Cybersecurity Analytics Platform
+          </div>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-[var(--cyber-blue)]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              <a href="https://github.com/iSamarthDubey/nexum-obscura" 
+                 className="hover:text-[var(--cyber-blue)] transition-colors duration-200">
+                GitHub
+              </a>
+            </div>
+            <div className="text-[var(--cyber-green)]">
+              Team: <span className="font-semibold cyber-text-gradient">Obscura Collective</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
