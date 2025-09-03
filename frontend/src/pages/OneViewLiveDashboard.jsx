@@ -1,9 +1,9 @@
-// DemoDashboard.jsx
-// This file was renamed from VisualizationEnhanced.jsx for clarity
+// OneViewLiveDashboard.jsx
+// Production dashboard with all features of DemoDashboard, but uses real API data
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getChartData } from '../utils/sampleData';
+import { API_URL } from '../utils/api';
 import ProtocolDistribution from '../components/ProtocolDistribution';
 import GeographicMapEnhanced from '../components/GeographicMapEnhanced';
 import NetworkGraph from '../components/NetworkGraph';
@@ -20,36 +20,63 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 
-
-const DemoDashboard = () => {
+const OneViewLiveDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dataStats, setDataStats] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [anomalies, setAnomalies] = useState([]);
+  const [geoData, setGeoData] = useState([]);
+  const [protocols, setProtocols] = useState([]);
+  const [network, setNetwork] = useState(null);
+  const [stats, setStats] = useState({});
 
   useEffect(() => {
     loadDataStats();
   }, []);
 
-  const loadDataStats = () => {
+  const loadDataStats = async () => {
     setRefreshing(true);
-    setTimeout(() => {
-      const stats = getChartData('stats');
-      const logs = getChartData('logs');
-      const anomalies = getChartData('anomalies');
-      const geoData = getChartData('geographic');
-      const protocols = getChartData('protocols');
+    try {
+      // Fetch all required data from API
+      const logsRes = await fetch(`${API_URL}/logs`);
+      const logsData = logsRes.ok ? await logsRes.json() : [];
+      setLogs(logsData);
+
+      const anomaliesRes = await fetch(`${API_URL}/anomalies`);
+      const anomaliesData = anomaliesRes.ok ? await anomaliesRes.json() : [];
+      setAnomalies(anomaliesData);
+
+      const geoRes = await fetch(`${API_URL}/geographic`);
+      const geoDataRes = geoRes.ok ? await geoRes.json() : [];
+      setGeoData(geoDataRes);
+
+      const protocolsRes = await fetch(`${API_URL}/protocols`);
+      const protocolsData = protocolsRes.ok ? await protocolsRes.json() : [];
+      setProtocols(protocolsData);
+
+      const networkRes = await fetch(`${API_URL}/network`);
+      const networkData = networkRes.ok ? await networkRes.json() : null;
+      setNetwork(networkData);
+
+      const statsRes = await fetch(`${API_URL}/stats`);
+      const statsData = statsRes.ok ? await statsRes.json() : {};
+      setStats(statsData);
+
       setDataStats({
-        totalLogs: logs.length,
-        timeRange: '7 days',
-        locationsCount: geoData.length,
-        protocolsCount: protocols.length,
-        anomaliesCount: anomalies.length,
-        suspiciousPercentage: ((logs.filter(l => l.suspicious).length / logs.length) * 100).toFixed(1),
-        dataVolume: stats.dataProcessed,
+        totalLogs: logsData.length,
+        timeRange: statsData.timeRange || 'N/A',
+        locationsCount: geoDataRes.length,
+        protocolsCount: protocolsData.length,
+        anomaliesCount: anomaliesData.length,
+        suspiciousPercentage: logsData.length ? ((logsData.filter(l => l.suspicious).length / logsData.length) * 100).toFixed(1) : 0,
+        dataVolume: statsData.dataProcessed || 'N/A',
         lastUpdated: new Date().toLocaleString()
       });
-      setRefreshing(false);
-    }, 1000);
+    } catch (err) {
+      setDataStats(null);
+    }
+    setRefreshing(false);
   };
 
   const tabs = [
@@ -69,9 +96,9 @@ const DemoDashboard = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Demo Dashboard : 500+ Sample Dataset</h1>
+              <h1 className="text-3xl font-bold text-gray-900">OneView Live Dashboard : Unified Production Data</h1>
               <p className="text-gray-600 mt-2">
-                Comprehensive analysis of {dataStats?.totalLogs || '500+'} IPDR entries from {dataStats?.timeRange || '7 days'}
+                Comprehensive analysis of {dataStats?.totalLogs || 'N/A'} IPDR entries from {dataStats?.timeRange || 'N/A'}
               </p>
             </div>
             <div className="flex space-x-4">
@@ -149,25 +176,25 @@ const DemoDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white rounded-lg shadow border p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Traffic Activity Over Time</h3>
-                <ActivityChart />
+                <ActivityChart data={stats.activityTimeline || []} />
               </div>
               <div className="bg-white rounded-lg shadow border p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Protocol Distribution</h3>
-                <ProtocolDistribution protocolData={getChartData('protocols')} />
+                <ProtocolDistribution data={protocols} />
               </div>
               <div className="bg-white rounded-lg shadow border p-6 lg:col-span-2">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Sample Data Insights</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Production Data Insights</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 bg-blue-50 rounded-lg">
                     <h4 className="font-medium text-blue-900">Geographic Coverage</h4>
                     <p className="text-sm text-blue-700 mt-1">
-                      Data spans across 20+ Indian cities including Mumbai, Delhi, Bangalore, and Chennai
+                      Data spans across {dataStats?.locationsCount || 'N/A'} locations
                     </p>
                   </div>
                   <div className="p-4 bg-green-50 rounded-lg">
                     <h4 className="font-medium text-green-900">Threat Detection</h4>
                     <p className="text-sm text-green-700 mt-1">
-                      15% of traffic shows suspicious patterns including DDoS, malware, and data exfiltration
+                      {dataStats?.suspiciousPercentage || 'N/A'}% of traffic shows suspicious patterns
                     </p>
                   </div>
                   <div className="p-4 bg-purple-50 rounded-lg">
@@ -183,53 +210,53 @@ const DemoDashboard = () => {
           {activeTab === 'protocols' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Protocol Analysis Dashboard</h3>
-              <ProtocolDistribution protocolData={getChartData('protocols')} />
+              <ProtocolDistribution data={protocols} />
             </div>
           )}
           {activeTab === 'geographic' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Geographic Distribution Analysis</h3>
-              <GeographicMapEnhanced />
+              <GeographicMapEnhanced data={geoData} />
             </div>
           )}
           {activeTab === 'network' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Network Topology Visualization</h3>
               <div className="h-96">
-                <NetworkGraph data={getChartData('network')} />
+                <NetworkGraph data={network} />
               </div>
             </div>
           )}
           {activeTab === 'timeline' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Activity Timeline Analysis</h3>
-              <ActivityChart />
+              <ActivityChart data={stats.activityTimeline || []} />
             </div>
           )}
           {activeTab === 'anomalies' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Anomaly Detection Dashboard</h3>
-              <AnomalyChart data={getChartData('anomalies')} />
+              <AnomalyChart data={anomalies} />
             </div>
           )}
           {activeTab === 'logs' && (
             <div className="bg-white rounded-lg shadow border p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Raw IPDR Data Logs</h3>
               <div className="text-sm text-gray-600 mb-4">
-                Showing latest entries from the comprehensive 500+ record dataset
+                Showing latest entries from the production dataset
               </div>
-              <LogTable logs={getChartData('logs').slice(0, 50)} />
+              <LogTable logs={logs.slice(0, 50)} />
             </div>
           )}
         </div>
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Demo dataset contains {dataStats?.totalLogs || '500+'} synthetic IPDR records • Last updated: {dataStats?.lastUpdated || 'Loading...'}</p>
-          <p className="mt-1">Data includes realistic cybersecurity patterns for demonstration purposes</p>
+          <p>Production dataset contains {dataStats?.totalLogs || 'N/A'} IPDR records • Last updated: {dataStats?.lastUpdated || 'Loading...'}</p>
+          <p className="mt-1">Data includes real cybersecurity patterns for investigation purposes</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default DemoDashboard;
+export default OneViewLiveDashboard;
