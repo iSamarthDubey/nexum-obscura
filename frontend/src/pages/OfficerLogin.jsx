@@ -5,14 +5,9 @@ import {
   EyeSlashIcon, 
   ClipboardDocumentIcon,
   ShieldCheckIcon,
-  ComputerDesktopIcon,
   UserIcon,
   LockClosedIcon,
   HomeIcon,
-  DocumentTextIcon,
-  InformationCircleIcon,
-  PhoneIcon,
-  BookOpenIcon,
   Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
@@ -79,6 +74,15 @@ const OfficerLogin = () => {
               <p className="text-xs text-slate-400 font-mono">Advanced IPDR Investigation Platform</p>
             </div>
           </Link>
+
+          {/* Center Tagline - Desktop Only */}
+          <div className="hidden lg:block flex-1 text-center mx-8">
+            <p className="text-sm text-slate-300 font-medium tracking-wide">
+              "From Obscurity to Insight" 
+              <span className="text-slate-500 mx-2">•</span>
+              <span className="text-cyan-400">Secure Officer Access Portal</span>
+            </p>
+          </div>
           
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
@@ -89,38 +93,6 @@ const OfficerLogin = () => {
               <HomeIcon className="w-4 h-4" />
               <span>Home</span>
             </Link>
-            
-            <Link 
-              to="/demo-dashboard" 
-              className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-            >
-              <ComputerDesktopIcon className="w-4 h-4" />
-              <span>Demo</span>
-            </Link>
-            
-            <a 
-              href="#docs" 
-              className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-            >
-              <BookOpenIcon className="w-4 h-4" />
-              <span>Docs</span>
-            </a>
-            
-            <a 
-              href="#about" 
-              className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-            >
-              <InformationCircleIcon className="w-4 h-4" />
-              <span>About</span>
-            </a>
-            
-            <a 
-              href="#contact" 
-              className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-            >
-              <PhoneIcon className="w-4 h-4" />
-              <span>Contact</span>
-            </a>
             
             <div className="h-4 w-px bg-slate-600 mx-3" />
             
@@ -141,6 +113,16 @@ const OfficerLogin = () => {
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4">
+            {/* Mobile Welcome Message */}
+            <div className="mb-4 text-center">
+              <p className="text-sm text-slate-300 font-medium">
+                Welcome to NEXUM OBSCURA
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                Secure access to advanced cybersecurity investigation tools
+              </p>
+            </div>
+            
             <div className="flex flex-col space-y-2">
               <Link 
                 to="/" 
@@ -150,42 +132,6 @@ const OfficerLogin = () => {
                 <HomeIcon className="w-4 h-4" />
                 <span>Home</span>
               </Link>
-              
-              <Link 
-                to="/demo-dashboard" 
-                className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <ComputerDesktopIcon className="w-4 h-4" />
-                <span>Demo Dashboard</span>
-              </Link>
-              
-              <a 
-                href="#docs" 
-                className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <BookOpenIcon className="w-4 h-4" />
-                <span>Documentation</span>
-              </a>
-              
-              <a 
-                href="#about" 
-                className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <InformationCircleIcon className="w-4 h-4" />
-                <span>About Platform</span>
-              </a>
-              
-              <a 
-                href="#contact" 
-                className="px-3 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200 flex items-center space-x-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <PhoneIcon className="w-4 h-4" />
-                <span>Contact Support</span>
-              </a>
               
               <div className="mt-3 pt-3 border-t border-slate-700/50">
                 <div className="text-xs text-slate-400 font-mono text-center">
