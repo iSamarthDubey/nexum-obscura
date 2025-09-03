@@ -2,28 +2,24 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 const AnomalyChart = ({ data, type = 'timeline' }) => {
-  // Only use mock data if data prop is truly undefined
-  let chartData;
-  if (typeof data !== 'undefined') {
-    chartData = data;
-  } else {
-    // Fallback for development/demo only
-    const mockTimelineData = [
-      { time: '00:00', anomalies: 2 },
-      { time: '04:00', anomalies: 1 },
-      { time: '08:00', anomalies: 5 },
-      { time: '12:00', anomalies: 8 },
-      { time: '16:00', anomalies: 12 },
-      { time: '20:00', anomalies: 6 }
-    ];
-    const mockTypeData = [
-      { type: 'Volume', count: 15, severity: 'High' },
-      { type: 'Pattern', count: 8, severity: 'Medium' },
-      { type: 'Duration', count: 23, severity: 'Critical' },
-      { type: 'Location', count: 5, severity: 'Low' }
-    ];
-    chartData = type === 'timeline' ? mockTimelineData : mockTypeData;
-  }
+  // Generate mock data if no data provided
+  const mockTimelineData = [
+    { time: '00:00', anomalies: 2 },
+    { time: '04:00', anomalies: 1 },
+    { time: '08:00', anomalies: 5 },
+    { time: '12:00', anomalies: 8 },
+    { time: '16:00', anomalies: 12 },
+    { time: '20:00', anomalies: 6 }
+  ];
+
+  const mockTypeData = [
+    { type: 'Volume', count: 15, severity: 'High' },
+    { type: 'Pattern', count: 8, severity: 'Medium' },
+    { type: 'Duration', count: 23, severity: 'Critical' },
+    { type: 'Location', count: 5, severity: 'Low' }
+  ];
+
+  const chartData = data || (type === 'timeline' ? mockTimelineData : mockTypeData);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
