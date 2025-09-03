@@ -153,19 +153,6 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
     }
   };
 
-  // Delete all uploaded files and logs
-  const deleteAllLogs = async () => {
-    if (!confirm('Are you sure you want to delete ALL log files and entries? This action cannot be undone.')) {
-      return;
-    }
-    for (const file of uploadedFiles) {
-      await deleteFile(file.filename);
-    }
-    alert('All log files and entries have been deleted.');
-    await loadUploadedFiles();
-    loadLogs(1, '', '');
-  };
-
   const applyLocalFilters = (logs) => {
     let filteredLogs = logs;
 
@@ -293,26 +280,15 @@ const LogsTable = ({ logEntries = [], totalEntries = 0 }) => {
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <div className="flex items-center gap-4">
-          <h3 className="text-lg font-medium text-white mb-4 sm:mb-0">
-            IPDR Log Entries
-            {pagination.totalEntries && (
-              <span className="text-sm text-gray-400 ml-2">
-                ({pagination.totalEntries.toLocaleString()} total)
-              </span>
-            )}
-          </h3>
-          {uploadedFiles.length > 0 && (
-            <button
-              type="button"
-              onClick={deleteAllLogs}
-              className="px-4 py-2 bg-red-700 text-white rounded text-sm font-bold hover:bg-red-800 transition-colors border border-red-900"
-              title="Delete ALL log files and entries"
-            >
-              Delete All Logs
-            </button>
+        <h3 className="text-lg font-medium text-white mb-4 sm:mb-0">
+          IPDR Log Entries
+          {pagination.totalEntries && (
+            <span className="text-sm text-gray-400 ml-2">
+              ({pagination.totalEntries.toLocaleString()} total)
+            </span>
           )}
-        </div>
+        </h3>
+        
         <form onSubmit={handleSearchSubmit} className="flex flex-col gap-2">
           <div className="flex gap-2 flex-wrap">
             <input

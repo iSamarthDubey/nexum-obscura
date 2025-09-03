@@ -28,9 +28,6 @@ try {
   console.error('✗ Search route failed:', error.message);
 }
 
-const { router: authRouter } = require('./routes/auth');
-app.use('/api', authRouter);
-
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
