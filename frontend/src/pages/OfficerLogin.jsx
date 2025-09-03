@@ -218,11 +218,11 @@ const OfficerLogin = () => {
                       type="text"
                       value={username}
                       onChange={e => setUsername(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 placeholder-gray-400"
+                      className="w-full pl-10 pr-4 py-3 border rounded-md transition-all duration-200 focus:outline-none focus:ring-2 placeholder-gray-400"
                       style={{
-                        backgroundColor: `var(--cyber-bg)` + '50',
+                        backgroundColor: 'white',
                         borderColor: `var(--cyber-border)`,
-                        color: `var(--cyber-text)`,
+                        color: 'black',
                         ':focus': {
                           ringColor: `var(--cyber-blue)`,
                           borderColor: 'transparent'
@@ -244,11 +244,11 @@ const OfficerLogin = () => {
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-12 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 placeholder-gray-400"
+                      className="w-full pl-10 pr-12 py-3 border rounded-md transition-all duration-200 focus:outline-none focus:ring-2 placeholder-gray-400"
                       style={{
-                        backgroundColor: `var(--cyber-bg)` + '50',
+                        backgroundColor: 'white',
                         borderColor: `var(--cyber-border)`,
-                        color: `var(--cyber-text)`,
+                        color: 'black',
                         ':focus': {
                           ringColor: `var(--cyber-blue)`,
                           borderColor: 'transparent'
