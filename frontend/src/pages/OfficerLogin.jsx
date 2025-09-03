@@ -23,6 +23,13 @@ const OfficerLogin = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(true); // Default to open on mobile
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [boxSize, setBoxSize] = useState({ width: 280, height: 'auto' });
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeOffset, setResizeOffset] = useState({ x: 0, y: 0 });
+  const [originalSize] = useState({ width: 280, height: 'auto' });
 
   const handleCopy = (type) => {
     const value = type === "username" ? DEMO_USERNAME : DEMO_PASSWORD;
@@ -35,6 +42,119 @@ const OfficerLogin = () => {
     setUsername(DEMO_USERNAME);
     setPassword(DEMO_PASSWORD);
   };
+
+  // Drag handlers for credentials box
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
+  const handleTouchStart = (e) => {
+    setIsDragging(true);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const touch = e.touches[0];
+    setDragOffset({
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top
+    });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    
+    setDragPosition({
+      x: e.clientX - dragOffset.x,
+      y: e.clientY - dragOffset.y
+    });
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+    
+    const touch = e.touches[0];
+    setDragPosition({
+      x: touch.clientX - dragOffset.x,
+      y: touch.clientY - dragOffset.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Resize handlers
+  const handleResizeStart = (e) => {
+    e.stopPropagation(); // Prevent dragging when resizing
+    setIsResizing(true);
+    setResizeOffset({
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
+
+  const handleResizeMove = (e) => {
+    if (!isResizing) return;
+    
+    const deltaX = e.clientX - resizeOffset.x;
+    const deltaY = e.clientY - resizeOffset.y;
+    
+    setBoxSize(prev => ({
+      width: Math.max(240, prev.width + deltaX),
+      height: prev.height === 'auto' ? 'auto' : Math.max(180, prev.height + deltaY)
+    }));
+    
+    setResizeOffset({
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
+
+  const handleResizeEnd = () => {
+    setIsResizing(false);
+  };
+
+  const handleReset = () => {
+    setBoxSize(originalSize);
+    setDragPosition({ x: 0, y: 0 });
+  };
+
+  // Add event listeners for mouse and touch events
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleTouchEnd);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [isDragging, dragOffset]);
+
+  // Add event listeners for resize events
+  React.useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleResizeMove);
+        document.removeEventListener('mouseup', handleResizeEnd);
+      };
+    }
+  }, [isResizing, resizeOffset]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -289,14 +409,46 @@ const OfficerLogin = () => {
         </div>
       </div>
 
-      {/* Demo Credentials Panel - Separate floating widget */}
-      <div className="fixed bottom-32 right-6 z-20">
-        <div className="backdrop-blur-xl border rounded-xl p-5 shadow-2xl max-w-sm" style={{backgroundColor: `var(--cyber-surface)` + '90', borderColor: `var(--cyber-border)`}}>
+      {/* Demo Credentials Panel - Draggable and Resizable floating widget */}
+      <div 
+        className={`fixed z-20 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{
+          left: dragPosition.x || 'auto',
+          top: dragPosition.y || 'auto',
+          right: dragPosition.x ? 'auto' : '1.5rem',
+          bottom: dragPosition.y ? 'auto' : '8rem',
+          width: boxSize.width,
+          height: boxSize.height,
+          minWidth: '240px',
+          minHeight: '180px'
+        }}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+      >
+        <div className="backdrop-blur-xl border rounded-xl p-5 shadow-2xl h-full select-none touch-none relative" style={{backgroundColor: `var(--cyber-surface)` + '90', borderColor: `var(--cyber-border)`}}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold flex items-center space-x-2 font-cyber" style={{color: `var(--cyber-text)`}}>
-              <ClipboardDocumentIcon className="w-4 h-4" style={{color: `var(--cyber-blue)`}} />
+              <ClipboardDocumentIcon className="w-4 h-4" style={{color: `white`}} />
               <span>Demo Credentials</span>
             </h3>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleReset}
+                className="px-2 py-1 text-xs rounded border transition-all duration-200 hover:scale-105"
+                style={{
+                  backgroundColor: `var(--cyber-green)` + '20',
+                  borderColor: `var(--cyber-green)` + '40',
+                  color: `var(--cyber-green)`
+                }}
+                title="Reset size and position"
+              >
+                Reset
+              </button>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                <div className="text-xs" style={{color: `var(--cyber-text-muted)`}}>Drag me!</div>
+              </div>
+            </div>
           </div>
           
           <div className="space-y-2 text-xs">
@@ -305,7 +457,7 @@ const OfficerLogin = () => {
               <button
                 onClick={() => handleCopy("username")}
                 className="transition-colors"
-                style={{color: `var(--cyber-blue)`, ':hover': {color: `var(--cyber-blue)` + 'CC'}}}
+                style={{color: `white`, ':hover': {color: `rgba(255, 255, 255, 0.8)`}}}
                 title="Click to copy"
               >
                 {copied === "username" ? "Copied!" : "Copy"}
@@ -316,7 +468,7 @@ const OfficerLogin = () => {
               <button
                 onClick={() => handleCopy("password")}
                 className="transition-colors"
-                style={{color: `var(--cyber-blue)`, ':hover': {color: `var(--cyber-blue)` + 'CC'}}}
+                style={{color: `white`, ':hover': {color: `rgba(255, 255, 255, 0.8)`}}}
                 title="Click to copy"
               >
                 {copied === "password" ? "Copied!" : "Copy"}
@@ -328,16 +480,27 @@ const OfficerLogin = () => {
             onClick={handleAutoFill}
             className="w-full mt-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 border"
             style={{
-              backgroundColor: `var(--cyber-blue)` + '20',
-              color: `var(--cyber-blue)`,
-              borderColor: `var(--cyber-blue)` + '30',
+              backgroundColor: `rgba(255, 255, 255, 0.1)`,
+              color: `white`,
+              borderColor: `rgba(255, 255, 255, 0.3)`,
               ':hover': {
-                backgroundColor: `var(--cyber-blue)` + '30'
+                backgroundColor: `rgba(255, 255, 255, 0.2)`
               }
             }}
           >
             Auto-fill Credentials
           </button>
+          
+          {/* Resize handle */}
+          <div
+            className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-50 hover:opacity-100 transition-opacity"
+            onMouseDown={handleResizeStart}
+            style={{
+              background: `linear-gradient(135deg, transparent 0%, white 50%, transparent 100%)`,
+              clipPath: 'polygon(100% 0%, 0% 100%, 100% 100%)'
+            }}
+            title="Drag to resize"
+          ></div>
         </div>
       </div>
 
@@ -371,7 +534,7 @@ const OfficerLogin = () => {
                 <a href="https://github.com/iSamarthDubey/nexum-obscura" 
                    className="transition-all duration-300 font-medium group-hover:text-[var(--cyber-blue)]" 
                    style={{color: `var(--cyber-text)`}}>
-                  Open Source
+                  View Open Source
                 </a>
               </div>
               <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-20 transition-all duration-300" style={{backgroundColor: `var(--cyber-blue)`, filter: 'blur(8px)', zIndex: -1}}></div>
