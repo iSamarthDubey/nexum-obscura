@@ -88,7 +88,7 @@ const OfficerLogin = () => {
             <p className="text-sm font-medium tracking-wide font-cyber" style={{color: `var(--cyber-text)`}}>
               "From Obscurity to Insight"
               <span className="mx-2 cyber-bullet-glow cyber-text-gradient text-lg font-bold">•</span>
-              <span style={{color: `var(--cyber-bg)`}}>Secure Officer Access Portal</span>
+              <span style={{color: `var(--cyber-green)`}}>Secure Officer Access Portal</span>
             </p>
           </div>
           
@@ -113,7 +113,12 @@ const OfficerLogin = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 transition-colors border rounded-lg text-[#8B949E] border-[#21262D] hover:text-[#F0F6FC] hover:bg-[#161B22]"
+            className="lg:hidden p-2 transition-all duration-300 border rounded-lg hover:scale-105"
+            style={{
+              color: `var(--cyber-blue)`,
+              borderColor: `var(--cyber-border)`,
+              backgroundColor: `var(--cyber-surface)`,
+            }}
           >
             {mobileMenuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
           </button>
@@ -121,31 +126,33 @@ const OfficerLogin = () => {
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 backdrop-blur-sm border-b px-6 py-4" style={{backgroundColor: `var(--cyber-surface)` + '95', borderBottomColor: `var(--cyber-border)`}}>
+          <div className="lg:hidden absolute top-full left-0 right-0 backdrop-blur-xl border-b border-[var(--cyber-border)] bg-gradient-to-r from-[var(--cyber-bg)] via-[var(--cyber-surface)] to-[var(--cyber-bg)] px-6 py-4 shadow-xl">
             {/* Mobile Welcome Message */}
             <div className="mb-4 text-center">
-              <p className="text-sm font-medium font-cyber" style={{color: `var(--cyber-text)`}}>
+              <p className="text-sm font-semibold font-cyber" style={{color: `var(--cyber-blue)`}}>
                 Welcome to NEXUM OBSCURA
               </p>
               <p className="text-xs mt-1 font-mono-cyber" style={{color: `var(--cyber-text-muted)`}}>
-                Secure access to advanced cybersecurity investigation tools
+                • Access the investigation dashboard
               </p>
             </div>
             
-            <div className="flex flex-col space-y-2">
+            {/* Navigation items side by side */}
+            <div className="flex items-center justify-between gap-4">
               <Link 
                 to="/" 
-                className="px-3 py-2 text-sm font-bold rounded-xl transition-all duration-200 flex items-center space-x-2 border border-transparent"
-                style={{color: `var(--cyber-text)`}}
+                className="flex-1 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 border border-[var(--cyber-blue)] bg-[var(--cyber-blue)] bg-opacity-10 hover:bg-opacity-20 hover:scale-105"
+                style={{color: `var(--cyber-blue)`}}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <HomeIcon className="w-4 h-4" />
+                <HomeIcon className="w-5 h-5" />
                 <span>Home</span>
               </Link>
               
-              <div className="mt-3 pt-3 border-t" style={{borderTopColor: `var(--cyber-border)`}}>
-                <div className="text-xs font-mono-cyber text-center px-3 py-1 rounded-full border cyber-badge-glow inline-block" style={{color: `var(--cyber-text-muted)`, backgroundColor: `var(--cyber-surface)`, borderColor: `var(--cyber-border)`}}>
-                  <span style={{color: `var(--cyber-green)`}}>🛡️</span> National CyberShield Hackathon 2025
+              <div className="flex-1 text-center">
+                <div className="text-xs font-mono-cyber px-3 py-2 rounded-xl border border-[var(--cyber-green)] bg-[var(--cyber-green)] bg-opacity-10 cyber-badge-glow inline-flex items-center justify-center space-x-1" style={{color: `var(--cyber-green)`}}>
+                  <span className="text-base">🛡️</span>
+                  <span className="font-semibold">CyberShield 2025</span>
                 </div>
               </div>
             </div>
@@ -154,10 +161,29 @@ const OfficerLogin = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+      <div className="relative z-10 min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           
-          {/* Left Side - Branding & Info */}
+          {/* Mobile Header - Only visible on mobile */}
+          <div className="lg:hidden text-center space-y-4 mb-8">
+            <div className="inline-flex items-center space-x-3 px-4 py-2 rounded-full border" style={{backgroundColor: `var(--cyber-blue)` + '10', borderColor: `var(--cyber-blue)` + '30'}}>
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{backgroundColor: `var(--cyber-green)`}} />
+              <span className="text-sm font-medium font-cyber" style={{color: `var(--cyber-blue)`}}>Secure Officer Portal</span>
+            </div>
+            
+            <h1 className="text-3xl font-bold leading-tight font-cyber" style={{color: `var(--cyber-text)`}}>
+              Welcome to
+              <span className="block cyber-text-gradient mt-1">
+                NEXUM OBSCURA
+              </span>
+            </h1>
+            
+            <p className="text-base leading-relaxed max-w-sm mx-auto" style={{color: `var(--cyber-text-muted)`}}>
+              Advanced cybersecurity investigation platform for IPDR log analysis and threat intelligence.
+            </p>
+          </div>
+          
+          {/* Left Side - Branding & Info - Desktop Only */}
           <div className="hidden lg:block space-y-8">
             <div className="space-y-6">
               <div className="inline-flex items-center space-x-3 px-4 py-2 rounded-full border" style={{backgroundColor: `var(--cyber-blue)` + '10', borderColor: `var(--cyber-blue)` + '20'}}>
@@ -196,15 +222,15 @@ const OfficerLogin = () => {
             </div>
           </div>
 
-          {/* Right Side - Login Form */}
+          {/* Login Form */}
           <div className="w-full max-w-md mx-auto">
-            <div className="backdrop-blur-xl border rounded-2xl p-8 shadow-2xl" style={{backgroundColor: `var(--cyber-surface)` + '50', borderColor: `var(--cyber-border)`}}>
-              <div className="text-center mb-8">
-                <div className="cyber-gradient inline-flex items-center justify-center w-16 h-16 rounded-xl mb-4">
-                  <UserIcon className="w-8 h-8 text-white" />
+            <div className="backdrop-blur-xl border rounded-2xl p-6 sm:p-8 shadow-2xl" style={{backgroundColor: `var(--cyber-surface)` + '80', borderColor: `var(--cyber-border)`}}>
+              <div className="text-center mb-6 sm:mb-8">
+                <div className="cyber-gradient inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl mb-4">
+                  <UserIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold mb-2 font-cyber" style={{color: `var(--cyber-text)`}}>Officer Login</h2>
-                <p className="font-medium" style={{color: `var(--cyber-green)`}}>Access the investigation dashboard</p>
+                <h2 className="text-xl sm:text-2xl font-bold mb-2 font-cyber" style={{color: `var(--cyber-text)`}}>Officer Login</h2>
+                <p className="text-sm sm:text-base font-medium" style={{color: `var(--cyber-green)`}}>Access the investigation dashboard</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -288,8 +314,8 @@ const OfficerLogin = () => {
       </div>
 
       {/* Demo Credentials Panel - Separate floating widget */}
-      <div className="fixed bottom-6 right-6 z-20">
-        <div className="backdrop-blur-xl border rounded-xl p-4 shadow-2xl max-w-sm" style={{backgroundColor: `var(--cyber-surface)` + '90', borderColor: `var(--cyber-border)`}}>
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-20">
+        <div className="backdrop-blur-xl border rounded-xl p-3 sm:p-4 shadow-2xl max-w-xs sm:max-w-sm" style={{backgroundColor: `var(--cyber-surface)` + '90', borderColor: `var(--cyber-border)`}}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold flex items-center space-x-2 font-cyber" style={{color: `var(--cyber-text)`}}>
               <ClipboardDocumentIcon className="w-4 h-4" style={{color: `var(--cyber-blue)`}} />
@@ -341,8 +367,8 @@ const OfficerLogin = () => {
 
       {/* Footer with Team and Open Source Info */}
       <footer className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[var(--cyber-bg)] via-[var(--cyber-surface)] to-[var(--cyber-bg)] border-t border-[var(--cyber-blue)] border-opacity-30 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-[var(--cyber-text-muted)]">
-          <div className="mb-2 md:mb-0">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs sm:text-sm text-[var(--cyber-text-muted)] p-3 sm:p-4">
+          <div className="mb-2 md:mb-0 text-center md:text-left">
             <span className="text-[var(--cyber-green)] font-semibold">Nexum Obscura</span> - Open Source Cybersecurity Analytics Platform
           </div>
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
