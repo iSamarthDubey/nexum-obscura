@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
+import OfficerLogin from './pages/OfficerLogin';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import Visualization from './pages/Visualization';
@@ -15,39 +16,39 @@ function Navigation() {
   const location = useLocation();
 
   const navItems = [
-    { 
-      path: '/', 
-      label: 'Home', 
-      icon: '🏠',
-      description: 'Home Page'
+    {
+      path: '/oneviewlive',
+      label: 'OneView - Unified',
+      icon: '🚀',
+      description: 'Live Unified Dashboard'
     },
-    { 
-      path: '/dashboard', 
-      label: 'Dashboard', 
+    {
+      path: '/dashboard',
+      label: 'Dashboard',
       icon: '📊',
       description: 'Investigation Overview'
     },
-    { 
-      path: '/upload', 
-      label: 'Upload IPDR', 
+    {
+      path: '/upload',
+      label: 'Upload IPDR',
       icon: '📤',
       description: 'Import Log Files'
     },
-    { 
-      path: '/analysis', 
-      label: 'Analysis', 
+    {
+      path: '/analysis',
+      label: 'Analysis',
       icon: '🔍',
       description: 'Data Investigation'
     },
-    { 
-      path: '/visualization', 
-      label: 'Network Map', 
+    {
+      path: '/visualization',
+      label: 'Network Map',
       icon: '🌐',
       description: 'Connection Visualization'
     },
-    { 
-      path: '/reports', 
-      label: 'Reports', 
+    {
+      path: '/reports',
+      label: 'Reports',
       icon: '📋',
       description: 'Generate Evidence'
     }
@@ -79,31 +80,115 @@ function Navigation() {
         padding: '1rem 0'
       }}>
         <ul className="nav-menu">
-          {navItems.map((item) => (
-            <li key={item.path} className="nav-item">
-              <NavLink 
-                to={item.path} 
-                className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
-              >
-                <span className="nav-icon" style={{ fontSize: '1.25rem' }}>
-                  {item.icon}
-                </span>
-                <div>
-                  <div style={{ fontWeight: '500' }}>{item.label}</div>
-                  <div style={{ 
-                    fontSize: '0.75rem', 
-                    color: 'var(--cyber-text-muted)',
-                    marginTop: '0.125rem'
-                  }}>
-                    {item.description}
+          {navItems.map((item, idx) => {
+            const isActive = location.pathname === item.path;
+            // Unique hover effect for OneView
+            const navLinkStyle = (item.path === '/oneviewlive')
+              ? {
+                  position: 'relative',
+                  transition: 'box-shadow 0.2s, background 0.2s',
+                }
+              : {};
+            return (
+              <li key={item.path} className="nav-item">
+                <NavLink 
+                  to={item.path} 
+                  className={`nav-link ${isActive ? 'active' : ''}`}
+                  style={navLinkStyle}
+                  onMouseEnter={e => {
+                    if (item.path === '/oneviewlive') {
+                      e.currentTarget.style.boxShadow = '0 0 12px 2px #00fff7';
+                      e.currentTarget.style.background = 'rgba(0,255,255,0.13)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (item.path === '/oneviewlive') {
+                      e.currentTarget.style.boxShadow = '';
+                      e.currentTarget.style.background = '';
+                    }
+                  }}
+                >
+                  <span className="nav-icon" style={{ fontSize: '1.25rem' }}>
+                    {item.icon}
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: '500' }}>{item.label}</div>
+                    <div style={{ 
+                      fontSize: '0.75rem', 
+                      color: 'var(--cyber-text-muted)',
+                      marginTop: '0.125rem'
+                    }}>
+                      {item.description}
+                    </div>
                   </div>
-                </div>
-              </NavLink>
-            </li>
-          ))}
+                </NavLink>
+              </li>
+            );
+          })}
         </ul>
       </div>
-      
+
+      {/* Logout Button */}
+
+
+
+      {/* Home and Logout Buttons above bottom info box */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.75rem', margin: '1.5rem 0 0 0' }}>
+        <button
+          onClick={() => { window.location.href = '/'; }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35em',
+            minWidth: '70px',
+            padding: '0.18rem 0.55rem',
+            background: 'linear-gradient(90deg, #6366f1 0%, #0ea5e9 100%)',
+            color: '#fff',
+            fontWeight: '500',
+            border: 'none',
+            borderRadius: '0.13rem',
+            boxShadow: '0 0 2px #6366f1',
+            cursor: 'pointer',
+            fontFamily: 'JetBrains Mono',
+            fontSize: '0.78rem',
+            letterSpacing: '0.02em',
+            textAlign: 'center',
+            transition: 'background 0.2s'
+          }}
+        >
+          <span style={{ fontSize: '1em' }}>🏠</span>
+          <span>Home</span>
+        </button>
+        <button
+          onClick={() => {
+            localStorage.removeItem('authToken');
+            window.location.href = '/officerlogin';
+          }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35em',
+            minWidth: '70px',
+            padding: '0.18rem 0.55rem',
+            background: 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)',
+            color: '#fff',
+            fontWeight: '500',
+            border: 'none',
+            borderRadius: '0.13rem',
+            boxShadow: '0 0 2px #ef4444',
+            cursor: 'pointer',
+            fontFamily: 'JetBrains Mono',
+            fontSize: '0.78rem',
+            letterSpacing: '0.02em',
+            textAlign: 'center',
+            transition: 'background 0.2s'
+          }}
+        >
+          <span style={{ fontSize: '1em' }}>🔒</span>
+          <span>Logout</span>
+        </button>
+      </div>
+
       {/* Fixed Bottom Box */}
       <div style={{ 
         margin: '1rem 1.5rem',
@@ -132,73 +217,89 @@ function Navigation() {
   );
 }
 
+function isAuthenticated() {
+  return !!localStorage.getItem('authToken');
+}
+
+function ProtectedRoute({ children }) {
+  if (!isAuthenticated()) {
+    window.location.href = '/officerlogin';
+    return null;
+  }
+  return children;
+}
+
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Landing Page Route */}
+        <Route path="/officerlogin" element={<OfficerLogin />} />
         <Route path="/" element={<LandingPage />} />
-        
-        {/* Dashboard Routes with Navigation */}
+        <Route path="/demodashboard" element={<DemoDashboard />} />
         <Route path="/dashboard" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Dashboard />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Dashboard />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
-        
-        {/* Demo Dashboard Route */}
-  <Route path="/demo-dashboard" element={<DemoDashboard />} />
-        
-        {/* Upload Routes with Navigation */}
         <Route path="/upload" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Upload />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Upload />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
         <Route path="/analysis" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Analysis />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Analysis />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
         <Route path="/visualization" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Visualization />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Visualization />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
         <Route path="/reports" element={
-          <div className="App">
-            <div className="main-layout">
-              <Navigation />
-              <main className="content-area">
-                <Reports />
-              </main>
-              <AlertsPanel />
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <Reports />
+                </main>
+                <AlertsPanel />
+              </div>
             </div>
-          </div>
+          </ProtectedRoute>
         } />
       </Routes>
     </Router>
