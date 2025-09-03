@@ -233,6 +233,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/login" element={<OfficerLogin />} />
         <Route path="/officerlogin" element={<OfficerLogin />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/demo-dashboard" element={<DemoDashboard />} />
