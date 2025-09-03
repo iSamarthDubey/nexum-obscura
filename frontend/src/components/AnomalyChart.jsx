@@ -2,24 +2,8 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 const AnomalyChart = ({ data, type = 'timeline' }) => {
-  // Generate mock data if no data provided
-  const mockTimelineData = [
-    { time: '00:00', anomalies: 2 },
-    { time: '04:00', anomalies: 1 },
-    { time: '08:00', anomalies: 5 },
-    { time: '12:00', anomalies: 8 },
-    { time: '16:00', anomalies: 12 },
-    { time: '20:00', anomalies: 6 }
-  ];
-
-  const mockTypeData = [
-    { type: 'Volume', count: 15, severity: 'High' },
-    { type: 'Pattern', count: 8, severity: 'Medium' },
-    { type: 'Duration', count: 23, severity: 'Critical' },
-    { type: 'Location', count: 5, severity: 'Low' }
-  ];
-
-  const chartData = data || (type === 'timeline' ? mockTimelineData : mockTypeData);
+  // Only show chart if real data is present
+  const hasData = Array.isArray(data) && data.length > 0;
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -40,10 +24,17 @@ const AnomalyChart = ({ data, type = 'timeline' }) => {
   };
 
   if (type === 'timeline') {
+    if (!hasData) {
+      return (
+        <div className="h-64 flex items-center justify-center text-cyber-text-muted text-lg">
+          No anomaly timeline data available. Upload logs to view anomaly trends.
+        </div>
+      );
+    }
     return (
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
+          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--cyber-border)" />
             <XAxis 
               dataKey="time" 
@@ -69,10 +60,17 @@ const AnomalyChart = ({ data, type = 'timeline' }) => {
     );
   }
 
+  if (!hasData) {
+    return (
+      <div className="h-64 flex items-center justify-center text-cyber-text-muted text-lg">
+        No anomaly type data available. Upload logs to view anomaly types.
+      </div>
+    );
+  }
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData}>
+        <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--cyber-border)" />
           <XAxis 
             dataKey="type" 
