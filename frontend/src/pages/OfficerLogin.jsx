@@ -54,7 +54,7 @@ const OfficerLogin = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{background: `linear-gradient(135deg, var(--cyber-bg) 0%, var(--cyber-surface) 50%, var(--cyber-bg) 100%)`}}>
+    <div className="min-h-screen relative overflow-hidden flex flex-col" style={{background: `linear-gradient(135deg, var(--cyber-bg) 0%, var(--cyber-surface) 50%, var(--cyber-bg) 100%)`}}>
       {/* Animated background elements - matching landing page */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 opacity-5 rounded-full blur-3xl animate-pulse" style={{backgroundColor: `var(--cyber-blue)`}}></div>
@@ -69,14 +69,18 @@ const OfficerLogin = () => {
       }}></div>
       
       {/* Navigation Bar */}
-      <nav className="relative z-10 px-6 py-4 border-b backdrop-blur-sm" style={{borderBottomColor: `var(--cyber-border)`, backgroundColor: `var(--cyber-surface)` + '80'}}>
+      <nav className="relative z-10 px-6 py-4 border-b backdrop-blur-xl" style={{borderBottomColor: `var(--cyber-border)`, background: `linear-gradient(135deg, var(--cyber-surface) 0%, var(--cyber-bg) 50%, var(--cyber-surface) 100%)` + '95'}}>
+        {/* Cyber glow line effect */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--cyber-blue)] to-transparent opacity-60"></div>
+        
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="cyber-gradient p-2 rounded-lg group-hover:shadow-lg transition-all duration-300" style={{boxShadow: `0 4px 15px rgba(0, 194, 255, 0.2)`}}>
+            <div className="cyber-gradient p-2 rounded-lg group-hover:shadow-lg transition-all duration-300 relative" style={{boxShadow: `0 4px 15px rgba(0, 194, 255, 0.2)`}}>
               <ShieldCheckIcon className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-[var(--cyber-blue)] to-[var(--cyber-green)] opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
             </div>
             <div>
-              <h1 className="text-xl font-bold font-cyber cyber-text-gradient">
+              <h1 className="text-xl font-bold font-cyber cyber-text-gradient group-hover:scale-105 transition-transform duration-300">
                 NEXUM OBSCURA
               </h1>
               <p className="text-xs font-mono-cyber" style={{color: `var(--cyber-text-muted)`}}>Advanced IPDR Investigation Platform</p>
@@ -86,9 +90,7 @@ const OfficerLogin = () => {
           {/* Center Tagline - Desktop Only */}
           <div className="hidden lg:block flex-1 text-center mx-8">
             <p className="text-sm font-medium tracking-wide font-cyber" style={{color: `var(--cyber-text)`}}>
-              "From Obscurity to Insight"
-              <span className="mx-2 cyber-bullet-glow cyber-text-gradient text-lg font-bold">•</span>
-              <span style={{color: `var(--cyber-bg)`}}>Secure Officer Access Portal</span>
+              "From Obscurity to Insight."
             </p>
           </div>
           
@@ -154,11 +156,11 @@ const OfficerLogin = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-[calc(100vh-80px)] flex items-center justify-center px-4">
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
           
           {/* Left Side - Branding & Info */}
-          <div className="hidden lg:block space-y-8">
+          <div className="hidden lg:block space-y-8 pr-8">
             <div className="space-y-6">
               <div className="inline-flex items-center space-x-3 px-4 py-2 rounded-full border" style={{backgroundColor: `var(--cyber-blue)` + '10', borderColor: `var(--cyber-blue)` + '20'}}>
                 <div className="w-2 h-2 rounded-full animate-pulse" style={{backgroundColor: `var(--cyber-green)`}} />
@@ -197,7 +199,7 @@ const OfficerLogin = () => {
           </div>
 
           {/* Right Side - Login Form */}
-          <div className="w-full max-w-md mx-auto">
+          <div className="w-full max-w-md mx-auto lg:ml-8">
             <div className="backdrop-blur-xl border rounded-2xl p-8 shadow-2xl" style={{backgroundColor: `var(--cyber-surface)` + '50', borderColor: `var(--cyber-border)`}}>
               <div className="text-center mb-8">
                 <div className="cyber-gradient inline-flex items-center justify-center w-16 h-16 rounded-xl mb-4">
@@ -288,8 +290,8 @@ const OfficerLogin = () => {
       </div>
 
       {/* Demo Credentials Panel - Separate floating widget */}
-      <div className="fixed bottom-6 right-6 z-20">
-        <div className="backdrop-blur-xl border rounded-xl p-4 shadow-2xl max-w-sm" style={{backgroundColor: `var(--cyber-surface)` + '90', borderColor: `var(--cyber-border)`}}>
+      <div className="fixed bottom-32 right-6 z-20">
+        <div className="backdrop-blur-xl border rounded-xl p-5 shadow-2xl max-w-sm" style={{backgroundColor: `var(--cyber-surface)` + '90', borderColor: `var(--cyber-border)`}}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold flex items-center space-x-2 font-cyber" style={{color: `var(--cyber-text)`}}>
               <ClipboardDocumentIcon className="w-4 h-4" style={{color: `var(--cyber-blue)`}} />
@@ -340,23 +342,58 @@ const OfficerLogin = () => {
       </div>
 
       {/* Footer with Team and Open Source Info */}
-      <footer className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-[var(--cyber-bg)] via-[var(--cyber-surface)] to-[var(--cyber-bg)] border-t border-[var(--cyber-blue)] border-opacity-30 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-[var(--cyber-text-muted)]">
-          <div className="mb-2 md:mb-0">
-            <span className="text-[var(--cyber-green)] font-semibold">Nexum Obscura</span> - Open Source Cybersecurity Analytics Platform
-          </div>
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-[var(--cyber-blue)]" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-              <a href="https://github.com/iSamarthDubey/nexum-obscura" 
-                 className="hover:text-[var(--cyber-blue)] transition-colors duration-200">
-                GitHub
-              </a>
+      <footer className="mt-auto backdrop-blur-xl border-t shadow-2xl z-10" style={{background: `linear-gradient(135deg, var(--cyber-surface) 0%, var(--cyber-bg) 50%, var(--cyber-surface) 100%)` + '95', borderTopColor: `var(--cyber-border)`}}>
+        {/* Cyber glow line effect */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--cyber-blue)] to-transparent opacity-60"></div>
+        
+        <div className="relative">
+          {/* Animated particles */}
+          <div className="absolute top-2 left-1/4 w-1 h-1 rounded-full animate-pulse opacity-40" style={{backgroundColor: `var(--cyber-green)`}}></div>
+          <div className="absolute top-3 right-1/4 w-1 h-1 rounded-full animate-pulse opacity-40" style={{backgroundColor: `var(--cyber-blue)`, animationDelay: '1s'}}></div>
+          
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm p-6 relative z-10">
+            <div className="mb-4 md:mb-0 text-center md:text-left group">
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                <ShieldCheckIcon className="w-5 h-5 transition-all duration-300 group-hover:scale-110" style={{color: `var(--cyber-green)`, filter: `drop-shadow(0 0 4px var(--cyber-green))`}} />
+                <span className="text-lg font-bold font-cyber cyber-text-gradient transition-all duration-300 group-hover:scale-105" style={{textShadow: `0 0 12px var(--cyber-green)30`}}>Nexum Obscura</span>
+              </div>
+              <p className="text-sm opacity-90 font-medium" style={{color: `var(--cyber-text)`}}>
+                Mapping A-Party to B-Party in IPDR Logs
+              </p>
             </div>
-            <div className="text-[var(--cyber-green)]">
-              Team: <span className="font-semibold cyber-text-gradient">Obscura Collective</span>
+
+            {/* Centered Open Source link */}
+            <div className="group relative mb-4 md:mb-0">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 hover:shadow-lg" style={{borderColor: `var(--cyber-blue)` + '40', backgroundColor: `var(--cyber-bg)` + '50'}}>
+                <svg className="w-4 h-4 transition-all duration-300 group-hover:rotate-12 group-hover:text-[var(--cyber-blue)]" style={{color: `var(--cyber-text)`, filter: `drop-shadow(0 0 2px var(--cyber-text-muted))`}} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <a href="https://github.com/iSamarthDubey/nexum-obscura" 
+                   className="transition-all duration-300 font-medium group-hover:text-[var(--cyber-blue)]" 
+                   style={{color: `var(--cyber-text)`}}>
+                  Open Source
+                </a>
+              </div>
+              <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-20 transition-all duration-300" style={{backgroundColor: `var(--cyber-blue)`, filter: 'blur(8px)', zIndex: -1}}></div>
+            </div>
+            
+            {/* Enhanced team info section */}
+            <div className="group relative">
+              <div className="flex items-center gap-3 px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 hover:shadow-lg" style={{borderColor: `var(--cyber-green)` + '40', backgroundColor: `var(--cyber-bg)` + '50'}}>
+                <div className="relative">
+                  <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor: `var(--cyber-green)`, boxShadow: `0 0 6px var(--cyber-green)`}}></div>
+                  <div className="absolute inset-0 w-3 h-3 rounded-full animate-ping opacity-30" style={{backgroundColor: `var(--cyber-green)`}}></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium transition-all duration-300" style={{color: `var(--cyber-text-muted)`}}>
+                    Developed by Team
+                  </span>
+                  <span className="text-sm font-bold cyber-text-gradient transition-all duration-300 group-hover:scale-105" style={{color: `var(--cyber-green)`, textShadow: `0 0 8px var(--cyber-green)40`}}>
+                    Obscura Collective
+                  </span>
+                </div>
+              </div>
+              <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-20 transition-all duration-300" style={{backgroundColor: `var(--cyber-green)`, filter: 'blur(10px)', zIndex: -1}}></div>
             </div>
           </div>
         </div>
