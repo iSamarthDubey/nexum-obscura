@@ -235,7 +235,7 @@ function App() {
       <Routes>
         <Route path="/officerlogin" element={<OfficerLogin />} />
         <Route path="/" element={<LandingPage />} />
-        <Route path="/demodashboard" element={<DemoDashboard />} />
+        <Route path="/demo-dashboard" element={<DemoDashboard />} />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <div className="App">

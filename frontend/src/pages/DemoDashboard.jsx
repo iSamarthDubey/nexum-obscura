@@ -207,9 +207,27 @@ const DemoDashboard = () => {
             </div>
           )}
           {activeTab === 'anomalies' && (
-            <div className="bg-white rounded-lg shadow border p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Anomaly Detection Dashboard</h3>
-              <AnomalyChart />
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Anomaly Timeline</h3>
+                <AnomalyChart 
+                  data={[
+                    { time: '08:00', anomalies: 2 },
+                    { time: '10:00', anomalies: 1 },
+                    { time: '12:00', anomalies: 8 },
+                    { time: '14:00', anomalies: 5 },
+                    { time: '16:00', anomalies: 12 },
+                    { time: '18:00', anomalies: 6 },
+                    { time: '20:00', anomalies: 4 },
+                    { time: '22:00', anomalies: 3 }
+                  ]} 
+                  type="timeline" 
+                />
+              </div>
+              <div className="bg-white rounded-lg shadow border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Anomaly Types Distribution</h3>
+                <AnomalyChart data={getChartData('anomalies')} type="types" />
+              </div>
             </div>
           )}
           {activeTab === 'logs' && (
