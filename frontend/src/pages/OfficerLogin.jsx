@@ -22,7 +22,7 @@ const OfficerLogin = () => {
   const [copied, setCopied] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(true); // Default to open on mobile
 
   const handleCopy = (type) => {
     const value = type === "username" ? DEMO_USERNAME : DEMO_PASSWORD;
