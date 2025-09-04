@@ -31,6 +31,13 @@ try {
 const { router: authRouter } = require('./routes/auth');
 app.use('/api', authRouter);
 
+try {
+  app.use('/api', require('./routes/oneview'));
+  console.log('✓ OneView route loaded');
+} catch (error) {
+  console.error('✗ OneView route failed:', error.message);
+}
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 

@@ -7,6 +7,7 @@ import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import Visualization from './pages/Visualization';
 import DemoDashboard from './pages/DemoDashboard';
+import OneViewLiveDashboard from './pages/OneViewLiveDashboard';
 import Reports from './pages/Reports';
 import AlertsPanel from './components/AlertsPanel';
 import './App.css';
@@ -237,6 +238,19 @@ function App() {
         <Route path="/officerlogin" element={<OfficerLogin />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/demo-dashboard" element={<DemoDashboard />} />
+        <Route path="/oneviewlive" element={
+          <ProtectedRoute>
+            <div className="App">
+              <div className="main-layout">
+                <Navigation />
+                <main className="content-area">
+                  <OneViewLiveDashboard />
+                </main>
+                <AlertsPanel />
+              </div>
+            </div>
+          </ProtectedRoute>
+        } />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <div className="App">

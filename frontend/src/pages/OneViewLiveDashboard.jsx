@@ -38,28 +38,37 @@ const OneViewLiveDashboard = () => {
   const loadDataStats = async () => {
     setRefreshing(true);
     try {
+      console.log('🔄 Loading OneView Dashboard data...');
+      console.log('API_URL:', API_URL);
+      
       // Fetch all required data from API
       const logsRes = await fetch(`${API_URL}/logs`);
+      console.log('Logs response:', logsRes.status, logsRes.ok);
       const logsData = logsRes.ok ? await logsRes.json() : [];
       setLogs(logsData);
 
       const anomaliesRes = await fetch(`${API_URL}/anomalies`);
+      console.log('Anomalies response:', anomaliesRes.status, anomaliesRes.ok);
       const anomaliesData = anomaliesRes.ok ? await anomaliesRes.json() : [];
       setAnomalies(anomaliesData);
 
       const geoRes = await fetch(`${API_URL}/geographic`);
+      console.log('Geographic response:', geoRes.status, geoRes.ok);
       const geoDataRes = geoRes.ok ? await geoRes.json() : [];
       setGeoData(geoDataRes);
 
       const protocolsRes = await fetch(`${API_URL}/protocols`);
+      console.log('Protocols response:', protocolsRes.status, protocolsRes.ok);
       const protocolsData = protocolsRes.ok ? await protocolsRes.json() : [];
       setProtocols(protocolsData);
 
       const networkRes = await fetch(`${API_URL}/network`);
+      console.log('Network response:', networkRes.status, networkRes.ok);
       const networkData = networkRes.ok ? await networkRes.json() : null;
       setNetwork(networkData);
 
       const statsRes = await fetch(`${API_URL}/stats`);
+      console.log('Stats response:', statsRes.status, statsRes.ok);
       const statsData = statsRes.ok ? await statsRes.json() : {};
       setStats(statsData);
 
@@ -73,7 +82,16 @@ const OneViewLiveDashboard = () => {
         dataVolume: statsData.dataProcessed || 'N/A',
         lastUpdated: new Date().toLocaleString()
       });
+      
+      console.log('✅ OneView Dashboard data loaded successfully');
+      console.log('Data stats:', {
+        totalLogs: logsData.length,
+        anomalies: anomaliesData.length,
+        geoLocations: geoDataRes.length,
+        protocols: protocolsData.length
+      });
     } catch (err) {
+      console.error('❌ Error loading OneView Dashboard data:', err);
       setDataStats(null);
     }
     setRefreshing(false);
@@ -92,6 +110,37 @@ const OneViewLiveDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* Loading State */}
+        {refreshing && dataStats === null && (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <ArrowPathIcon className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+              <p className="text-gray-600">Loading OneView Dashboard...</p>
+              <p className="text-sm text-gray-400 mt-2">Fetching live data from API endpoints</p>
+            </div>
+          </div>
+        )}
+        
+        {/* Error State */}
+        {!refreshing && dataStats === null && (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <ExclamationTriangleIcon className="w-8 h-8 text-red-600 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">Unable to load dashboard data</p>
+              <p className="text-sm text-gray-400 mb-4">Check console for detailed error information</p>
+              <button
+                onClick={loadDataStats}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Retry Loading
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Main Dashboard Content */}
+        {(dataStats !== null || !refreshing) && (
+          <>
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
@@ -254,6 +303,8 @@ const OneViewLiveDashboard = () => {
           <p>Production dataset contains {dataStats?.totalLogs || 'N/A'} IPDR records • Last updated: {dataStats?.lastUpdated || 'Loading...'}</p>
           <p className="mt-1">Data includes real cybersecurity patterns for investigation purposes</p>
         </div>
+          </>
+        )}
       </div>
     </div>
   );
